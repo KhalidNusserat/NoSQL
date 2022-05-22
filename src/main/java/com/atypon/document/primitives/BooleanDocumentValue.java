@@ -4,7 +4,7 @@ import com.atypon.document.DocumentValue;
 
 import java.util.Objects;
 
-public record BooleanDocumentValue(boolean value) implements DocumentValue {
+public record BooleanDocumentValue(Boolean value) implements DocumentValue, PrimitiveDocumentValue<Boolean> {
     public static BooleanDocumentValue fromBoolean(boolean value) {
         return new BooleanDocumentValue(value);
     }
@@ -14,7 +14,7 @@ public record BooleanDocumentValue(boolean value) implements DocumentValue {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BooleanDocumentValue that = (BooleanDocumentValue) o;
-        return value == that.value;
+        return Objects.equals(value, that.value);
     }
 
     @Override

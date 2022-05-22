@@ -4,7 +4,7 @@ import com.atypon.document.DocumentValue;
 
 import java.util.Objects;
 
-public record DoubleDocumentValue(double value) implements DocumentValue {
+public record DoubleDocumentValue(Double value) implements DocumentValue, PrimitiveDocumentValue<Double> {
     public static DoubleDocumentValue fromDouble(double value) {
         return new DoubleDocumentValue(value);
     }
