@@ -3,12 +3,13 @@ package com.atypon.document;
 import com.google.common.hash.Hashing;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class Document implements DocumentValue {
+public class Document implements DocumentValue, Iterable<DocumentField> {
     private final String id;
 
     private final int hash;
@@ -21,7 +22,7 @@ public class Document implements DocumentValue {
         this.id = Hashing.sha256().hashInt(hash).toString();
     }
 
-    private DocumentValue get(DocumentField field) {
+    public DocumentValue get(DocumentField field) {
         return fields.get(field);
     }
 
@@ -31,6 +32,11 @@ public class Document implements DocumentValue {
 
     public String getId() {
         return id;
+    }
+
+    @Override
+    public Iterator<DocumentField> iterator() {
+        return fields.keySet().iterator();
     }
 
     public static class DocumentBuilder {
