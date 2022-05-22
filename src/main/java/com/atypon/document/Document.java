@@ -20,11 +20,12 @@ public class Document implements DocumentValue {
         return fields.get(field);
     }
 
+    public DocumentBuilder builder() {
+        return new DocumentBuilder();
+    }
+
     public static class DocumentBuilder {
         private final Map<DocumentField, DocumentValue> fields = new HashMap<>();
-
-        private DocumentBuilder(){
-        }
 
         public void put(DocumentField field, DocumentValue value) {
             fields.put(field, value);
