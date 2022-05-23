@@ -6,23 +6,23 @@ import com.google.common.collect.ImmutableList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ArrayDocumentValue<T extends DocumentValue> implements DocumentValue, Iterable<T> {
+public class ImmutableArrayDocumentValue<T extends DocumentValue> implements DocumentValue, Iterable<T> {
     private final List<T> list;
 
-    public ArrayDocumentValue(List<T> list) {
+    public ImmutableArrayDocumentValue(List<T> list) {
         this.list = ImmutableList.copyOf(list);
     }
 
-    public static <T extends DocumentValue> ArrayDocumentValue<T> copyOf(List<T> list) {
-        return new ArrayDocumentValue<>(list);
+    public static <T extends DocumentValue> ImmutableArrayDocumentValue<T> copyOf(List<T> list) {
+        return new ImmutableArrayDocumentValue<>(list);
     }
 
     public T get(int index) {
         return list.get(index);
     }
 
-    public synchronized ArrayDocumentValue<T> with(T value) {
-        return ArrayDocumentValue.copyOf(
+    public synchronized ImmutableArrayDocumentValue<T> with(T value) {
+        return ImmutableArrayDocumentValue.copyOf(
                 ImmutableList.<T>builder()
                         .addAll(list)
                         .add(value)
@@ -30,8 +30,8 @@ public class ArrayDocumentValue<T extends DocumentValue> implements DocumentValu
         );
     }
 
-    public synchronized ArrayDocumentValue<T> withAll(List<T> list) {
-        return ArrayDocumentValue.copyOf(
+    public synchronized ImmutableArrayDocumentValue<T> withAll(List<T> list) {
+        return ImmutableArrayDocumentValue.copyOf(
                 ImmutableList.<T>builder()
                         .addAll(this.list)
                         .addAll(list)
@@ -39,16 +39,16 @@ public class ArrayDocumentValue<T extends DocumentValue> implements DocumentValu
         );
     }
 
-    public ArrayDocumentValue<T> without(T value) {
+    public ImmutableArrayDocumentValue<T> without(T value) {
         Preconditions.checkNotNull(value);
-        return ArrayDocumentValue.copyOf(
+        return ImmutableArrayDocumentValue.copyOf(
                 list.stream().filter(t -> !t.equals(value)).toList()
         );
     }
 
-    public ArrayDocumentValue<T> withoutAll(List<T> list) {
+    public ImmutableArrayDocumentValue<T> withoutAll(List<T> list) {
         Preconditions.checkNotNull(list);
-        return ArrayDocumentValue.copyOf(
+        return ImmutableArrayDocumentValue.copyOf(
                 this.list.stream().filter(t -> !list.contains(t)).toList()
         );
     }
