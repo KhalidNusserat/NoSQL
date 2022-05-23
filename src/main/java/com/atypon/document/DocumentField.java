@@ -7,14 +7,14 @@ public class DocumentField {
 
     private final String field;
 
-    private DocumentField(String field) throws InvalidFieldNameException {
+    private DocumentField(String field) throws IllegalFieldNameException {
         if (!field.matches(regex)) {
-            throw new InvalidFieldNameException(field);
+            throw new IllegalFieldNameException(field);
         }
         this.field = field;
     }
 
-    public static DocumentField fromString(String field) throws InvalidFieldNameException {
+    public static DocumentField fromString(String field) throws IllegalFieldNameException {
         return new DocumentField(field);
     }
 
