@@ -22,12 +22,12 @@ public class Document implements DocumentValue, Iterable<DocumentField> {
         this.id = Hashing.sha256().hashInt(hash).toString();
     }
 
-    public DocumentValue get(DocumentField field) {
-        return fields.get(field);
-    }
-
     public static DocumentBuilder builder() {
         return new DocumentBuilder();
+    }
+
+    public DocumentValue get(DocumentField field) {
+        return fields.get(field);
     }
 
     public String getId() {
@@ -37,19 +37,6 @@ public class Document implements DocumentValue, Iterable<DocumentField> {
     @Override
     public Iterator<DocumentField> iterator() {
         return fields.keySet().iterator();
-    }
-
-    public static class DocumentBuilder {
-        private final Map<DocumentField, DocumentValue> fields = new HashMap<>();
-
-        public DocumentBuilder put(DocumentField field, DocumentValue value) {
-            fields.put(field, value);
-            return this;
-        }
-
-        public Document build() {
-            return new Document(fields);
-        }
     }
 
     @Override
@@ -63,5 +50,18 @@ public class Document implements DocumentValue, Iterable<DocumentField> {
     @Override
     public int hashCode() {
         return hash;
+    }
+
+    public static class DocumentBuilder {
+        private final Map<DocumentField, DocumentValue> fields = new HashMap<>();
+
+        public DocumentBuilder put(DocumentField field, DocumentValue value) {
+            fields.put(field, value);
+            return this;
+        }
+
+        public Document build() {
+            return new Document(fields);
+        }
     }
 }
