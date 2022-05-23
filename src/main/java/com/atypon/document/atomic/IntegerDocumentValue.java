@@ -1,10 +1,10 @@
-package com.atypon.document.primitives;
+package com.atypon.document.atomic;
 
 import com.atypon.document.DocumentValue;
 
 import java.util.Objects;
 
-public record IntegerDocumentValue(Integer value) implements DocumentValue, PrimitiveDocumentValue<Integer> {
+public record IntegerDocumentValue(Integer value) implements DocumentValue, AtomicDocumentValue<Integer> {
     public static IntegerDocumentValue fromInt(int value) {
         return new IntegerDocumentValue(value);
     }

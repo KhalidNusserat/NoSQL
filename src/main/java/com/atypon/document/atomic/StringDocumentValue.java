@@ -1,10 +1,10 @@
-package com.atypon.document.primitives;
+package com.atypon.document.atomic;
 
 import com.atypon.document.DocumentValue;
 
 import java.util.Objects;
 
-public record StringDocumentValue(String value) implements DocumentValue, PrimitiveDocumentValue<String> {
+public record StringDocumentValue(String value) implements DocumentValue, AtomicDocumentValue<String> {
     public static StringDocumentValue fromString(String value) {
         return new StringDocumentValue(value);
     }

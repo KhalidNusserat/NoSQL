@@ -1,10 +1,10 @@
-package com.atypon.document.primitives;
+package com.atypon.document.atomic;
 
 import com.atypon.document.DocumentValue;
 
 import java.util.Objects;
 
-public record DoubleDocumentValue(Double value) implements DocumentValue, PrimitiveDocumentValue<Double> {
+public record DoubleDocumentValue(Double value) implements DocumentValue, AtomicDocumentValue<Double> {
     public static DoubleDocumentValue fromDouble(double value) {
         return new DoubleDocumentValue(value);
     }

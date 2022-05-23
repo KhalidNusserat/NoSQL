@@ -1,10 +1,10 @@
-package com.atypon.document.primitives;
+package com.atypon.document.atomic;
 
 import com.atypon.document.DocumentValue;
 
 import java.util.Objects;
 
-public record BooleanDocumentValue(Boolean value) implements DocumentValue, PrimitiveDocumentValue<Boolean> {
+public record BooleanDocumentValue(Boolean value) implements DocumentValue, AtomicDocumentValue<Boolean> {
     public static BooleanDocumentValue fromBoolean(boolean value) {
         return new BooleanDocumentValue(value);
     }
