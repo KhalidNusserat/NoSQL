@@ -21,7 +21,7 @@ public class ArrayDocumentValue<T extends DocumentValue> implements DocumentValu
         return list.get(index);
     }
 
-    public ArrayDocumentValue<T> with(T value) {
+    public synchronized ArrayDocumentValue<T> with(T value) {
         return ArrayDocumentValue.copyOf(
                 ImmutableList.<T>builder()
                         .addAll(list)
@@ -30,7 +30,7 @@ public class ArrayDocumentValue<T extends DocumentValue> implements DocumentValu
         );
     }
 
-    public ArrayDocumentValue<T> withAll(List<T> list) {
+    public synchronized ArrayDocumentValue<T> withAll(List<T> list) {
         return ArrayDocumentValue.copyOf(
                 ImmutableList.<T>builder()
                         .addAll(this.list)
