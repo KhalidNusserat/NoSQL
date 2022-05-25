@@ -1,5 +1,6 @@
 package com.atypon.document;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -22,44 +23,42 @@ public class GsonDocument implements Document<JsonElement> {
         object.addProperty("id", objectID.toString());
     }
 
+    public GsonDocumentBuilder builder() {
+        return new GsonDocumentBuilder();
+    }
+
+    private void add(String field, JsonElement jsonElement) {
+        object.add(field, jsonElement);
+    }
+
+    private void addField(String field, BigInteger value) {
+        object.addProperty(field, value);
+    }
+
+    private void addField(String field, BigDecimal value) {
+        object.addProperty(field, value);
+    }
+
+    private void addField(String field, String value) {
+        object.addProperty(field, value);
+    }
+
+    private void addField(String field, boolean value) {
+        object.addProperty(field, value);
+    }
+
+    private void remove(String field) {
+        object.remove(field);
+    }
+
     @Override
     public ObjectID id() {
         return objectID;
     }
 
     @Override
-    public void add(String property, JsonElement jsonElement) {
-        object.add(property, jsonElement);
-    }
-
-    @Override
-    public void addProperty(String property, BigInteger value) {
-        object.addProperty(property, value);
-    }
-
-    @Override
-    public void addProperty(String property, BigDecimal value) {
-        object.addProperty(property, value);
-    }
-
-    @Override
-    public void addProperty(String property, String value) {
-        object.addProperty(property, value);
-    }
-
-    @Override
-    public void addProperty(String property, boolean value) {
-        object.addProperty(property, value);
-    }
-
-    @Override
-    public JsonElement get(String property) {
-        return object.get(property);
-    }
-
-    @Override
-    public JsonElement remove(String property) {
-        return object.remove(property);
+    public JsonElement get(String field) {
+        return object.get(field);
     }
 
     @Override
@@ -83,5 +82,43 @@ public class GsonDocument implements Document<JsonElement> {
     @Override
     public String toString() {
         return object.toString();
+    }
+
+    public static class GsonDocumentBuilder {
+        private final GsonDocument gsonDocument = new GsonDocument();
+
+        public GsonDocumentBuilder add(String field, JsonElement element) {
+            gsonDocument.add(field, element);
+            return this;
+        }
+
+        public GsonDocumentBuilder addProperty(String field, BigInteger value) {
+            gsonDocument.addField(field, value);
+            return this;
+        }
+
+        public GsonDocumentBuilder addProperty(String field, BigDecimal value) {
+            gsonDocument.addField(field, value);
+            return this;
+        }
+
+        public GsonDocumentBuilder addProperty(String field, String value) {
+            gsonDocument.addField(field, value);
+            return this;
+        }
+
+        public GsonDocumentBuilder addProperty(String field, boolean value) {
+            gsonDocument.addField(field, value);
+            return this;
+        }
+
+        public GsonDocumentBuilder remove(String field) {
+            gsonDocument.remove(field);
+            return this;
+        }
+
+        public GsonDocument create() {
+            return gsonDocument;
+        }
     }
 }
