@@ -6,27 +6,23 @@ import com.google.gson.JsonObject;
 import java.util.Objects;
 
 public class GsonDocument implements Document<JsonElement> {
-    private static long globalID = 0;
-
-    private final long id;
-
     private final JsonObject object;
+
+    private final ObjectID objectID = new RandomObjectID();
 
     public GsonDocument() {
         object = new JsonObject();
-        id = globalID++;
-        object.addProperty("id", id);
+        object.addProperty("id", objectID.toString());
     }
 
     public GsonDocument(GsonDocument other) {
         object = other.object.deepCopy();
-        id = globalID++;
-        object.addProperty("id", id);
+        object.addProperty("id", objectID.toString());
     }
 
     @Override
-    public long id() {
-        return id;
+    public ObjectID id() {
+        return objectID;
     }
 
     @Override

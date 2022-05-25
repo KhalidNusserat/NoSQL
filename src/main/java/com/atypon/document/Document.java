@@ -1,7 +1,7 @@
 package com.atypon.document;
 
 public interface Document<DocumentValue> {
-    long id();
+    ObjectID id();
 
     void add(String property, DocumentValue value);
 
