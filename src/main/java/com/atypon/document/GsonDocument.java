@@ -3,6 +3,8 @@ package com.atypon.document;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Objects;
 
 public class GsonDocument implements Document<JsonElement> {
@@ -31,7 +33,12 @@ public class GsonDocument implements Document<JsonElement> {
     }
 
     @Override
-    public void addProperty(String property, double value) {
+    public void addProperty(String property, BigInteger value) {
+        object.addProperty(property, value);
+    }
+
+    @Override
+    public void addProperty(String property, BigDecimal value) {
         object.addProperty(property, value);
     }
 
