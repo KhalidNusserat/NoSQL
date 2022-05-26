@@ -1,5 +1,7 @@
 package com.atypon.keywordsparser;
 
+import com.google.common.base.Preconditions;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -20,6 +22,19 @@ public class Keyword {
 
     public List<String> getArgs() {
         return args;
+    }
+
+    public String getArgAsString() {
+        Preconditions.checkState(args.size() > 0, "There are no arguments to the keyword " + name);
+        return args.get(0);
+    }
+
+    public Number getArgAsNumber() {
+        return Integer.parseInt(getArgAsString());
+    }
+
+    public Boolean getArgAsBoolean() {
+        return Boolean.parseBoolean(getArgAsString());
     }
 
     public static Keyword fromString(String name) {
