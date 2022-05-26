@@ -1,6 +1,5 @@
 package com.atypon.document;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -25,30 +24,6 @@ public class GsonDocument implements Document<JsonElement> {
 
     public GsonDocumentBuilder builder() {
         return new GsonDocumentBuilder();
-    }
-
-    private void add(String field, JsonElement jsonElement) {
-        object.add(field, jsonElement);
-    }
-
-    private void addField(String field, BigInteger value) {
-        object.addProperty(field, value);
-    }
-
-    private void addField(String field, BigDecimal value) {
-        object.addProperty(field, value);
-    }
-
-    private void addField(String field, String value) {
-        object.addProperty(field, value);
-    }
-
-    private void addField(String field, boolean value) {
-        object.addProperty(field, value);
-    }
-
-    private void remove(String field) {
-        object.remove(field);
     }
 
     @Override
@@ -88,32 +63,32 @@ public class GsonDocument implements Document<JsonElement> {
         private final GsonDocument gsonDocument = new GsonDocument();
 
         public GsonDocumentBuilder add(String field, JsonElement element) {
-            gsonDocument.add(field, element);
+            gsonDocument.object.add(field, element);
             return this;
         }
 
-        public GsonDocumentBuilder addProperty(String field, BigInteger value) {
-            gsonDocument.addField(field, value);
+        public GsonDocumentBuilder addField(String field, BigInteger value) {
+            gsonDocument.object.addProperty(field, value);
             return this;
         }
 
-        public GsonDocumentBuilder addProperty(String field, BigDecimal value) {
-            gsonDocument.addField(field, value);
+        public GsonDocumentBuilder addField(String field, BigDecimal value) {
+            gsonDocument.object.addProperty(field, value);
             return this;
         }
 
-        public GsonDocumentBuilder addProperty(String field, String value) {
-            gsonDocument.addField(field, value);
+        public GsonDocumentBuilder addField(String field, String value) {
+            gsonDocument.object.addProperty(field, value);
             return this;
         }
 
-        public GsonDocumentBuilder addProperty(String field, boolean value) {
-            gsonDocument.addField(field, value);
+        public GsonDocumentBuilder addField(String field, boolean value) {
+            gsonDocument.object.addProperty(field, value);
             return this;
         }
 
         public GsonDocumentBuilder remove(String field) {
-            gsonDocument.remove(field);
+            gsonDocument.object.remove(field);
             return this;
         }
 
