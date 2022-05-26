@@ -2,6 +2,7 @@ package com.atypon.document;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.SerializedName;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -10,6 +11,7 @@ import java.util.Objects;
 public class GsonDocument implements Document<JsonElement> {
     private final JsonObject object;
 
+    @SerializedName("_id")
     private final ObjectID objectID = new RandomObjectID();
 
     public GsonDocument() {
