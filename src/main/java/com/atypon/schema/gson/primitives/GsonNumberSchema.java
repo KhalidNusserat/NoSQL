@@ -1,5 +1,6 @@
 package com.atypon.schema.gson.primitives;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
@@ -11,8 +12,10 @@ public class GsonNumberSchema extends GsonPrimitiveSchema<Number> {
     }
 
     @Override
-    public JsonElement create(JsonPrimitive value) throws SchemaViolationException {
-        if (value.isJsonNull() && value.isNumber()) {
+    public JsonElement create(Object argsObject) throws SchemaViolationException {
+        Preconditions.checkState(argsObject instanceof JsonElement);
+        JsonElement value = (JsonElement) argsObject;
+        if (value.isJsonNull() && value.getAsJsonPrimitive().isNumber()) {
             return value;
         }
         throw new SchemaViolationException();

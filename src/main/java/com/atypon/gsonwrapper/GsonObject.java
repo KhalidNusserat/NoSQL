@@ -29,6 +29,10 @@ public class GsonObject implements Document<JsonElement> {
         return new GsonDocumentBuilder();
     }
 
+    public JsonObject getAsJsonObject() {
+        return object;
+    }
+
     @Override
     public ObjectID id() {
         return objectID;

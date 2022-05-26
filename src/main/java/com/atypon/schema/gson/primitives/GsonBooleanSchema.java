@@ -1,5 +1,6 @@
 package com.atypon.schema.gson.primitives;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
@@ -11,8 +12,10 @@ public class GsonBooleanSchema extends GsonPrimitiveSchema<Boolean> {
     }
 
     @Override
-    public JsonElement create(JsonPrimitive value) throws SchemaViolationException {
-        if (value.isJsonNull() || value.isBoolean()) {
+    public JsonElement create(Object argsObject) throws SchemaViolationException {
+        Preconditions.checkState(argsObject instanceof JsonElement);
+        JsonElement value = (JsonElement) argsObject;
+        if (value.isJsonNull() || value.getAsJsonPrimitive().isBoolean()) {
             return value;
         }
         throw new SchemaViolationException();
