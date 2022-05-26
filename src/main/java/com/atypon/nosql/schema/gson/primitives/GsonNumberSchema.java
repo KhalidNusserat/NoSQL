@@ -15,7 +15,7 @@ public class GsonNumberSchema extends GsonPrimitiveSchema<Number> {
     public JsonElement create(Object argsObject) throws SchemaViolationException {
         Preconditions.checkState(argsObject instanceof JsonElement);
         JsonElement value = (JsonElement) argsObject;
-        if (value.isJsonNull() && value.getAsJsonPrimitive().isNumber()) {
+        if (value.isJsonNull() || value.getAsJsonPrimitive().isNumber()) {
             return value;
         }
         throw new SchemaViolationException();

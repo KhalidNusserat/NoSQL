@@ -1,21 +1,23 @@
 package com.atypon.nosql.keywordsparser;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class KeywordsParser {
     private final static String keywordPattern =
-            "^([^\\W\\d]+)(\\(((\\w+)(,\\w+)*)\\))?$";
+            "^([a-zA-Z]+)(\\(([a-zA-Z\\d\\-.,]+)\\))?$";
 
     public Keyword parseKeyword(String keyword) throws InvalidKeywordException {
         Matcher matcher = Pattern.compile(keywordPattern).matcher(keyword);
         if (matcher.find()) {
+            List<String> args = new ArrayList<>();
+            if (matcher.group(3) != null) {
+                Collections.addAll(args, matcher.group(3).split(","));
+            }
             return new Keyword(
                     matcher.group(1),
-                    Arrays.stream(matcher.group(3).split(", *")).toList()
+                    args
             );
         } else {
             throw new InvalidKeywordException(keyword + " is not a valid keyword");
