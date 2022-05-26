@@ -1,6 +1,8 @@
 package com.atypon.schema;
 
-public abstract class Schema {
+import javax.naming.directory.SchemaViolationException;
+
+public abstract class Schema<DocumentValue, ArgsType> {
     protected final boolean required;
 
     protected final boolean nullable;
@@ -10,5 +12,7 @@ public abstract class Schema {
         this.nullable = nullable;
     }
 
-    public abstract Object getDefault();
+    public abstract DocumentValue getDefault();
+
+    public abstract DocumentValue create(ArgsType args) throws SchemaViolationException;
 }
