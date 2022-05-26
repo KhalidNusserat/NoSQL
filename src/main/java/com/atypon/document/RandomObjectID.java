@@ -7,7 +7,7 @@ public class RandomObjectID implements ObjectID {
     private final long id;
 
     public RandomObjectID() {
-        id =  new Random().nextLong();
+        id = new Random().nextLong();
     }
 
     @Override
