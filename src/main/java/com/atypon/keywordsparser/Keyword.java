@@ -5,21 +5,25 @@ import java.util.List;
 import java.util.Objects;
 
 public class Keyword {
-    private final String keyword;
+    private final String name;
 
     private final List<String> args;
 
-    public Keyword(String keyword, Collection<String> args) {
-        this.keyword = keyword;
+    public Keyword(String name, Collection<String> args) {
+        this.name = name;
         this.args = List.copyOf(args);
     }
 
-    public String getKeyword() {
-        return keyword;
+    public String getName() {
+        return name;
     }
 
     public List<String> getArgs() {
         return args;
+    }
+
+    public static Keyword fromString(String name) {
+        return new Keyword(name, List.of());
     }
 
     @Override
@@ -27,11 +31,11 @@ public class Keyword {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Keyword keyword1 = (Keyword) o;
-        return keyword.equals(keyword1.keyword) && args.equals(keyword1.args);
+        return name.equals(keyword1.name) && args.equals(keyword1.args);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(keyword, args);
+        return Objects.hash(name, args);
     }
 }
