@@ -7,11 +7,8 @@ import com.google.gson.JsonElement;
 
 import javax.naming.directory.SchemaViolationException;
 
-public class GsonArraySchema extends ArraySchema<JsonElement, JsonElement, JsonArray> {
-    public GsonArraySchema(Schema<JsonElement, JsonElement> itemSchema) {
-        super(itemSchema);
-    }
-
+public class GsonArraySchema extends ArraySchema<JsonElement, JsonElement, JsonArray>
+        implements GsonSchema<JsonArray> {
     public GsonArraySchema(Schema<JsonElement, JsonElement> itemSchema, boolean required, boolean nullable) {
         super(itemSchema, required, nullable);
     }

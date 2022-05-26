@@ -1,22 +1,13 @@
-package com.atypon.schema.gson;
+package com.atypon.schema.gson.primitives;
 
-import com.atypon.schema.PrimitiveSchema;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import javax.naming.directory.SchemaViolationException;
 
-public class GsonStringSchema extends PrimitiveSchema<JsonElement, JsonPrimitive> {
-    private final String defaultValue;
-
-    public GsonStringSchema(String defaultValue) {
-        super();
-        this.defaultValue = defaultValue;
-    }
-
+public class GsonStringSchema extends GsonPrimitiveSchema<String> {
     public GsonStringSchema(String defaultValue, boolean required, boolean nullable) {
-        super(required, nullable);
-        this.defaultValue = defaultValue;
+        super(defaultValue, required, nullable);
     }
 
     @Override
@@ -29,6 +20,6 @@ public class GsonStringSchema extends PrimitiveSchema<JsonElement, JsonPrimitive
 
     @Override
     public JsonElement getDefault() {
-        return new JsonPrimitive("");
+        return new JsonPrimitive(defaultValue);
     }
 }

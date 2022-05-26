@@ -1,19 +1,20 @@
 package com.atypon.schema;
 
-import javax.naming.directory.SchemaViolationException;
+public abstract class PrimitiveSchema<DocumentValue, PrimitiveType> implements Schema<DocumentValue, PrimitiveType> {
+    private final boolean required;
 
-public abstract class PrimitiveSchema<DocumentValue, PrimitiveType> extends Schema<DocumentValue, PrimitiveType> {
-    public PrimitiveSchema() {
-        super(false, true);
-    }
+    private final boolean nullable;
 
     public PrimitiveSchema(boolean required, boolean nullable) {
-        super(required, nullable);
+        this.required = required;
+        this.nullable = nullable;
     }
 
-    @Override
-    public abstract DocumentValue create(PrimitiveType value) throws SchemaViolationException;
+    public boolean isRequired() {
+        return required;
+    }
 
-    @Override
-    public abstract DocumentValue getDefault();
+    public boolean isNullable() {
+        return nullable;
+    }
 }
