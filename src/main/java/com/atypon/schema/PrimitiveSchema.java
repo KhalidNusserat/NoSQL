@@ -1,6 +1,6 @@
 package com.atypon.schema;
 
-public abstract class PrimitiveSchema<DocumentValue, PrimitiveType> implements Schema<DocumentValue, PrimitiveType> {
+public abstract class PrimitiveSchema<DocumentElement> implements Schema<DocumentElement> {
     private final boolean required;
 
     private final boolean nullable;

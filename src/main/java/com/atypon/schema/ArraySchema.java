@@ -2,22 +2,21 @@ package com.atypon.schema;
 
 import javax.naming.directory.SchemaViolationException;
 
-public abstract class ArraySchema<DocumentValue, ItemArgsType, ArrayArgsType>
-        implements Schema<DocumentValue, ArrayArgsType> {
-    protected final Schema<DocumentValue, ItemArgsType> itemSchema;
+public abstract class ArraySchema<DocumentElement> implements Schema<DocumentElement> {
+    protected final Schema<DocumentElement> itemSchema;
 
     private final boolean required;
 
     private final boolean nullable;
 
-    public ArraySchema(Schema<DocumentValue, ItemArgsType> itemSchema, boolean required, boolean nullable) {
+    public ArraySchema(Schema<DocumentElement> itemSchema, boolean required, boolean nullable) {
         this.required = required;
         this.nullable = nullable;
         this.itemSchema = itemSchema;
     }
 
     @Override
-    public abstract DocumentValue create(ArrayArgsType args) throws SchemaViolationException;
+    public abstract DocumentElement create(Object argsObject) throws SchemaViolationException;
 
     @Override
     public boolean isRequired() {

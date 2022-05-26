@@ -3,8 +3,8 @@ package com.atypon.schema;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class DocumentSchema<DocumentValue, ArgsType> implements Schema<DocumentValue, ArgsType> {
-    protected final Map<String, Schema<DocumentValue, ?>> fields = new HashMap<>();
+public abstract class DocumentSchema<DocumentElement> implements Schema<DocumentElement> {
+    protected final Map<String, Schema<DocumentElement>> fields = new HashMap<>();
 
     private final boolean required;
 

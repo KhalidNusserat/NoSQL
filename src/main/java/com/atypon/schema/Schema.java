@@ -2,10 +2,10 @@ package com.atypon.schema;
 
 import javax.naming.directory.SchemaViolationException;
 
-public interface Schema<DocumentValue, ArgsType> {
-    DocumentValue getDefault();
+public interface Schema<DocumentElement> {
+    DocumentElement getDefault();
 
-    DocumentValue create(ArgsType args) throws SchemaViolationException;
+    DocumentElement create(Object argsObject) throws SchemaViolationException;
 
     boolean isRequired();
 
