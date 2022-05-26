@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public class KeywordsParser {
     private final static String keywordPattern =
-            "^([a-zA-Z]+)(\\(([a-zA-Z\\d\\-.,]+)\\))?$";
+            "^([a-zA-Z]+)(\\(([a-zA-Z\\d\\-., ]+)\\))?$";
 
     public Keyword parseKeyword(String keyword) throws InvalidKeywordException {
         Matcher matcher = Pattern.compile(keywordPattern).matcher(keyword);
@@ -26,7 +26,7 @@ public class KeywordsParser {
 
     public List<Keyword> parse(String line) throws InvalidKeywordException {
         List<Keyword> keywords = new ArrayList<>();
-        for (String keyword : line.split(" +")) {
+        for (String keyword : line.split(";")) {
             keywords.add(parseKeyword(keyword));
         }
         return keywords;
