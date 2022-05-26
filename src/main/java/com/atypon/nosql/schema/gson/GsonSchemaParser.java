@@ -36,8 +36,7 @@ public class GsonSchemaParser {
                         required,
                         nullable
                 ));
-            }
-            else if (keywords.contains(Keyword.fromString("boolean"))) {
+            } else if (keywords.contains(Keyword.fromString("boolean"))) {
                 return defaultKeyword.map(keyword -> new GsonBooleanSchema(
                         keyword.getArgAsBoolean(),
                         required,
@@ -86,8 +85,7 @@ public class GsonSchemaParser {
         GsonSchema gsonSchema = null;
         if (jsonElement.isJsonObject()) {
             gsonSchema = parseDocument(jsonElement.getAsJsonObject());
-        }
-        else if (jsonElement.isJsonPrimitive()) {
+        } else if (jsonElement.isJsonPrimitive()) {
             gsonSchema = parsePrimitive(jsonElement.getAsJsonPrimitive());
         } else if (jsonElement.isJsonArray()) {
             gsonSchema = parseArray(jsonElement.getAsJsonArray());

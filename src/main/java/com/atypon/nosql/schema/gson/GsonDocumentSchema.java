@@ -43,11 +43,9 @@ public class GsonDocumentSchema extends DocumentSchema<JsonElement> implements G
     }
 
     public static class GsonDocumentSchemaBuilder {
-        private boolean required = false;
-
-        private boolean nullable = false;
-
         private final Map<String, GsonSchema> fields = new HashMap<>();
+        private boolean required = false;
+        private boolean nullable = false;
 
         public GsonDocumentSchemaBuilder required() {
             required = true;

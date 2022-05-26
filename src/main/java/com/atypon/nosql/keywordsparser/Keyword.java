@@ -16,6 +16,10 @@ public class Keyword {
         this.args = List.copyOf(args);
     }
 
+    public static Keyword fromString(String name) {
+        return new Keyword(name, List.of());
+    }
+
     public String getName() {
         return name;
     }
@@ -35,10 +39,6 @@ public class Keyword {
 
     public Boolean getArgAsBoolean() {
         return Boolean.parseBoolean(getArgAsString());
-    }
-
-    public static Keyword fromString(String name) {
-        return new Keyword(name, List.of());
     }
 
     @Override
