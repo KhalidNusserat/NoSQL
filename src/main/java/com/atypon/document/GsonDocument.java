@@ -24,7 +24,7 @@ public class GsonDocument implements Document<JsonElement> {
         object.addProperty("id", objectID.toString());
     }
 
-    public GsonDocumentBuilder builder() {
+    public static GsonDocumentBuilder builder() {
         return new GsonDocumentBuilder();
     }
 
