@@ -1,4 +1,4 @@
-package com.atypon.schema;
+package com.atypon.nosql.schema;
 
 import javax.naming.directory.SchemaViolationException;
 

@@ -1,4 +1,4 @@
-package com.atypon.document;
+package com.atypon.nosql.document;
 
 import java.util.Objects;
 import java.util.Random;

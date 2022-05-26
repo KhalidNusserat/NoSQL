@@ -1,4 +1,4 @@
-package com.atypon.schema.gson.primitives;
+package com.atypon.nosql.schema.gson.primitives;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
@@ -6,8 +6,8 @@ import com.google.gson.JsonPrimitive;
 
 import javax.naming.directory.SchemaViolationException;
 
-public class GsonBooleanSchema extends GsonPrimitiveSchema<Boolean> {
-    public GsonBooleanSchema(boolean defaultValue, boolean required, boolean nullable) {
+public class GsonStringSchema extends GsonPrimitiveSchema<String> {
+    public GsonStringSchema(String defaultValue, boolean required, boolean nullable) {
         super(defaultValue, required, nullable);
     }
 
@@ -15,7 +15,7 @@ public class GsonBooleanSchema extends GsonPrimitiveSchema<Boolean> {
     public JsonElement create(Object argsObject) throws SchemaViolationException {
         Preconditions.checkState(argsObject instanceof JsonElement);
         JsonElement value = (JsonElement) argsObject;
-        if (value.isJsonNull() || value.getAsJsonPrimitive().isBoolean()) {
+        if (value.isJsonNull() && value.getAsJsonPrimitive().isString()) {
             return value;
         }
         throw new SchemaViolationException();

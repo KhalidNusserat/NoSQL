@@ -1,4 +1,4 @@
-package com.atypon.document;
+package com.atypon.nosql.document;
 
 public interface Document<DocumentValue> {
     ObjectID id();

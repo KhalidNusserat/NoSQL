@@ -1,4 +1,4 @@
-package com.atypon.keywordsparser;
+package com.atypon.nosql.keywordsparser;
 
 import java.util.ArrayList;
 import java.util.Arrays;

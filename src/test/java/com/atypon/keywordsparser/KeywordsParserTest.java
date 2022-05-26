@@ -1,8 +1,8 @@
 package com.atypon.keywordsparser;
 
-import com.atypon.keywordsparser.InvalidKeywordException;
-import com.atypon.keywordsparser.Keyword;
-import com.atypon.keywordsparser.KeywordsParser;
+import com.atypon.nosql.keywordsparser.InvalidKeywordException;
+import com.atypon.nosql.keywordsparser.Keyword;
+import com.atypon.nosql.keywordsparser.KeywordsParser;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

@@ -1,8 +1,8 @@
-package com.atypon.gsonwrapper;
+package com.atypon.nosql.gsonwrapper;
 
-import com.atypon.document.Document;
-import com.atypon.document.ObjectID;
-import com.atypon.document.RandomObjectID;
+import com.atypon.nosql.document.Document;
+import com.atypon.nosql.document.ObjectID;
+import com.atypon.nosql.document.RandomObjectID;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 

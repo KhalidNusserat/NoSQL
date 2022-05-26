@@ -1,6 +1,6 @@
-package com.atypon.schema.gson;
+package com.atypon.nosql.schema.gson;
 
-import com.atypon.schema.Schema;
+import com.atypon.nosql.schema.Schema;
 import com.google.gson.JsonElement;
 
 public interface GsonSchema extends Schema<JsonElement> {

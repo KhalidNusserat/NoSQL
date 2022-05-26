@@ -1,6 +1,6 @@
-package com.atypon.schema.gson;
+package com.atypon.nosql.schema.gson;
 
-import com.atypon.schema.ArraySchema;
+import com.atypon.nosql.schema.ArraySchema;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

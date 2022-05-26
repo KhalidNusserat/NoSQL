@@ -1,4 +1,4 @@
-package com.atypon.keywordsparser;
+package com.atypon.nosql.keywordsparser;
 
 import com.google.common.base.Preconditions;
 

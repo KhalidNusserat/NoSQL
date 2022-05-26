@@ -1,4 +1,4 @@
-package com.atypon.schema;
+package com.atypon.nosql.schema;
 
 import java.util.HashMap;
 import java.util.Map;

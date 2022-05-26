@@ -1,12 +1,12 @@
-package com.atypon.schema.gson;
+package com.atypon.nosql.schema.gson;
 
-import com.atypon.keywordsparser.InvalidKeywordException;
-import com.atypon.keywordsparser.Keyword;
-import com.atypon.keywordsparser.KeywordsParser;
-import com.atypon.schema.gson.primitives.GsonBooleanSchema;
-import com.atypon.schema.gson.primitives.GsonNumberSchema;
-import com.atypon.schema.gson.primitives.GsonPrimitiveSchema;
-import com.atypon.schema.gson.primitives.GsonStringSchema;
+import com.atypon.nosql.keywordsparser.InvalidKeywordException;
+import com.atypon.nosql.keywordsparser.Keyword;
+import com.atypon.nosql.keywordsparser.KeywordsParser;
+import com.atypon.nosql.schema.gson.primitives.GsonBooleanSchema;
+import com.atypon.nosql.schema.gson.primitives.GsonNumberSchema;
+import com.atypon.nosql.schema.gson.primitives.GsonPrimitiveSchema;
+import com.atypon.nosql.schema.gson.primitives.GsonStringSchema;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

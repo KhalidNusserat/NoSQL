@@ -1,4 +1,4 @@
-package com.atypon.schema;
+package com.atypon.nosql.schema;
 
 public abstract class PrimitiveSchema<DocumentElement> implements Schema<DocumentElement> {
     private final boolean required;

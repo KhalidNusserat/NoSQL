@@ -1,7 +1,7 @@
-package com.atypon.schema.gson.primitives;
+package com.atypon.nosql.schema.gson.primitives;
 
-import com.atypon.schema.PrimitiveSchema;
-import com.atypon.schema.gson.GsonSchema;
+import com.atypon.nosql.schema.PrimitiveSchema;
+import com.atypon.nosql.schema.gson.GsonSchema;
 import com.google.gson.JsonElement;
 
 import javax.naming.directory.SchemaViolationException;
