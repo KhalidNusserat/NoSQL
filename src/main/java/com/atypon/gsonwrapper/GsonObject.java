@@ -1,27 +1,28 @@
-package com.atypon.document;
+package com.atypon.gsonwrapper;
 
+import com.atypon.document.Document;
+import com.atypon.document.ObjectID;
+import com.atypon.document.RandomObjectID;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.annotations.SerializedName;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Objects;
 
-public class GsonDocument implements Document<JsonElement> {
+public class GsonObject implements Document<JsonElement> {
     private final JsonObject object;
 
-    @SerializedName("_id")
     private final ObjectID objectID = new RandomObjectID();
 
-    public GsonDocument() {
+    public GsonObject() {
         object = new JsonObject();
-        object.addProperty("id", objectID.toString());
+        object.addProperty("_id", objectID.toString());
     }
 
-    public GsonDocument(GsonDocument other) {
+    public GsonObject(GsonObject other) {
         object = other.object.deepCopy();
-        object.addProperty("id", objectID.toString());
+        object.addProperty("_id", objectID.toString());
     }
 
     public static GsonDocumentBuilder builder() {
@@ -40,14 +41,14 @@ public class GsonDocument implements Document<JsonElement> {
 
     @Override
     public Document<JsonElement> deepCopy() {
-        return new GsonDocument(this);
+        return new GsonObject(this);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        GsonDocument that = (GsonDocument) o;
+        GsonObject that = (GsonObject) o;
         return object.equals(that.object);
     }
 
@@ -62,40 +63,40 @@ public class GsonDocument implements Document<JsonElement> {
     }
 
     public static class GsonDocumentBuilder {
-        private final GsonDocument gsonDocument = new GsonDocument();
+        private final GsonObject gsonObject = new GsonObject();
 
         public GsonDocumentBuilder add(String field, JsonElement element) {
-            gsonDocument.object.add(field, element);
+            gsonObject.object.add(field, element);
             return this;
         }
 
         public GsonDocumentBuilder addField(String field, BigInteger value) {
-            gsonDocument.object.addProperty(field, value);
+            gsonObject.object.addProperty(field, value);
             return this;
         }
 
         public GsonDocumentBuilder addField(String field, BigDecimal value) {
-            gsonDocument.object.addProperty(field, value);
+            gsonObject.object.addProperty(field, value);
             return this;
         }
 
         public GsonDocumentBuilder addField(String field, String value) {
-            gsonDocument.object.addProperty(field, value);
+            gsonObject.object.addProperty(field, value);
             return this;
         }
 
         public GsonDocumentBuilder addField(String field, boolean value) {
-            gsonDocument.object.addProperty(field, value);
+            gsonObject.object.addProperty(field, value);
             return this;
         }
 
         public GsonDocumentBuilder remove(String field) {
-            gsonDocument.object.remove(field);
+            gsonObject.object.remove(field);
             return this;
         }
 
-        public GsonDocument create() {
-            return gsonDocument;
+        public GsonObject create() {
+            return gsonObject;
         }
     }
 }
