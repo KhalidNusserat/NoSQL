@@ -45,24 +45,17 @@ public class StoredText implements Serializable {
         return new File(getFilePath()).exists();
     }
 
-    public void delete() throws Exception {
-        synchronized (filename) {
-            if (exists()) {
-                File file = new File(getFilePath());
-                if (!file.delete()) {
-                    throw new Exception("File not deleted successfully: " + getFilePath());
-                }
-            }
+    public void delete() throws IOException {
+        if (!new File(getFilePath()).delete()) {
+            throw new IOException("File not deleted: " + getFilePath());
         }
     }
 
     public String read() throws IOException {
-        synchronized (filename) {
-            BufferedReader reader = new BufferedReader(new FileReader(getFilePath()));
-            String content = reader.lines().reduce((a, b) -> a + b).orElseThrow();
-            reader.close();
-            return content;
-        }
+        BufferedReader reader = new BufferedReader(new FileReader(getFilePath()));
+        String content = reader.lines().reduce((a, b) -> a + b).orElseThrow();
+        reader.close();
+        return content;
     }
 
     public StoredText withNewContent(String content) throws Exception {
