@@ -99,6 +99,10 @@ public class GsonObject implements Document<JsonElement> {
             return this;
         }
 
+        public boolean containsKey(String field) {
+            return gsonObject.getAsJsonObject().has(field);
+        }
+
         public GsonObject create() {
             return gsonObject;
         }
