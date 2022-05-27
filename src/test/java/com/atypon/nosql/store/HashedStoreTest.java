@@ -64,6 +64,30 @@ class HashedStoreTest {
         }
     }
 
+    @Test
+    public void readCollection() throws Exception {
+        Store store = new HashedStore();
+        store.store("pets", "1", "cat");
+        store.store("pets", "2", "dog");
+        store.store("pets", "3", "parrot");
+        store.store("pets", "2", "kitten");
+        store.store("pets", "4", "snake");
+        store.remove("pets", "4");
+        assertTrue(List.of("cat", "kitten", "parrot").containsAll(store.readCollection("pets")));
+        assertFalse(store.readCollection("pets").contains("snake"));
+    }
+
+    @Test
+    public void remove() throws Exception {
+        Store store = new HashedStore();
+        store.store("a", "1", "test");
+        assertEquals("test", store.read("a", "1"));
+        store.remove("a", "1");
+        assertFalse(store.contains("a", "1"));
+        assertEquals(1, new File("./db/").listFiles().length);
+        assertEquals("unique.index", new File("./db/").listFiles()[0].getName());
+    }
+
     @AfterEach
     public void cleanup() {
         File dir = new File("./db/");
