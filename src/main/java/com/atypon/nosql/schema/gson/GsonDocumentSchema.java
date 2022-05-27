@@ -2,6 +2,7 @@ package com.atypon.nosql.schema.gson;
 
 import com.atypon.nosql.gsonwrapper.GsonObject;
 import com.atypon.nosql.schema.DocumentSchema;
+import com.atypon.nosql.schema.Schema;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -29,14 +30,23 @@ public class GsonDocumentSchema extends DocumentSchema<JsonElement> implements G
     @Override
     public JsonElement create(Object argsObject) throws SchemaViolationException {
         Preconditions.checkState(argsObject instanceof JsonObject);
-        JsonObject args = (JsonObject) argsObject;
+        JsonObject document = (JsonObject) argsObject;
         GsonObject.GsonDocumentBuilder builder = GsonObject.builder();
-        for (Map.Entry<String, JsonElement> field : args.getAsJsonObject().entrySet()) {
+        for (Map.Entry<String, JsonElement> field : document.entrySet()) {
             String fieldName = field.getKey();
             if (this.fields.containsKey(fieldName)) {
                 builder.add(fieldName, this.fields.get(fieldName).create(field.getValue()));
             } else {
                 throw new SchemaViolationException("Unrecognized field: " + fieldName);
+            }
+        }
+        for (Map.Entry<String, Schema<JsonElement>> field : fields.entrySet()) {
+            if (!builder.containsKey(field.getKey())) {
+                if (field.getValue().isRequired()) {
+                    throw new IllegalArgumentException("Missing required argument: " + field.getKey());
+                } else {
+                    builder.add(field.getKey(), field.getValue().getDefault());
+                }
             }
         }
         return builder.create().getAsJsonObject();
