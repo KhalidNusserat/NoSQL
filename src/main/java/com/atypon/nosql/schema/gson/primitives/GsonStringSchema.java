@@ -15,6 +15,9 @@ public class GsonStringSchema extends GsonPrimitiveSchema<String> {
     public JsonElement create(Object argsObject) throws SchemaViolationException {
         Preconditions.checkState(argsObject instanceof JsonElement);
         JsonElement value = (JsonElement) argsObject;
+        if (value.isJsonNull() && !isNullable()) {
+            throw new IllegalArgumentException("Not nullable");
+        }
         if (value.isJsonNull() || value.getAsJsonPrimitive().isString()) {
             return value;
         }
