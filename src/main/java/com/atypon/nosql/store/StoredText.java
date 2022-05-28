@@ -41,10 +41,6 @@ public class StoredText implements Serializable {
         return filepath + filename + extension;
     }
 
-    public boolean exists() {
-        return new File(getFilePath()).exists();
-    }
-
     public void delete() throws IOException {
         if (!new File(getFilePath()).delete()) {
             throw new IOException("File not deleted: " + getFilePath());

@@ -8,9 +8,11 @@ public interface Store {
 
     void store(String collection, String id, String content) throws Exception;
 
-    String read(String collection, String id) throws IOException, AliasNotFoundException;
+    String read(String collection, String id) throws IOException, CollectionNotFoundException, ItemNotFoundException;
 
-    void remove(String collection, String id) throws AliasNotFoundException, IOException;
+    void remove(String collection, String id) throws IOException, ItemNotFoundException;
 
     List<String> readCollection(String collection) throws IOException, CollectionNotFoundException;
+
+    void removeCollection(String collection) throws CollectionNotFoundException, IOException;
 }
