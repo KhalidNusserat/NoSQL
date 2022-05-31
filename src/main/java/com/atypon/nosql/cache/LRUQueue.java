@@ -122,7 +122,6 @@ public class LRUQueue<T> {
 
     public void removeAll() {
         synchronized (map) {
-            map.clear();
             for (Node<T> itr = head; itr != null; itr = itr.getNext()) {
                 remove(itr);
             }
