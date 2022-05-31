@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.naming.directory.SchemaViolationException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GsonSchemaParserTest {
     private boolean compareGsonDocuments(JsonElement first, JsonElement second) {
@@ -15,14 +15,11 @@ class GsonSchemaParserTest {
         }
         if (first.isJsonNull() && second.isJsonNull()) {
             return true;
-        }
-        else if (first.isJsonNull() || second.isJsonNull()) {
+        } else if (first.isJsonNull() || second.isJsonNull()) {
             return false;
-        }
-        else if (first.isJsonPrimitive()) {
+        } else if (first.isJsonPrimitive()) {
             return first.equals(second);
-        }
-        else if (first.isJsonArray()) {
+        } else if (first.isJsonArray()) {
             JsonArray firstArray = first.getAsJsonArray();
             JsonArray secondArray = second.getAsJsonArray();
             if (firstArray.size() != secondArray.size()) {
@@ -33,8 +30,7 @@ class GsonSchemaParserTest {
                     return false;
                 }
             }
-        }
-        else {
+        } else {
             JsonObject firstObject = first.getAsJsonObject();
             JsonObject secondObject = second.getAsJsonObject();
             for (var field : firstObject.entrySet()) {
