@@ -116,6 +116,10 @@ public class LRUQueue<T> {
         return size;
     }
 
+    public void remove(T value) {
+        remove(map.get(value));
+    }
+
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder("[");

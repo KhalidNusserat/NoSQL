@@ -44,4 +44,9 @@ public class LRUCache<CachedElement> implements Cache<CachedElement> {
     public boolean contains(String id) {
         return map.containsKey(id);
     }
+
+    @Override
+    public void remove(String id) {
+        lruQueue.remove(id);
+    }
 }

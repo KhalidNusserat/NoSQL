@@ -8,4 +8,6 @@ public interface Cache<CachedElement> {
     CachedElement get(String id) throws ItemNotFoundException;
 
     boolean contains(String id);
+
+    void remove(String id);
 }
