@@ -1,5 +1,6 @@
 package com.atypon.nosql.store;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +14,7 @@ import java.util.concurrent.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MultiCollectionStoreTest {
-    private void cleanupDirectory(File directory) {
+    private void cleanupDirectory(@NotNull File directory) {
         for (File file : Objects.requireNonNull(directory.listFiles())) {
             if (file.isFile()) {
                 boolean ignored = file.delete();
