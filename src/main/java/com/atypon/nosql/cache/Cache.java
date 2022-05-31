@@ -1,7 +1,9 @@
 package com.atypon.nosql.cache;
 
-public interface Cache<CachedElement> {
-    void add(String alias, CachedElement element);
+import com.atypon.nosql.store.ItemNotFoundException;
 
-    CachedElement get(String alias);
+public interface Cache<CachedElement> {
+    void put(String id, CachedElement element);
+
+    CachedElement get(String id) throws ItemNotFoundException;
 }
