@@ -120,6 +120,15 @@ public class LRUQueue<T> {
         remove(map.get(value));
     }
 
+    public void removeAll() {
+        synchronized (map) {
+            map.clear();
+            for (Node<T> itr = head; itr != null; itr = itr.getNext()) {
+                remove(itr);
+            }
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder("[");

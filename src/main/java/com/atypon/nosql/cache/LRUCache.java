@@ -42,11 +42,23 @@ public class LRUCache<CachedElement> implements Cache<CachedElement> {
 
     @Override
     public boolean contains(String id) {
-        return map.containsKey(id);
+        synchronized (map) {
+            return map.containsKey(id);
+        }
     }
 
     @Override
     public void remove(String id) {
-        lruQueue.remove(id);
+        synchronized (map) {
+            lruQueue.remove(id);
+        }
+    }
+
+    @Override
+    public void removeAll() {
+        synchronized (map) {
+            lruQueue.removeAll();
+            map.clear();
+        }
     }
 }

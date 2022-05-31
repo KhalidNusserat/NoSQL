@@ -10,4 +10,6 @@ public interface Cache<CachedElement> {
     boolean contains(String id);
 
     void remove(String id);
+
+    void removeAll();
 }
