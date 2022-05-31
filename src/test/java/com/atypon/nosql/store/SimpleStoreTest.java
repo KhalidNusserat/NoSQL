@@ -13,7 +13,7 @@ import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class MultiCollectionStoreTest {
+class SimpleStoreTest {
     private void cleanupDirectory(@NotNull File directory) {
         for (File file : Objects.requireNonNull(directory.listFiles())) {
             if (file.isFile()) {
@@ -32,54 +32,54 @@ class MultiCollectionStoreTest {
 
     @Test
     public void storeAndRead() throws Exception {
-        MultiCollectionStore multiCollectionStore = new MultiCollectionStore();
-        multiCollectionStore.createNewCollection("a");
-        multiCollectionStore.createNewCollection("b");
-        multiCollectionStore.store(
+        SimpleStore simpleStore = new SimpleStore();
+        simpleStore.createNewCollection("a");
+        simpleStore.createNewCollection("b");
+        simpleStore.store(
                 "a",
                 "1",
                 "test1"
         );
-        assertEquals(multiCollectionStore.read("a", "1"), "test1");
-        multiCollectionStore.store(
+        assertEquals(simpleStore.read("a", "1"), "test1");
+        simpleStore.store(
                 "b",
                 "1",
                 "test2"
         );
-        assertEquals(multiCollectionStore.read("a", "1"), "test1");
-        assertEquals(multiCollectionStore.read("b", "1"), "test2");
-        multiCollectionStore.store(
+        assertEquals(simpleStore.read("a", "1"), "test1");
+        assertEquals(simpleStore.read("b", "1"), "test2");
+        simpleStore.store(
                 "a",
                 "1",
                 "test3"
         );
-        multiCollectionStore.store(
+        simpleStore.store(
                 "a",
                 "1",
                 "test4"
         );
-        multiCollectionStore.store(
+        simpleStore.store(
                 "a",
                 "1",
                 "test5"
         );
-        assertEquals(multiCollectionStore.read("a", "1"), "test5");
+        assertEquals(simpleStore.read("a", "1"), "test5");
     }
 
     @Test
     public void multithreadingStoreAndRead()
             throws InterruptedException, ExecutionException, IOException, ClassNotFoundException {
         ExecutorService service = Executors.newCachedThreadPool();
-        MultiCollectionStore multiCollectionStore = new MultiCollectionStore();
-        multiCollectionStore.createNewCollection("a");
+        SimpleStore simpleStore = new SimpleStore();
+        simpleStore.createNewCollection("a");
         List<Callable<String>> callables = new ArrayList<>();
         for (int i = 0; i < 500; i++) {
             String index = Integer.toString(i);
             callables.add(
                     () -> {
                         try {
-                            multiCollectionStore.store("a", index, index);
-                            return multiCollectionStore.read("a", index);
+                            simpleStore.store("a", index, index);
+                            return simpleStore.read("a", index);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -96,26 +96,26 @@ class MultiCollectionStoreTest {
 
     @Test
     public void readCollection() throws Exception {
-        MultiCollectionStore multiCollectionStore = new MultiCollectionStore();
-        multiCollectionStore.createNewCollection("pets");
-        multiCollectionStore.store("pets", "1", "cat");
-        multiCollectionStore.store("pets", "2", "dog");
-        multiCollectionStore.store("pets", "3", "parrot");
-        multiCollectionStore.store("pets", "2", "kitten");
-        multiCollectionStore.store("pets", "4", "snake");
-        multiCollectionStore.remove("pets", "4");
-        assertTrue(List.of("cat", "kitten", "parrot").containsAll(multiCollectionStore.readCollection("pets")));
-        assertFalse(multiCollectionStore.readCollection("pets").contains("snake"));
+        SimpleStore simpleStore = new SimpleStore();
+        simpleStore.createNewCollection("pets");
+        simpleStore.store("pets", "1", "cat");
+        simpleStore.store("pets", "2", "dog");
+        simpleStore.store("pets", "3", "parrot");
+        simpleStore.store("pets", "2", "kitten");
+        simpleStore.store("pets", "4", "snake");
+        simpleStore.remove("pets", "4");
+        assertTrue(List.of("cat", "kitten", "parrot").containsAll(simpleStore.readCollection("pets")));
+        assertFalse(simpleStore.readCollection("pets").contains("snake"));
     }
 
     @Test
     public void remove() throws Exception {
-        MultiCollectionStore multiCollectionStore = new MultiCollectionStore();
-        multiCollectionStore.createNewCollection("a");
-        multiCollectionStore.store("a", "1", "test");
-        assertEquals("test", multiCollectionStore.read("a", "1"));
-        multiCollectionStore.remove("a", "1");
-        assertFalse(multiCollectionStore.contains("a", "1"));
+        SimpleStore simpleStore = new SimpleStore();
+        simpleStore.createNewCollection("a");
+        simpleStore.store("a", "1", "test");
+        assertEquals("test", simpleStore.read("a", "1"));
+        simpleStore.remove("a", "1");
+        assertFalse(simpleStore.contains("a", "1"));
         assertEquals(1, Objects.requireNonNull(new File("./db/a").listFiles()).length);
         assertTrue(new File("./db/a/unique.index").exists());
     }
