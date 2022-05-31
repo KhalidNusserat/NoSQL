@@ -45,4 +45,14 @@ class LRUQueueTest {
         assertEquals("Snake", queue.removeLeastUsed());
         assertEquals("[]", queue.toString());
     }
+
+    @Test
+    void removeAll() {
+        LRUQueue<String> queue = new LRUQueue<>();
+        queue.add("Parrot");
+        queue.add("Dog");
+        queue.add("Cat");
+        queue.removeAll();
+        assertEquals("[]", queue.toString());
+    }
 }
