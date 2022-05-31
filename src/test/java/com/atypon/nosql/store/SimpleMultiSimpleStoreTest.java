@@ -13,7 +13,7 @@ import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class SimpleTextStoreTest {
+class SimpleMultiSimpleStoreTest {
     private void cleanupDirectory(@NotNull File directory) {
         for (File file : Objects.requireNonNull(directory.listFiles())) {
             if (file.isFile()) {
@@ -32,7 +32,7 @@ class SimpleTextStoreTest {
 
     @Test
     public void storeAndRead() throws Exception {
-        SimpleTextStore simpleStore = new SimpleTextStore();
+        SimpleMultiStore simpleStore = new SimpleMultiStore();
         simpleStore.createNewCollection("a");
         simpleStore.createNewCollection("b");
         simpleStore.store(
@@ -70,7 +70,7 @@ class SimpleTextStoreTest {
     public void multithreadingStoreAndRead()
             throws InterruptedException, ExecutionException, IOException, ClassNotFoundException {
         ExecutorService service = Executors.newCachedThreadPool();
-        SimpleTextStore simpleStore = new SimpleTextStore();
+        SimpleMultiStore simpleStore = new SimpleMultiStore();
         simpleStore.createNewCollection("a");
         List<Callable<String>> callables = new ArrayList<>();
         for (int i = 0; i < 500; i++) {
@@ -96,7 +96,7 @@ class SimpleTextStoreTest {
 
     @Test
     public void readCollection() throws Exception {
-        SimpleTextStore simpleStore = new SimpleTextStore();
+        SimpleMultiStore simpleStore = new SimpleMultiStore();
         simpleStore.createNewCollection("pets");
         simpleStore.store("pets", "1", "cat");
         simpleStore.store("pets", "2", "dog");
@@ -110,7 +110,7 @@ class SimpleTextStoreTest {
 
     @Test
     public void remove() throws Exception {
-        SimpleTextStore simpleStore = new SimpleTextStore();
+        SimpleMultiStore simpleStore = new SimpleMultiStore();
         simpleStore.createNewCollection("a");
         simpleStore.store("a", "1", "test");
         assertEquals("test", simpleStore.read("a", "1"));

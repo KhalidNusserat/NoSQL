@@ -5,13 +5,13 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class SimpleTextStore implements TextStore {
+public class SimpleMultiStore implements MultiStore {
     private final static String path = "./db/";
 
-    private final ConcurrentMap<String, CollectionStore> collectionsIndexes = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Store> collectionsIndexes = new ConcurrentHashMap<>();
 
     public void createNewCollection(String collection) throws IOException, ClassNotFoundException {
-        collectionsIndexes.put(collection, new CollectionStore(path + collection + "/"));
+        collectionsIndexes.put(collection, new SimpleStore(path + collection + "/"));
     }
 
     @Override
