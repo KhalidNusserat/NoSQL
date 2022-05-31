@@ -5,14 +5,14 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CollectionStore implements Iterable<StoredText> {
+public class SimpleStore implements Store {
     final ConcurrentHashMap<String, StoredText> index;
 
     private final String path;
 
     final static String filename = "unique.index";
 
-    public CollectionStore(String path) throws IOException, ClassNotFoundException {
+    public SimpleStore(String path) throws IOException, ClassNotFoundException {
         this.path = path;
         FilesCreator.createDirectory(path);
         index = Objects.requireNonNullElseGet(read(), ConcurrentHashMap::new);
@@ -43,10 +43,12 @@ public class CollectionStore implements Iterable<StoredText> {
         outputStream.close();
     }
 
+    @Override
     public boolean containsKey(String id) {
         return index.containsKey(id);
     }
 
+    @Override
     public StoredText get(String id) throws ItemNotFoundException {
         if (index.containsKey(id)) {
             return index.get(id);
@@ -55,6 +57,7 @@ public class CollectionStore implements Iterable<StoredText> {
         }
     }
 
+    @Override
     public void put(String id, String content) throws Exception {
         if (containsKey(id)) {
             index.get(id).delete();
@@ -65,12 +68,14 @@ public class CollectionStore implements Iterable<StoredText> {
         save();
     }
 
+    @Override
     public void remove(String id) throws ItemNotFoundException, IOException {
         StoredText storedText = get(id);
         storedText.delete();
         index.remove(id);
     }
 
+    @Override
     public void removeAll() throws IOException {
         for (StoredText storedText : index.values()) {
             storedText.delete();

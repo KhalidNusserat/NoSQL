@@ -3,7 +3,7 @@ package com.atypon.nosql.store;
 import java.io.IOException;
 import java.util.List;
 
-public interface TextStore {
+public interface MultiStore {
     boolean contains(String collection, String id);
 
     void store(String collection, String id, String content) throws Exception;
