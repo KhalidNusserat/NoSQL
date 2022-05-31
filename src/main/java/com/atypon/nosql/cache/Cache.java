@@ -6,4 +6,6 @@ public interface Cache<CachedElement> {
     void put(String id, CachedElement element);
 
     CachedElement get(String id) throws ItemNotFoundException;
+
+    boolean contains(String id);
 }

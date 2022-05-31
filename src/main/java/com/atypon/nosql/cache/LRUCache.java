@@ -39,4 +39,9 @@ public class LRUCache<CachedElement> implements Cache<CachedElement> {
             return map.get(id);
         }
     }
+
+    @Override
+    public boolean contains(String id) {
+        return map.containsKey(id);
+    }
 }
