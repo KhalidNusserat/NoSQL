@@ -5,7 +5,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class SimpleStore implements Store {
+public class SimpleTextStore implements TextStore {
     private final static String path = "./db/";
 
     private final ConcurrentMap<String, CollectionStore> collectionsIndexes = new ConcurrentHashMap<>();
