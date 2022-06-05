@@ -21,6 +21,11 @@ public class GsonObject implements Document<JsonElement> {
         object.addProperty("_id", objectID.toString());
     }
 
+    public GsonObject(JsonObject object) {
+        this.object = object.deepCopy();
+        object.addProperty("_id", objectID.toString());
+    }
+
     public GsonObject(GsonObject other) {
         object = other.object.deepCopy();
         object.addProperty("_id", objectID.toString());
