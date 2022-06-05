@@ -3,7 +3,7 @@ package com.atypon.nosql.utils;
 import java.io.File;
 import java.io.IOException;
 
-public class FilesCreator {
+public class FilesUtils {
     public static void createDirectory(String directory) {
         boolean ignored = new File(directory).mkdirs();
     }
