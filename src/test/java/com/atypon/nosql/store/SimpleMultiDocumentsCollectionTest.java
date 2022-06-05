@@ -1,23 +1,25 @@
 package com.atypon.nosql.store;
 
+import com.google.common.io.MoreFiles;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
 
-import static com.atypon.nosql.utils.Cleanup.cleanupDirectory;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SimpleMultiDocumentsCollectionTest {
     @AfterEach
-    public void cleanup() {
-        cleanupDirectory(new File("./db/"));
+    @SuppressWarnings("UnstableApiUsage")
+    public void cleanup() throws IOException {
+        MoreFiles.deleteDirectoryContents(Path.of("./db/"));
     }
 
     @Test

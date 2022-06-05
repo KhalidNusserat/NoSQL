@@ -1,12 +1,13 @@
 package com.atypon.nosql.store;
 
 import com.atypon.nosql.cache.LRUCache;
-import com.atypon.nosql.utils.Cleanup;
+import com.google.common.io.MoreFiles;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -15,8 +16,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CachedDocumentsCollectionTest {
     @AfterEach
-    public void cleanup() {
-        Cleanup.cleanupDirectory(new File("./db/"));
+    @SuppressWarnings("UnstableApiUsage")
+    public void cleanup() throws IOException {
+        MoreFiles.deleteDirectoryContents(Path.of("./db/"));
     }
 
     @Test
