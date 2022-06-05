@@ -11,9 +11,9 @@ import java.nio.file.Path;
 
 public class GsonDocumentReader implements DocumentReader<JsonElement> {
     @Override
-    public Document<JsonElement> read(String path) throws IOException {
+    public Document<JsonElement> read(Path path) throws IOException {
         Preconditions.checkNotNull(path);
         Gson gson = new Gson();
-        return new GsonObject(gson.toJsonTree(Files.readString(Path.of(path))));
+        return new GsonObject(gson.toJsonTree(Files.readString(path)));
     }
 }

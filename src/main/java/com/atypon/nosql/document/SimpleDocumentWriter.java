@@ -8,15 +8,15 @@ import java.nio.file.Path;
 
 public class SimpleDocumentWriter<DocumentValue> implements DocumentWriter<DocumentValue> {
     @Override
-    public void write(Document<DocumentValue> document, String path) throws IOException {
+    public void write(Document<DocumentValue> document, Path path) throws IOException {
         Preconditions.checkNotNull(document);
         Preconditions.checkNotNull(path);
-        Files.write(Path.of(path), document.getBytes());
+        Files.write(path, document.getBytes());
     }
 
     @Override
-    public void delete(String path) throws IOException {
+    public void delete(Path path) throws IOException {
         Preconditions.checkNotNull(path);
-        Files.delete(Path.of(path));
+        Files.delete(path);
     }
 }

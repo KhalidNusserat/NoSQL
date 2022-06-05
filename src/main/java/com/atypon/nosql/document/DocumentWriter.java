@@ -1,9 +1,10 @@
 package com.atypon.nosql.document;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 public interface DocumentWriter<DocumentValue> {
-    void write(Document<DocumentValue> document, String path) throws IOException;
+    void write(Document<DocumentValue> document, Path path) throws IOException;
 
-    void delete(String path) throws IOException;
+    void delete(Path path) throws IOException;
 }
