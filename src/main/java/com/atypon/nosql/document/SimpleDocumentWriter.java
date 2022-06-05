@@ -1,15 +1,21 @@
 package com.atypon.nosql.document;
 
 import com.google.common.base.Preconditions;
-import com.google.common.io.Files;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class SimpleDocumentWriter<DocumentValue> implements DocumentWriter<DocumentValue> {
     @Override
     public void store(Document<DocumentValue> document, String path) throws IOException {
         Preconditions.checkNotNull(document, path);
-        Files.write(document.getBytes(), new File(path));
+        Files.write(Path.of(path), document.getBytes());
+    }
+
+    @Override
+    public void delete(String path) throws IOException {
+        Preconditions.checkNotNull(path);
+        Files.delete(Path.of(path));
     }
 }
