@@ -3,6 +3,7 @@ package com.atypon.nosql.gsonwrapper;
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.ObjectID;
 import com.atypon.nosql.document.RandomObjectID;
+import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -23,6 +24,12 @@ public class GsonObject implements Document<JsonElement> {
 
     public GsonObject(JsonObject object) {
         this.object = object.deepCopy();
+        object.addProperty("_id", objectID.toString());
+    }
+
+    public GsonObject(JsonElement element) {
+        Preconditions.checkState(element.isJsonObject());
+        object = element.getAsJsonObject();
         object.addProperty("_id", objectID.toString());
     }
 
