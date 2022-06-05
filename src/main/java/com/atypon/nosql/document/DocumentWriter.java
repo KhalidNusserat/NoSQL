@@ -5,6 +5,4 @@ import java.nio.file.Path;
 
 public interface DocumentWriter<DocumentValue> {
     void write(Document<DocumentValue> document, Path path) throws IOException;
-
-    void delete(Path path) throws IOException;
 }
