@@ -9,7 +9,8 @@ import java.nio.file.Path;
 public class SimpleDocumentWriter<DocumentValue> implements DocumentWriter<DocumentValue> {
     @Override
     public void store(Document<DocumentValue> document, String path) throws IOException {
-        Preconditions.checkNotNull(document, path);
+        Preconditions.checkNotNull(document);
+        Preconditions.checkNotNull(path);
         Files.write(Path.of(path), document.getBytes());
     }
 
