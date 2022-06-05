@@ -6,4 +6,6 @@ public interface Document<DocumentValue> {
     DocumentValue get(String field);
 
     Document<DocumentValue> deepCopy();
+
+    byte[] getBytes();
 }

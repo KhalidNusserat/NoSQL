@@ -8,6 +8,7 @@ import com.google.gson.JsonObject;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 public class GsonObject implements Document<JsonElement> {
@@ -46,6 +47,11 @@ public class GsonObject implements Document<JsonElement> {
     @Override
     public Document<JsonElement> deepCopy() {
         return new GsonObject(this);
+    }
+
+    @Override
+    public byte[] getBytes() {
+        return toString().getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
