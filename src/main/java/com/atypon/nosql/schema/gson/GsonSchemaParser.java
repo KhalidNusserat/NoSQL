@@ -17,10 +17,16 @@ import java.util.Map;
 import java.util.Optional;
 
 public class GsonSchemaParser {
+    private final KeywordsParser keywordsParser;
+
+    public GsonSchemaParser(KeywordsParser keywordsParser) {
+        this.keywordsParser = keywordsParser;
+    }
+
     private GsonPrimitiveSchema<?> parsePrimitive(JsonPrimitive jsonPrimitive) throws InvalidKeywordException {
         if (jsonPrimitive.isString()) {
             String keywordsString = jsonPrimitive.getAsString();
-            List<Keyword> keywords = new KeywordsParser().parse(keywordsString);
+            List<Keyword> keywords = keywordsParser.parse(keywordsString);
             boolean required = keywords.contains(Keyword.fromString("required"));
             boolean nullable = keywords.contains(Keyword.fromString("nullable"));
             Optional<Keyword> defaultKeyword = keywords.stream()

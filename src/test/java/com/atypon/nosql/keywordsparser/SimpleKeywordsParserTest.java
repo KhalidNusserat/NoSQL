@@ -6,7 +6,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class KeywordsParserTest {
+class SimpleKeywordsParserTest {
 
     @Test
     void parseKeyword() throws InvalidKeywordException {
@@ -15,9 +15,9 @@ class KeywordsParserTest {
                 "test",
                 List.of("arg", "arg1", "10", "10")
         );
-        assertEquals(keyword1, new KeywordsParser().parseKeyword(line1));
+        assertEquals(keyword1, new SimpleKeywordsParser().parseKeyword(line1));
 
-        assertEquals(Keyword.fromString("string"), new KeywordsParser().parseKeyword("string"));
+        assertEquals(Keyword.fromString("string"), new SimpleKeywordsParser().parseKeyword("string"));
     }
 
     @Test
@@ -31,6 +31,6 @@ class KeywordsParserTest {
                 "anotherTest",
                 List.of("A", "B", "123", "more than one word", "two  spaces")
         );
-        assertEquals(List.of(keyword1, keyword2, Keyword.fromString("required")), new KeywordsParser().parse(line));
+        assertEquals(List.of(keyword1, keyword2, Keyword.fromString("required")), new SimpleKeywordsParser().parse(line));
     }
 }

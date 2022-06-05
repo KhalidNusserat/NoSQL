@@ -1,18 +1,23 @@
 package com.atypon.nosql.store;
 
+import com.atypon.nosql.store.exceptions.ItemNotFoundException;
+import com.atypon.nosql.utils.FilesCreator;
+
 import java.io.*;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
-public class SimpleStore implements Store {
+public class SimpleDocumentsCollection implements DocumentsCollection {
     final ConcurrentHashMap<String, StoredText> index;
 
     private final String path;
 
     final static String filename = "unique.index";
 
-    public SimpleStore(String path) throws IOException, ClassNotFoundException {
+    public SimpleDocumentsCollection(String path) throws IOException, ClassNotFoundException {
         this.path = path;
         FilesCreator.createDirectory(path);
         index = Objects.requireNonNullElseGet(read(), ConcurrentHashMap::new);
@@ -49,9 +54,9 @@ public class SimpleStore implements Store {
     }
 
     @Override
-    public StoredText get(String id) throws ItemNotFoundException {
+    public String get(String id) throws ItemNotFoundException, IOException {
         if (index.containsKey(id)) {
-            return index.get(id);
+            return index.get(id).read();
         } else {
             throw new ItemNotFoundException(id);
         }
@@ -70,13 +75,16 @@ public class SimpleStore implements Store {
 
     @Override
     public void remove(String id) throws ItemNotFoundException, IOException {
-        StoredText storedText = get(id);
+        if (!index.containsKey(id)) {
+            throw new ItemNotFoundException(id);
+        }
+        StoredText storedText = index.get(id);
         storedText.delete();
         index.remove(id);
     }
 
     @Override
-    public void removeAll() throws IOException {
+    public void clear() throws IOException {
         for (StoredText storedText : index.values()) {
             storedText.delete();
         }
@@ -85,7 +93,11 @@ public class SimpleStore implements Store {
     }
 
     @Override
-    public Iterator<StoredText> iterator() {
-        return index.values().iterator();
+    public Collection<String> readAll() throws IOException {
+        Collection<String> result = new ArrayList<>();
+        for (StoredText storedText : index.values()) {
+            result.add(storedText.read());
+        }
+        return result;
     }
 }

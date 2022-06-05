@@ -1,7 +1,10 @@
 package com.atypon.nosql.store;
 
+import com.atypon.nosql.store.exceptions.CollectionNotFoundException;
+import com.atypon.nosql.store.exceptions.ItemNotFoundException;
+
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 
 public interface MultiStore {
     boolean contains(String collection, String id);
@@ -12,7 +15,7 @@ public interface MultiStore {
 
     void remove(String collection, String id) throws IOException, ItemNotFoundException;
 
-    List<String> readCollection(String collection) throws IOException, CollectionNotFoundException;
+    Collection<String> readCollection(String collection) throws IOException, CollectionNotFoundException;
 
     void removeCollection(String collection) throws CollectionNotFoundException, IOException;
 }

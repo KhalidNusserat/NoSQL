@@ -1,4 +1,4 @@
-package com.atypon.nosql.store;
+package com.atypon.nosql.store.exceptions;
 
 import java.io.IOException;
 

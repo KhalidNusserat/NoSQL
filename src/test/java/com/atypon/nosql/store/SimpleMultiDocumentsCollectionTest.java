@@ -1,30 +1,20 @@
 package com.atypon.nosql.store;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
 
+import static com.atypon.nosql.utils.Cleanup.cleanupDirectory;
 import static org.junit.jupiter.api.Assertions.*;
 
-class SimpleMultiSimpleStoreTest {
-    private void cleanupDirectory(@NotNull File directory) {
-        for (File file : Objects.requireNonNull(directory.listFiles())) {
-            if (file.isFile()) {
-                boolean ignored = file.delete();
-            } else {
-                cleanupDirectory(file);
-            }
-        }
-        boolean ignored = directory.delete();
-    }
-
+class SimpleMultiDocumentsCollectionTest {
     @AfterEach
     public void cleanup() {
         cleanupDirectory(new File("./db/"));
@@ -104,7 +94,8 @@ class SimpleMultiSimpleStoreTest {
         simpleStore.store("pets", "2", "kitten");
         simpleStore.store("pets", "4", "snake");
         simpleStore.remove("pets", "4");
-        assertTrue(List.of("cat", "kitten", "parrot").containsAll(simpleStore.readCollection("pets")));
+        Collection<String> allElements = simpleStore.readCollection("pets");
+        assertTrue(List.of("cat", "kitten", "parrot").containsAll(allElements));
         assertFalse(simpleStore.readCollection("pets").contains("snake"));
     }
 

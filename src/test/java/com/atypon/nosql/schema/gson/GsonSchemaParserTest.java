@@ -1,6 +1,8 @@
 package com.atypon.nosql.schema.gson;
 
 import com.atypon.nosql.keywordsparser.InvalidKeywordException;
+import com.atypon.nosql.keywordsparser.KeywordsParser;
+import com.atypon.nosql.keywordsparser.SimpleKeywordsParser;
 import com.google.gson.*;
 import org.junit.jupiter.api.Test;
 
@@ -54,7 +56,8 @@ class GsonSchemaParserTest {
                 "grades: [{course: \"string;required\", grade: \"number;required\"}]," +
                 "extra: \"string;nullable\"}";
         Gson gson = new Gson();
-        GsonSchema gsonSchema = new GsonSchemaParser().parse(gson.fromJson(schema, JsonObject.class));
+        KeywordsParser keywordsParser = new SimpleKeywordsParser();
+        GsonSchema gsonSchema = new GsonSchemaParser(keywordsParser).parse(gson.fromJson(schema, JsonObject.class));
         String objectJson = "{name: \"Khalid\", grades: [{course: \"CPE231\", grade: 98}], extra: null}";
         JsonObject object = gsonSchema.create(gson.fromJson(objectJson, JsonObject.class)).getAsJsonObject();
         JsonObject expected = new JsonObject();

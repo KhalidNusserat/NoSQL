@@ -1,5 +1,8 @@
 package com.atypon.nosql.store;
 
+import com.atypon.nosql.store.exceptions.CollectionNotFoundException;
+import com.atypon.nosql.store.exceptions.ItemNotFoundException;
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,10 +11,10 @@ import java.util.concurrent.ConcurrentMap;
 public class SimpleMultiStore implements MultiStore {
     private final static String path = "./db/";
 
-    private final ConcurrentMap<String, Store> collectionsIndexes = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, DocumentsCollection> collectionsIndexes = new ConcurrentHashMap<>();
 
     public void createNewCollection(String collection) throws IOException, ClassNotFoundException {
-        collectionsIndexes.put(collection, new SimpleStore(path + collection + "/"));
+        collectionsIndexes.put(collection, new SimpleDocumentsCollection(path + collection + "/"));
     }
 
     @Override
@@ -28,7 +31,7 @@ public class SimpleMultiStore implements MultiStore {
     public String read(String collection, String id)
             throws CollectionNotFoundException, ItemNotFoundException, IOException {
         if (collectionsIndexes.containsKey(collection)) {
-            return collectionsIndexes.get(collection).get(id).read();
+            return collectionsIndexes.get(collection).get(id);
         } else {
             throw new CollectionNotFoundException(collection);
         }
@@ -40,13 +43,9 @@ public class SimpleMultiStore implements MultiStore {
     }
 
     @Override
-    public List<String> readCollection(String collection) throws IOException, CollectionNotFoundException {
+    public Collection<String> readCollection(String collection) throws IOException, CollectionNotFoundException {
         if (collectionsIndexes.containsKey(collection)) {
-            List<String> result = new ArrayList<>();
-            for (StoredText storedText : collectionsIndexes.get(collection)) {
-                result.add(storedText.read());
-            }
-            return result;
+            return collectionsIndexes.get(collection).readAll();
         } else {
             throw new CollectionNotFoundException(collection);
         }
@@ -55,7 +54,7 @@ public class SimpleMultiStore implements MultiStore {
     @Override
     public void removeCollection(String collection) throws CollectionNotFoundException, IOException {
         if (collectionsIndexes.containsKey(collection)) {
-            collectionsIndexes.get(collection).removeAll();
+            collectionsIndexes.get(collection).clear();
         } else {
             throw new CollectionNotFoundException(collection);
         }
