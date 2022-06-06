@@ -1,12 +1,12 @@
-package com.atypon.nosql.schema.gson.primitives;
+package com.atypon.nosql.schema.gson;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
 import javax.naming.directory.SchemaViolationException;
 
-public class GsonNumberSchema extends GsonPrimitiveSchema<Number> {
-    public GsonNumberSchema(Number defaultValue, boolean required, boolean nullable) {
+public class GsonStringSchema extends GsonPrimitiveSchema<String> {
+    public GsonStringSchema(String defaultValue, boolean required, boolean nullable) {
         super(defaultValue, required, nullable);
     }
 
@@ -15,10 +15,10 @@ public class GsonNumberSchema extends GsonPrimitiveSchema<Number> {
         if (element.isJsonNull() && !isNullable()) {
             throw new IllegalArgumentException("Null provided for a non-nullable field");
         }
-        if (element.isJsonNull() || element.getAsJsonPrimitive().isNumber()) {
+        if (element.isJsonNull() || element.getAsJsonPrimitive().isString()) {
             return element;
         }
-        throw new SchemaViolationException("Not a JsonNumber: " + element);
+        throw new SchemaViolationException("Not a JsonString: " + element);
     }
 
     @Override
