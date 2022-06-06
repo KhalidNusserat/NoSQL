@@ -12,8 +12,10 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class Person {
     public static JsonObject fromNameAndAge(String name, int age) {
@@ -64,10 +66,39 @@ class UniqueIndexedDocumentsCollectionTest {
     }
 
     @Test
-    void remove() {
+    void remove() throws IOException {
+        GsonDocumentParser parser = new GsonDocumentParser();
+        DocumentsCollection<GsonDocument> collection = new UniqueIndexedDocumentsCollection<>(parser, testDirectory);
+        JsonObject khalid = Person.fromNameAndAge("Khalid", 22);
+        JsonObject hamza = Person.fromNameAndAge("Hamza", 22);
+        JsonObject john = Person.fromNameAndAge("John", 43);
+        ObjectID khalidID = new RandomObjectID();
+        ObjectID hamzaID = new RandomObjectID();
+        ObjectID johnID = new RandomObjectID();
+        collection.put(khalidID, new GsonDocument(khalid));
+        collection.put(hamzaID, new GsonDocument(hamza));
+        collection.put(johnID, new GsonDocument(john));
+        collection.remove(johnID);
+        assertFalse(collection.containsID(johnID));
     }
 
     @Test
-    void readAll() {
+    void readAll() throws IOException {
+        GsonDocumentParser parser = new GsonDocumentParser();
+        DocumentsCollection<GsonDocument> collection = new UniqueIndexedDocumentsCollection<>(parser, testDirectory);
+        JsonObject khalid = Person.fromNameAndAge("Khalid", 22);
+        JsonObject hamza = Person.fromNameAndAge("Hamza", 22);
+        JsonObject john = Person.fromNameAndAge("John", 43);
+        ObjectID khalidID = new RandomObjectID();
+        ObjectID hamzaID = new RandomObjectID();
+        ObjectID johnID = new RandomObjectID();
+        collection.put(khalidID, new GsonDocument(khalid));
+        collection.put(hamzaID, new GsonDocument(hamza));
+        collection.put(johnID, new GsonDocument(john));
+        assertTrue(List.of("Khalid", "Hamza", "John").containsAll(
+                collection.readAll().stream()
+                        .map(gsonDocument -> gsonDocument.get("name").getAsString())
+                        .toList()
+        ));
     }
 }

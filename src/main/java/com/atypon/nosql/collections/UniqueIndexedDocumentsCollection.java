@@ -115,7 +115,7 @@ public class UniqueIndexedDocumentsCollection<T extends Document<?>> implements 
     @Override
     public Collection<T> readAll() throws IOException {
         return Files.walk(directoryPath)
-                .filter(filepath -> !matcher.matches(filepath))
+                .filter(filepath -> Files.isRegularFile(filepath) && !matcher.matches(filepath))
                 .map(filepath -> {
                     try {
                         return parser.parse(io.read(filepath, String.class));
