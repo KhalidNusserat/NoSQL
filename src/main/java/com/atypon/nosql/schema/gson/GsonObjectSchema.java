@@ -1,6 +1,6 @@
 package com.atypon.nosql.schema.gson;
 
-import com.atypon.nosql.gsonwrapper.GsonDocument;
+import com.atypon.nosql.gsondocument.GsonDocument;
 import com.atypon.nosql.schema.DocumentSchema;
 import com.atypon.nosql.schema.Schema;
 import com.google.gson.JsonElement;

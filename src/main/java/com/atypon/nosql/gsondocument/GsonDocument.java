@@ -1,4 +1,4 @@
-package com.atypon.nosql.gsonwrapper;
+package com.atypon.nosql.gsondocument;
 
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.ObjectID;
