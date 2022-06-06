@@ -2,7 +2,8 @@ package com.atypon.nosql.io;
 
 import com.google.gson.Gson;
 
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,12 +18,16 @@ public class GsonCopyOnWriteIO implements CopyOnWriteIO {
 
     @Override
     public <T> void write(T file, Path path) throws IOException {
-        gson.toJson(file, Files.newBufferedWriter(path));
+        try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+            gson.toJson(file, writer);
+        }
     }
 
     @Override
     public <T> T read(Path path, Class<T> tClass) throws IOException {
-        return gson.fromJson(Files.newBufferedReader(path), tClass);
+        try (BufferedReader reader = Files.newBufferedReader(path)) {
+            return gson.fromJson(reader, tClass);
+        }
     }
 
     @Override
