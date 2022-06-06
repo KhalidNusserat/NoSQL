@@ -4,6 +4,7 @@ import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.ObjectID;
 import com.atypon.nosql.document.RandomObjectID;
 import com.google.common.base.Preconditions;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -62,8 +63,8 @@ public class GsonDocument implements Document<JsonElement> {
     }
 
     @Override
-    public byte[] getBytes() {
-        return toString().getBytes(StandardCharsets.UTF_8);
+    public GsonDocument parse(String src) {
+        return new GsonDocument(new Gson().toJsonTree(src));
     }
 
     @Override
@@ -89,26 +90,6 @@ public class GsonDocument implements Document<JsonElement> {
 
         public GsonDocumentBuilder add(String field, JsonElement element) {
             gsonDocument.object.add(field, element);
-            return this;
-        }
-
-        public GsonDocumentBuilder addField(String field, BigInteger value) {
-            gsonDocument.object.addProperty(field, value);
-            return this;
-        }
-
-        public GsonDocumentBuilder addField(String field, BigDecimal value) {
-            gsonDocument.object.addProperty(field, value);
-            return this;
-        }
-
-        public GsonDocumentBuilder addField(String field, String value) {
-            gsonDocument.object.addProperty(field, value);
-            return this;
-        }
-
-        public GsonDocumentBuilder addField(String field, boolean value) {
-            gsonDocument.object.addProperty(field, value);
             return this;
         }
 

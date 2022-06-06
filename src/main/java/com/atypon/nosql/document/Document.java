@@ -7,5 +7,5 @@ public interface Document<DocumentElement> {
 
     Document<DocumentElement> deepCopy();
 
-    byte[] getBytes();
+    Document<DocumentElement> parse(String src);
 }
