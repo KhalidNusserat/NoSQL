@@ -1,8 +1,5 @@
 package com.atypon.nosql.store;
 
-import com.atypon.nosql.store.exceptions.CollectionNotFoundException;
-import com.atypon.nosql.store.exceptions.ItemNotFoundException;
-
 import java.io.IOException;
 import java.util.Collection;
 

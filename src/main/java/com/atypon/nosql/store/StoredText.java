@@ -1,7 +1,5 @@
 package com.atypon.nosql.store;
 
-import com.atypon.nosql.store.exceptions.FileNotStoredException;
-
 import java.io.*;
 import java.util.Random;
 

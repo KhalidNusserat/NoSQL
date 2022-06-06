@@ -1,4 +1,4 @@
-package com.atypon.nosql.store.exceptions;
+package com.atypon.nosql.store;
 
 import com.atypon.nosql.store.StoreException;
 

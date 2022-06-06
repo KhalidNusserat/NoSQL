@@ -6,7 +6,6 @@ import com.atypon.nosql.index.FieldIndex;
 import com.atypon.nosql.index.HashedFieldIndex;
 import com.atypon.nosql.io.CopyOnWriteIO;
 import com.atypon.nosql.io.GsonCopyOnWriteIO;
-import com.atypon.nosql.store.exceptions.ItemNotFoundException;
 import com.google.common.base.Preconditions;
 
 import java.io.IOException;
