@@ -7,8 +7,10 @@ import com.atypon.nosql.index.HashedFieldIndex;
 import com.atypon.nosql.io.CopyOnWriteIO;
 import com.atypon.nosql.io.GsonCopyOnWriteIO;
 import com.google.common.base.Preconditions;
+import com.google.common.reflect.TypeToken;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Stream;
@@ -18,7 +20,11 @@ public class UniqueIndexedDocumentsCollection<DocumentValue> implements Document
 
     private final CopyOnWriteIO<Document<DocumentValue>> documentsIO = new GsonCopyOnWriteIO<>();
 
+    private final Type documentType = new TypeToken<Document<DocumentValue>>(){}.getType();
+
     private final CopyOnWriteIO<FieldIndex<ObjectID, Path>> uniqueIndexIO = new GsonCopyOnWriteIO<>();
+
+    private final Type uniqueIndexType = new TypeToken<FieldIndex<ObjectID, Path>>(){}.getType();
 
     private final Path path;
 
@@ -28,7 +34,7 @@ public class UniqueIndexedDocumentsCollection<DocumentValue> implements Document
         try (Stream<Path> paths = Files.walk(path)) {
             Optional<Path> uniqueIndexPath = paths.filter(matcher::matches).findAny();
             if (uniqueIndexPath.isPresent()) {
-                return uniqueIndexIO.read(uniqueIndexPath.get());
+                return uniqueIndexIO.read(uniqueIndexPath.get(), uniqueIndexType);
             } else {
                 return new HashedFieldIndex<>();
             }
@@ -51,7 +57,7 @@ public class UniqueIndexedDocumentsCollection<DocumentValue> implements Document
     public Document<DocumentValue> get(ObjectID id) throws IOException {
         Preconditions.checkNotNull(id);
         Preconditions.checkState(uniqueIndex.containsKey(id), ItemNotFoundException.class);
-        return documentsIO.read(uniqueIndex.getFromKey(id).orElseThrow());
+        return documentsIO.read(uniqueIndex.getFromKey(id).orElseThrow(), documentType);
     }
 
     @Override
@@ -77,7 +83,7 @@ public class UniqueIndexedDocumentsCollection<DocumentValue> implements Document
                 .filter(filepath -> !matcher.matches(filepath))
                 .map(filepath -> {
                     try {
-                        return documentsIO.read(filepath);
+                        return documentsIO.read(filepath, documentType);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }

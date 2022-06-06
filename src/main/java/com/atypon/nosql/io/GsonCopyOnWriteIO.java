@@ -1,11 +1,11 @@
 package com.atypon.nosql.io;
 
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Random;
@@ -29,9 +29,9 @@ public class GsonCopyOnWriteIO<T> implements CopyOnWriteIO<T> {
     }
 
     @Override
-    public T read(Path filepath) throws IOException {
+    public T read(Path filepath, Type type) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(filepath)) {
-            return gson.fromJson(reader, new TypeToken<T>(){}.getType());
+            return gson.fromJson(reader, type);
         }
     }
 
