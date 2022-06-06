@@ -51,4 +51,9 @@ public class HashedFieldIndex<K, V> implements FieldIndex<K, V> {
         lock.readLock().unlock();
         return keys;
     }
+
+    @Override
+    public boolean containsKey(K key) {
+        return keyToValue.containsKey(key);
+    }
 }
