@@ -1,6 +1,6 @@
 package com.atypon.nosql.cache;
 
-import com.atypon.nosql.collections.ItemNotFoundException;
+import com.atypon.nosql.collection.ItemNotFoundException;
 import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;

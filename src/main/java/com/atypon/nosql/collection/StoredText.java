@@ -1,4 +1,4 @@
-package com.atypon.nosql.collections;
+package com.atypon.nosql.collection;
 
 import java.io.*;
 import java.util.Random;

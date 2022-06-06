@@ -1,4 +1,4 @@
-package com.atypon.nosql.collections;
+package com.atypon.nosql.collection;
 
 import java.io.IOException;
 import java.util.Collection;
