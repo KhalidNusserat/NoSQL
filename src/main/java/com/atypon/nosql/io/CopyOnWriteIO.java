@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public interface CopyOnWriteIO {
-    <T> void write(T file, Path path) throws IOException;
+    <T> Path write(T file, Path directory, String extension) throws IOException;
 
-    <T> T read(Path path, Class<T> tClass) throws IOException;
+    <T> T read(Path filepath, Class<T> tClass) throws IOException;
 
-    void delete(Path path);
+    void delete(Path filepath);
 
-    <T> Path update(T newFile, Path path) throws IOException;
+    <T> Path update(T newFile, Path filepath, String extension) throws IOException;
 }
