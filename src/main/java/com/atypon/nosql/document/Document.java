@@ -1,11 +1,11 @@
 package com.atypon.nosql.document;
 
-public interface Document<DocumentValue> {
+public interface Document<DocumentElement> {
     ObjectID id();
 
-    DocumentValue get(String field);
+    DocumentElement get(String field);
 
-    Document<DocumentValue> deepCopy();
+    Document<DocumentElement> deepCopy();
 
     byte[] getBytes();
 }
