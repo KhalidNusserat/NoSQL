@@ -36,8 +36,8 @@ public class UniqueIndexedDocumentsCollection<DocumentValue> implements Document
 
     public UniqueIndexedDocumentsCollection(Path path) throws IOException {
         Preconditions.checkNotNull(path);
-        this.uniqueIndex = readUniqueIndex();
         this.path = path;
+        this.uniqueIndex = readUniqueIndex();
     }
 
     private FieldIndex<ObjectID, Path> readUniqueIndex() throws IOException {
