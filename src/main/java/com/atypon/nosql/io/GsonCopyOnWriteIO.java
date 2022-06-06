@@ -1,5 +1,6 @@
 package com.atypon.nosql.io;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
@@ -11,7 +12,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class GsonCopyOnWriteIO implements CopyOnWriteIO {
+public class GsonCopyOnWriteIO<T> implements CopyOnWriteIO<T> {
     private final ExecutorService deleteService = Executors.newCachedThreadPool();
 
     private final Gson gson = new Gson();
@@ -19,7 +20,7 @@ public class GsonCopyOnWriteIO implements CopyOnWriteIO {
     private final Random random = new Random();
 
     @Override
-    public <T> Path write(T file, Path directory, String extension) throws IOException {
+    public Path write(T file, Path directory, String extension) throws IOException {
         Path filepath = directory.resolve(random.nextLong() + extension);
         try (BufferedWriter writer = Files.newBufferedWriter(filepath)) {
             gson.toJson(file, writer);
@@ -28,9 +29,9 @@ public class GsonCopyOnWriteIO implements CopyOnWriteIO {
     }
 
     @Override
-    public <T> T read(Path filepath, Class<T> tClass) throws IOException {
+    public T read(Path filepath) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(filepath)) {
-            return gson.fromJson(reader, tClass);
+            return gson.fromJson(reader, new TypeToken<T>(){}.getType());
         }
     }
 
@@ -40,7 +41,7 @@ public class GsonCopyOnWriteIO implements CopyOnWriteIO {
     }
 
     @Override
-    public <T> Path update(T newFile, Path filepath, String extension) throws IOException {
+    public Path update(T newFile, Path filepath, String extension) throws IOException {
         Path newFilepath = write(newFile, filepath.getParent(), extension);
         delete(filepath);
         return newFilepath;
