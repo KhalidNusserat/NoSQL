@@ -4,8 +4,6 @@ import com.atypon.nosql.schema.PrimitiveSchema;
 import com.atypon.nosql.schema.gson.GsonSchema;
 import com.google.gson.JsonElement;
 
-import javax.naming.directory.SchemaViolationException;
-
 public abstract class GsonPrimitiveSchema<DataType>
         extends PrimitiveSchema<JsonElement>
         implements GsonSchema {

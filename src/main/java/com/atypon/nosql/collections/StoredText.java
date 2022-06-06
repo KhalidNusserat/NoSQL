@@ -13,6 +13,14 @@ public class StoredText implements Serializable {
 
     private final String extension;
 
+    public StoredText(String filepath, String extension, String content) throws Exception {
+        this.filepath = filepath;
+        this.extension = extension;
+        this.filename = Long.toString(new Random().nextLong());
+        create();
+        store(content);
+    }
+
     private void create() throws IOException {
         if (new File(filepath).mkdirs() || new File(filepath).exists()) {
             if (!new File(getFilePath()).createNewFile()) {
@@ -27,14 +35,6 @@ public class StoredText implements Serializable {
         BufferedWriter writer = new BufferedWriter(new FileWriter(getFilePath()));
         writer.write(content);
         writer.close();
-    }
-
-    public StoredText(String filepath, String extension, String content) throws Exception {
-        this.filepath = filepath;
-        this.extension = extension;
-        this.filename = Long.toString(new Random().nextLong());
-        create();
-        store(content);
     }
 
     public String getFilePath() {

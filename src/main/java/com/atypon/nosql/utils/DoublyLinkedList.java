@@ -3,13 +3,10 @@ package com.atypon.nosql.utils;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DoublyLinkedList<T> {
-    private Node<T> head;
-
-    private Node<T> tail;
-
-    private int size = 0;
-
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private Node<T> head;
+    private Node<T> tail;
+    private int size = 0;
 
     public void remove(Node<T> node) {
         lock.writeLock().lock();
@@ -107,10 +104,6 @@ public class DoublyLinkedList<T> {
 
         private Node<T> prev;
 
-        public static <T> Node<T> fromValue(T value) {
-            return new Node<>(value);
-        }
-
         public Node(T value) {
             this.value = value;
         }
@@ -119,6 +112,10 @@ public class DoublyLinkedList<T> {
             this.value = value;
             this.next = next;
             this.prev = prev;
+        }
+
+        public static <T> Node<T> fromValue(T value) {
+            return new Node<>(value);
         }
 
         public T value() {

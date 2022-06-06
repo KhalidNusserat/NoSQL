@@ -11,8 +11,12 @@ import com.google.common.reflect.TypeToken;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class UniqueIndexedDocumentsCollection<DocumentValue> implements DocumentsCollection<DocumentValue> {
@@ -20,13 +24,21 @@ public class UniqueIndexedDocumentsCollection<DocumentValue> implements Document
 
     private final CopyOnWriteIO io = new GsonCopyOnWriteIO();
 
-    private final Type documentType = new TypeToken<Document<DocumentValue>>(){}.getType();
+    private final Type documentType = new TypeToken<Document<DocumentValue>>() {
+    }.getType();
 
-    private final Type uniqueIndexType = new TypeToken<FieldIndex<ObjectID, Path>>(){}.getType();
+    private final Type uniqueIndexType = new TypeToken<FieldIndex<ObjectID, Path>>() {
+    }.getType();
 
     private final Path path;
 
     private final PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**/*.index");
+
+    public UniqueIndexedDocumentsCollection(Path path) throws IOException {
+        Preconditions.checkNotNull(path);
+        this.uniqueIndex = readUniqueIndex();
+        this.path = path;
+    }
 
     private FieldIndex<ObjectID, Path> readUniqueIndex() throws IOException {
         try (Stream<Path> paths = Files.walk(path)) {
@@ -37,12 +49,6 @@ public class UniqueIndexedDocumentsCollection<DocumentValue> implements Document
                 return new HashedFieldIndex<>();
             }
         }
-    }
-
-    public UniqueIndexedDocumentsCollection(Path path) throws IOException {
-        Preconditions.checkNotNull(path);
-        this.uniqueIndex = readUniqueIndex();
-        this.path = path;
     }
 
     @Override

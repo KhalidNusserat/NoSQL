@@ -4,8 +4,7 @@ import com.atypon.nosql.utils.DoublyLinkedList;
 import org.junit.jupiter.api.Test;
 
 import static com.atypon.nosql.utils.DoublyLinkedList.Node;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DoublyLinkedListTest {
     @Test

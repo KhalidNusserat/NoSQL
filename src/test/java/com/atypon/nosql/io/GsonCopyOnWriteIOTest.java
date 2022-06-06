@@ -11,7 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GsonCopyOnWriteIOTest {
     private final Path testDirectory = Path.of("./test");
@@ -36,7 +36,8 @@ class GsonCopyOnWriteIOTest {
     @Test
     void writeAndRead() throws IOException {
         CopyOnWriteIO io = new GsonCopyOnWriteIO();
-        Type listType = new TypeToken<List<String>>(){}.getType();
+        Type listType = new TypeToken<List<String>>() {
+        }.getType();
         Path filepath = io.write(List.of("Khalid"), testDirectory, ".json");
         assertEquals(List.of("Khalid"), io.read(filepath, listType));
     }
@@ -53,7 +54,8 @@ class GsonCopyOnWriteIOTest {
     @Test
     void update() throws IOException, InterruptedException {
         CopyOnWriteIO io = new GsonCopyOnWriteIO();
-        Type listType = new TypeToken<List<String>>(){}.getType();
+        Type listType = new TypeToken<List<String>>() {
+        }.getType();
         Path filepath = io.write(List.of("Old"), testDirectory, ".json");
         filepath = io.update(List.of("New"), filepath, ".json");
         Thread.sleep(200);
