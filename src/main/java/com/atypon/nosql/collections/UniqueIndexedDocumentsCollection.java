@@ -67,7 +67,6 @@ public class UniqueIndexedDocumentsCollection<DocumentValue> implements Document
     @Override
     public void put(ObjectID id, Document<DocumentValue> document) throws IOException {
         Preconditions.checkNotNull(id, document);
-        Preconditions.checkState(uniqueIndex.containsKey(id), ItemNotFoundException.class);
         uniqueIndex.put(id, io.update(document, uniqueIndex.getFromKey(id).orElseThrow(), ".json"));
         io.update(uniqueIndex, path, ".index");
     }
