@@ -48,7 +48,7 @@ public class GsonDocumentSchema extends DocumentSchema<JsonElement> implements G
         for (Map.Entry<String, Schema<JsonElement>> field : fields.entrySet()) {
             if (!builder.containsKey(field.getKey())) {
                 if (field.getValue().isRequired()) {
-                    throw new IllegalArgumentException("Missing required argument: " + field.getKey());
+                    throw new IllegalArgumentException("Missing required field: " + field.getKey());
                 } else {
                     builder.add(field.getKey(), field.getValue().getDefault());
                 }
