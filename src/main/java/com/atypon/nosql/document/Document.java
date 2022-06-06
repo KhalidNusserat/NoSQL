@@ -6,6 +6,4 @@ public interface Document<DocumentElement> {
     DocumentElement get(String field);
 
     Document<DocumentElement> deepCopy();
-
-    Document<DocumentElement> parse(String src);
 }

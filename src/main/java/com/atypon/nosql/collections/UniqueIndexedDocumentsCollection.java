@@ -1,8 +1,8 @@
 package com.atypon.nosql.collections;
 
 import com.atypon.nosql.document.Document;
+import com.atypon.nosql.document.DocumentParser;
 import com.atypon.nosql.document.ObjectID;
-import com.atypon.nosql.gsondocument.GsonDocument;
 import com.atypon.nosql.index.FieldIndex;
 import com.atypon.nosql.index.HashedFieldIndex;
 import com.atypon.nosql.io.CopyOnWriteIO;
@@ -21,26 +21,28 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public class UniqueIndexedDocumentsCollection<T extends Document<?>> implements DocumentsCollection<T> {
-    private final FieldIndex<ObjectID, Path> uniqueIndex;
+    private final FieldIndex<ObjectID, String> uniqueIndex;
 
     private final CopyOnWriteIO io = new GsonCopyOnWriteIO();
 
-    private final Type documentType = new TypeToken<GsonDocument>() {}.getType();
+    private final DocumentParser<T> parser;
 
-    private final Type uniqueIndexType = new TypeToken<FieldIndex<ObjectID, Path>>() {}.getType();
+    private final Type uniqueIndexType = new TypeToken<FieldIndex<ObjectID, String>>() {}.getType();
 
-    private final Path path;
+    private final Path directoryPath;
 
     private final PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**/*.index");
 
-    public UniqueIndexedDocumentsCollection(Path path) throws IOException {
-        Preconditions.checkNotNull(path);
-        this.path = path;
+    public UniqueIndexedDocumentsCollection(DocumentParser<T> parser, Path directoryPath) throws IOException {
+        Preconditions.checkNotNull(directoryPath);
+        Preconditions.checkNotNull(parser);
+        this.directoryPath = directoryPath;
+        this.parser = parser;
         this.uniqueIndex = readUniqueIndex();
     }
 
-    private FieldIndex<ObjectID, Path> readUniqueIndex() throws IOException {
-        try (Stream<Path> paths = Files.walk(path)) {
+    private FieldIndex<ObjectID, String> readUniqueIndex() throws IOException {
+        try (Stream<Path> paths = Files.walk(directoryPath)) {
             Optional<Path> uniqueIndexPath = paths.filter(matcher::matches).findAny();
             if (uniqueIndexPath.isPresent()) {
                 return io.read(uniqueIndexPath.get(), uniqueIndexType);
@@ -60,39 +62,57 @@ public class UniqueIndexedDocumentsCollection<T extends Document<?>> implements 
     public T get(ObjectID id) throws IOException {
         Preconditions.checkNotNull(id);
         Preconditions.checkState(uniqueIndex.containsKey(id), ItemNotFoundException.class);
-        return io.read(uniqueIndex.getFromKey(id).orElseThrow(), documentType);
+        return parser.parse(
+                io.read(
+                        Path.of(uniqueIndex.getFromKey(id).orElseThrow()),
+                        String.class
+                )
+        );
     }
 
     @Override
     public void put(ObjectID id, T document) throws IOException {
         Preconditions.checkNotNull(id, document);
         if (uniqueIndex.containsKey(id)) {
-            uniqueIndex.put(id, io.update(document, documentType, uniqueIndex.getFromKey(id).orElseThrow(), ".json"));
+            uniqueIndex.put(
+                    id,
+                    io.update(
+                            document.toString(),
+                            String.class,
+                            Path.of(uniqueIndex.getFromKey(id).orElseThrow()),
+                            ".json"
+                    ).toString()
+            );
         } else {
             uniqueIndex.put(
                     id,
-                    io.write(document, documentType, path, ".json")
+                    io.write(
+                            document.toString(),
+                            String.class,
+                            directoryPath,
+                            ".json"
+                    ).toString()
             );
         }
-        io.update(uniqueIndex, documentType, path, ".index");
+        io.update(uniqueIndex, uniqueIndexType, directoryPath, ".index");
     }
 
     @Override
     public void remove(ObjectID id) throws IOException {
         Preconditions.checkNotNull(id);
         Preconditions.checkState(uniqueIndex.containsKey(id), ItemNotFoundException.class);
-        io.delete(uniqueIndex.getFromKey(id).orElseThrow());
+        io.delete(Path.of(uniqueIndex.getFromKey(id).orElseThrow()));
         uniqueIndex.remove(id);
-        io.update(uniqueIndex, documentType, path, ".index");
+        io.update(uniqueIndex, uniqueIndexType, directoryPath, ".index");
     }
 
     @Override
     public Collection<T> readAll() throws IOException {
-        return Files.walk(path)
+        return Files.walk(directoryPath)
                 .filter(filepath -> !matcher.matches(filepath))
                 .map(filepath -> {
                     try {
-                        return io.<T>read(filepath, documentType);
+                        return parser.parse(io.read(filepath, String.class));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }

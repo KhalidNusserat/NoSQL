@@ -29,7 +29,10 @@ public class GsonDocument implements Document<JsonElement> {
     }
 
     public GsonDocument(JsonElement element) {
-        Preconditions.checkState(element.isJsonObject());
+        Preconditions.checkState(
+                element.isJsonObject(),
+                "Expected a JsonObject, instead got: %s", element
+        );
         object = element.getAsJsonObject();
         object.addProperty("_id", objectID.toString());
     }
@@ -60,11 +63,6 @@ public class GsonDocument implements Document<JsonElement> {
     @Override
     public Document<JsonElement> deepCopy() {
         return new GsonDocument(this);
-    }
-
-    @Override
-    public GsonDocument parse(String src) {
-        return new GsonDocument(new Gson().toJsonTree(src));
     }
 
     @Override
