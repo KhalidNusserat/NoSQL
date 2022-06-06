@@ -14,8 +14,10 @@ public class HashedFieldIndexJsonAdapter<K, V> implements
     public JsonElement serialize(HashedFieldIndex<K, V> src, Type typeOfSrc, JsonSerializationContext context) {
         Gson gson = new Gson();
         JsonObject object = new JsonObject();
-        object.add("keyToValue", gson.toJsonTree(src.keyToValue, new TypeToken<Map<K, V>>(){}.getType()));
-        object.add("valueToKeys", gson.toJsonTree(src.valueToKeys, new TypeToken<Map<V, Set<K>>>(){}.getType()));
+        object.add("keyToValue", gson.toJsonTree(src.keyToValue, new TypeToken<Map<K, V>>() {
+        }.getType()));
+        object.add("valueToKeys", gson.toJsonTree(src.valueToKeys, new TypeToken<Map<V, Set<K>>>() {
+        }.getType()));
         return object;
     }
 
@@ -26,11 +28,13 @@ public class HashedFieldIndexJsonAdapter<K, V> implements
         return new HashedFieldIndex<>(
                 gson.fromJson(
                         json.getAsJsonObject().get("keyToValue"),
-                        new TypeToken<Map<K, V>>(){}.getType()
+                        new TypeToken<Map<K, V>>() {
+                        }.getType()
                 ),
                 gson.fromJson(
                         json.getAsJsonObject().get("valueToKeys"),
-                        new TypeToken<Map<V, Set<K>>>(){}.getType()
+                        new TypeToken<Map<V, Set<K>>>() {
+                        }.getType()
                 )
         );
     }

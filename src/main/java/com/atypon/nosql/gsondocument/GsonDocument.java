@@ -4,13 +4,9 @@ import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.ObjectID;
 import com.atypon.nosql.document.RandomObjectID;
 import com.google.common.base.Preconditions;
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 public class GsonDocument implements Document<JsonElement> {

@@ -1,6 +1,5 @@
 package com.atypon.nosql.collections;
 
-import com.atypon.nosql.document.DocumentParser;
 import com.atypon.nosql.document.ObjectID;
 import com.atypon.nosql.document.RandomObjectID;
 import com.atypon.nosql.gsondocument.GsonDocument;
@@ -13,9 +12,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Person {
     public static JsonObject fromNameAndAge(String name, int age) {

@@ -16,7 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class GsonCopyOnWriteIOTest {
     private final Path testDirectory = Path.of("./test");
 
-    private final Type listType = new TypeToken<List<String>>() {}.getType();
+    private final Type listType = new TypeToken<List<String>>() {
+    }.getType();
 
     @BeforeEach
     void setUp() throws IOException {

@@ -27,7 +27,8 @@ public class UniqueIndexedDocumentsCollection<T extends Document<?>> implements 
 
     private final DocumentParser<T> parser;
 
-    private final Type uniqueIndexType = new TypeToken<HashedFieldIndex<ObjectID, String>>() {}.getType();
+    private final Type uniqueIndexType = new TypeToken<HashedFieldIndex<ObjectID, String>>() {
+    }.getType();
 
     private final Path directoryPath;
 
