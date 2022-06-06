@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,17 +34,17 @@ class UniqueIndexedDocumentsCollectionTest {
         Files.createDirectories(testDirectory);
     }
 
-    @AfterEach
-    void tearDown() throws IOException {
-        Files.walk(testDirectory).filter(Files::isRegularFile).forEach(path -> {
-            try {
-                Files.delete(path);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-        Files.delete(testDirectory);
-    }
+//    @AfterEach
+//    void tearDown() throws IOException {
+//        Files.walk(testDirectory).filter(Files::isRegularFile).forEach(path -> {
+//            try {
+//                Files.delete(path);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        });
+//        Files.delete(testDirectory);
+//    }
 
     @Test
     void putAndGet() throws IOException, InterruptedException {
@@ -60,6 +61,8 @@ class UniqueIndexedDocumentsCollectionTest {
         collection.put(johnID, new GsonDocument(john));
         Thread.sleep(800);
         assertEquals("Khalid", collection.get(khalidID).get("name").getAsString());
+        assertEquals("Hamza", collection.get(hamzaID).get("name").getAsString());
+        assertEquals("John", collection.get(johnID).get("name").getAsString());
     }
 
     @Test

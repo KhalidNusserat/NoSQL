@@ -27,7 +27,7 @@ public class UniqueIndexedDocumentsCollection<T extends Document<?>> implements 
 
     private final DocumentParser<T> parser;
 
-    private final Type uniqueIndexType = new TypeToken<FieldIndex<ObjectID, String>>() {}.getType();
+    private final Type uniqueIndexType = new TypeToken<HashedFieldIndex<ObjectID, String>>() {}.getType();
 
     private final Path directoryPath;
 
@@ -41,14 +41,19 @@ public class UniqueIndexedDocumentsCollection<T extends Document<?>> implements 
         this.uniqueIndex = readUniqueIndex();
     }
 
-    private FieldIndex<ObjectID, String> readUniqueIndex() throws IOException {
+    private Optional<Path> getUniqueIndexPath() throws IOException {
         try (Stream<Path> paths = Files.walk(directoryPath)) {
-            Optional<Path> uniqueIndexPath = paths.filter(matcher::matches).findAny();
-            if (uniqueIndexPath.isPresent()) {
-                return io.read(uniqueIndexPath.get(), uniqueIndexType);
-            } else {
-                return new HashedFieldIndex<>();
-            }
+            return paths.filter(matcher::matches).findAny();
+        }
+    }
+
+    private FieldIndex<ObjectID, String> readUniqueIndex() throws IOException {
+        Optional<Path> uniqueIndexPath = getUniqueIndexPath();
+        if (uniqueIndexPath.isPresent()) {
+            return io.read(uniqueIndexPath.get(), uniqueIndexType);
+        } else {
+            io.write(new HashedFieldIndex<>(), uniqueIndexType, directoryPath, ".index");
+            return new HashedFieldIndex<>();
         }
     }
 
@@ -94,7 +99,7 @@ public class UniqueIndexedDocumentsCollection<T extends Document<?>> implements 
                     ).toString()
             );
         }
-        io.update(uniqueIndex, uniqueIndexType, directoryPath, ".index");
+        io.update(uniqueIndex, uniqueIndexType, getUniqueIndexPath().orElseThrow(), ".index");
     }
 
     @Override
@@ -103,7 +108,7 @@ public class UniqueIndexedDocumentsCollection<T extends Document<?>> implements 
         Preconditions.checkState(uniqueIndex.containsKey(id), ItemNotFoundException.class);
         io.delete(Path.of(uniqueIndex.getFromKey(id).orElseThrow()));
         uniqueIndex.remove(id);
-        io.update(uniqueIndex, uniqueIndexType, directoryPath, ".index");
+        io.update(uniqueIndex, uniqueIndexType, getUniqueIndexPath().orElseThrow(), ".index");
     }
 
     @Override
