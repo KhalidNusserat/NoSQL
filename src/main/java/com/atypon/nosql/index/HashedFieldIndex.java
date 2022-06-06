@@ -1,14 +1,27 @@
 package com.atypon.nosql.index;
 
+import com.google.gson.annotations.JsonAdapter;
+
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+@JsonAdapter(HashedFieldIndexJsonAdapter.class)
 public class HashedFieldIndex<K, V> implements FieldIndex<K, V> {
-    private final Map<V, Set<K>> valueToKeys = new HashMap<>();
+    final Map<V, Set<K>> valueToKeys;
 
-    private final Map<K, V> keyToValue = new HashMap<>();
+    final Map<K, V> keyToValue;
 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+
+    HashedFieldIndex(Map<K, V> keyToValue, Map<V, Set<K>> valueToKeys) {
+        this.keyToValue = keyToValue;
+        this.valueToKeys = valueToKeys;
+    }
+
+    public HashedFieldIndex() {
+        keyToValue = new HashMap<>();
+        valueToKeys = new HashMap<>();
+    }
 
     @Override
     public void put(K key, V value) {
