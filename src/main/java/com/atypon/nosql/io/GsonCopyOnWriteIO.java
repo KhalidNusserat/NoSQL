@@ -20,10 +20,10 @@ public class GsonCopyOnWriteIO implements CopyOnWriteIO {
     private final Random random = new Random();
 
     @Override
-    public <T> Path write(T file, Path directory, String extension) throws IOException {
+    public <T> Path write(T file, Type type, Path directory, String extension) throws IOException {
         Path filepath = directory.resolve(random.nextLong() + extension);
         try (BufferedWriter writer = Files.newBufferedWriter(filepath)) {
-            gson.toJson(file, writer);
+            gson.toJson(file, type, writer);
         }
         return filepath;
     }
@@ -41,8 +41,8 @@ public class GsonCopyOnWriteIO implements CopyOnWriteIO {
     }
 
     @Override
-    public <T> Path update(T newFile, Path filepath, String extension) throws IOException {
-        Path newFilepath = write(newFile, filepath.getParent(), extension);
+    public <T> Path update(T newFile, Type type, Path filepath, String extension) throws IOException {
+        Path newFilepath = write(newFile, type, filepath.getParent(), extension);
         delete(filepath);
         return newFilepath;
     }

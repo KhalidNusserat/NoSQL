@@ -16,6 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class GsonCopyOnWriteIOTest {
     private final Path testDirectory = Path.of("./test");
 
+    private final Type listType = new TypeToken<List<String>>() {}.getType();
+
     @BeforeEach
     void setUp() throws IOException {
         Files.createDirectories(testDirectory);
@@ -36,16 +38,14 @@ class GsonCopyOnWriteIOTest {
     @Test
     void writeAndRead() throws IOException {
         CopyOnWriteIO io = new GsonCopyOnWriteIO();
-        Type listType = new TypeToken<List<String>>() {
-        }.getType();
-        Path filepath = io.write(List.of("Khalid"), testDirectory, ".json");
+        Path filepath = io.write(List.of("Khalid"), listType, testDirectory, ".json");
         assertEquals(List.of("Khalid"), io.read(filepath, listType));
     }
 
     @Test
     void delete() throws IOException, InterruptedException {
         CopyOnWriteIO io = new GsonCopyOnWriteIO();
-        Path filepath = io.write(List.of("Delete me"), testDirectory, ".json");
+        Path filepath = io.write(List.of("Delete me"), listType, testDirectory, ".json");
         io.delete(filepath);
         Thread.sleep(200);
         assertEquals(1, Files.walk(testDirectory).toList().size());
@@ -56,8 +56,8 @@ class GsonCopyOnWriteIOTest {
         CopyOnWriteIO io = new GsonCopyOnWriteIO();
         Type listType = new TypeToken<List<String>>() {
         }.getType();
-        Path filepath = io.write(List.of("Old"), testDirectory, ".json");
-        filepath = io.update(List.of("New"), filepath, ".json");
+        Path filepath = io.write(List.of("Old"), listType, testDirectory, ".json");
+        filepath = io.update(List.of("New"), listType, filepath, ".json");
         Thread.sleep(200);
         assertEquals(List.of("New"), io.read(filepath, listType));
         assertEquals(2, Files.walk(testDirectory).toList().size());

@@ -24,11 +24,9 @@ public class UniqueIndexedDocumentsCollection<DocumentValue> implements Document
 
     private final CopyOnWriteIO io = new GsonCopyOnWriteIO();
 
-    private final Type documentType = new TypeToken<Document<DocumentValue>>() {
-    }.getType();
+    private final Type documentType = new TypeToken<Document<DocumentValue>>() {}.getType();
 
-    private final Type uniqueIndexType = new TypeToken<FieldIndex<ObjectID, Path>>() {
-    }.getType();
+    private final Type uniqueIndexType = new TypeToken<FieldIndex<ObjectID, Path>>() {}.getType();
 
     private final Path path;
 
@@ -68,11 +66,14 @@ public class UniqueIndexedDocumentsCollection<DocumentValue> implements Document
     public void put(ObjectID id, Document<DocumentValue> document) throws IOException {
         Preconditions.checkNotNull(id, document);
         if (uniqueIndex.containsKey(id)) {
-            uniqueIndex.put(id, io.update(document, uniqueIndex.getFromKey(id).orElseThrow(), ".json"));
+            uniqueIndex.put(id, io.update(document, documentType, uniqueIndex.getFromKey(id).orElseThrow(), ".json"));
         } else {
-            uniqueIndex.put(id, io.write(document, path, ".json"));
+            uniqueIndex.put(
+                    id,
+                    io.write(document, documentType, path, ".json")
+            );
         }
-        io.update(uniqueIndex, path, ".index");
+        io.update(uniqueIndex, documentType, path, ".index");
     }
 
     @Override
@@ -81,7 +82,7 @@ public class UniqueIndexedDocumentsCollection<DocumentValue> implements Document
         Preconditions.checkState(uniqueIndex.containsKey(id), ItemNotFoundException.class);
         io.delete(uniqueIndex.getFromKey(id).orElseThrow());
         uniqueIndex.remove(id);
-        io.update(uniqueIndex, path, ".index");
+        io.update(uniqueIndex, documentType, path, ".index");
     }
 
     @Override
