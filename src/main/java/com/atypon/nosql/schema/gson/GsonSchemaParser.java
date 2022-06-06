@@ -78,9 +78,9 @@ public class GsonSchemaParser {
         );
     }
 
-    private GsonDocumentSchema parseDocument(JsonObject jsonObject) throws InvalidKeywordException {
-        GsonDocumentSchema.GsonDocumentSchemaBuilder builder =
-                GsonDocumentSchema.builder().nullable();
+    private GsonObjectSchema parseDocument(JsonObject jsonObject) throws InvalidKeywordException {
+        GsonObjectSchema.GsonDocumentSchemaBuilder builder =
+                GsonObjectSchema.builder().nullable();
         for (Map.Entry<String, JsonElement> field : jsonObject.entrySet()) {
             builder.add(field.getKey(), parse(field.getValue()));
         }

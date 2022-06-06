@@ -12,28 +12,28 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-public class GsonObject implements Document<JsonElement> {
+public class GsonDocument implements Document<JsonElement> {
     private final JsonObject object;
 
     private final ObjectID objectID = new RandomObjectID();
 
-    public GsonObject() {
+    public GsonDocument() {
         object = new JsonObject();
         object.addProperty("_id", objectID.toString());
     }
 
-    public GsonObject(JsonObject object) {
+    public GsonDocument(JsonObject object) {
         this.object = object.deepCopy();
         object.addProperty("_id", objectID.toString());
     }
 
-    public GsonObject(JsonElement element) {
+    public GsonDocument(JsonElement element) {
         Preconditions.checkState(element.isJsonObject());
         object = element.getAsJsonObject();
         object.addProperty("_id", objectID.toString());
     }
 
-    public GsonObject(GsonObject other) {
+    public GsonDocument(GsonDocument other) {
         object = other.object.deepCopy();
         object.addProperty("_id", objectID.toString());
     }
@@ -58,7 +58,7 @@ public class GsonObject implements Document<JsonElement> {
 
     @Override
     public Document<JsonElement> deepCopy() {
-        return new GsonObject(this);
+        return new GsonDocument(this);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class GsonObject implements Document<JsonElement> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        GsonObject that = (GsonObject) o;
+        GsonDocument that = (GsonDocument) o;
         return object.equals(that.object);
     }
 
@@ -85,44 +85,44 @@ public class GsonObject implements Document<JsonElement> {
     }
 
     public static class GsonDocumentBuilder {
-        private final GsonObject gsonObject = new GsonObject();
+        private final GsonDocument gsonDocument = new GsonDocument();
 
         public GsonDocumentBuilder add(String field, JsonElement element) {
-            gsonObject.object.add(field, element);
+            gsonDocument.object.add(field, element);
             return this;
         }
 
         public GsonDocumentBuilder addField(String field, BigInteger value) {
-            gsonObject.object.addProperty(field, value);
+            gsonDocument.object.addProperty(field, value);
             return this;
         }
 
         public GsonDocumentBuilder addField(String field, BigDecimal value) {
-            gsonObject.object.addProperty(field, value);
+            gsonDocument.object.addProperty(field, value);
             return this;
         }
 
         public GsonDocumentBuilder addField(String field, String value) {
-            gsonObject.object.addProperty(field, value);
+            gsonDocument.object.addProperty(field, value);
             return this;
         }
 
         public GsonDocumentBuilder addField(String field, boolean value) {
-            gsonObject.object.addProperty(field, value);
+            gsonDocument.object.addProperty(field, value);
             return this;
         }
 
         public GsonDocumentBuilder remove(String field) {
-            gsonObject.object.remove(field);
+            gsonDocument.object.remove(field);
             return this;
         }
 
         public boolean containsKey(String field) {
-            return gsonObject.getAsJsonObject().has(field);
+            return gsonDocument.getAsJsonObject().has(field);
         }
 
-        public GsonObject create() {
-            return gsonObject;
+        public GsonDocument create() {
+            return gsonDocument;
         }
     }
 }

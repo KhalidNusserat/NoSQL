@@ -1,6 +1,6 @@
 package com.atypon.nosql.schema.gson;
 
-import com.atypon.nosql.gsonwrapper.GsonObject;
+import com.atypon.nosql.gsonwrapper.GsonDocument;
 import com.atypon.nosql.schema.DocumentSchema;
 import com.atypon.nosql.schema.Schema;
 import com.google.gson.JsonElement;
@@ -11,8 +11,8 @@ import javax.naming.directory.SchemaViolationException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GsonDocumentSchema extends DocumentSchema<JsonElement> implements GsonSchema {
-    public GsonDocumentSchema(Map<String, GsonSchema> fields, boolean required, boolean nullable) {
+public class GsonObjectSchema extends DocumentSchema<JsonElement> implements GsonSchema {
+    public GsonObjectSchema(Map<String, GsonSchema> fields, boolean required, boolean nullable) {
         super(required, nullable);
         this.fields.putAll(fields);
     }
@@ -36,7 +36,7 @@ public class GsonDocumentSchema extends DocumentSchema<JsonElement> implements G
             throw new SchemaViolationException("Not a JsonObject: " + element);
         }
         JsonObject document = element.getAsJsonObject();
-        GsonObject.GsonDocumentBuilder builder = GsonObject.builder();
+        GsonDocument.GsonDocumentBuilder builder = GsonDocument.builder();
         for (Map.Entry<String, JsonElement> field : document.entrySet()) {
             String fieldName = field.getKey();
             if (this.fields.containsKey(fieldName)) {
@@ -77,8 +77,8 @@ public class GsonDocumentSchema extends DocumentSchema<JsonElement> implements G
             return this;
         }
 
-        public GsonDocumentSchema create() {
-            return new GsonDocumentSchema(fields, required, nullable);
+        public GsonObjectSchema create() {
+            return new GsonObjectSchema(fields, required, nullable);
         }
     }
 }
