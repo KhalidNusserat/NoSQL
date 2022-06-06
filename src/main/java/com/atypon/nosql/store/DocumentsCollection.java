@@ -1,20 +1,19 @@
 package com.atypon.nosql.store;
 
-import com.atypon.nosql.store.exceptions.ItemNotFoundException;
+import com.atypon.nosql.document.Document;
+import com.atypon.nosql.document.ObjectID;
 
 import java.io.IOException;
 import java.util.Collection;
 
-public interface DocumentsCollection {
-    boolean containsKey(String id);
+public interface DocumentsCollection<DocumentValue> {
+    boolean containsID(ObjectID id);
 
-    String get(String id) throws ItemNotFoundException, IOException;
+    Document<DocumentValue> get(ObjectID id) throws IOException;
 
-    void put(String id, String content) throws Exception;
+    void put(ObjectID id, Document<DocumentValue> document) throws IOException;
 
-    void remove(String id) throws ItemNotFoundException, IOException;
+    void remove(ObjectID id) throws IOException;
 
-    void clear() throws IOException;
-
-    Collection<String> readAll() throws IOException;
+    Collection<Document<DocumentValue>> readAll() throws IOException;
 }
