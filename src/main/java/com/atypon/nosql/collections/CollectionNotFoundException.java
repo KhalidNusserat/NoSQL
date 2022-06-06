@@ -1,6 +1,4 @@
-package com.atypon.nosql.store;
-
-import com.atypon.nosql.store.StoreException;
+package com.atypon.nosql.collections;
 
 public class CollectionNotFoundException extends StoreException {
     public CollectionNotFoundException(String collection) {

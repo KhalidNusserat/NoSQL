@@ -1,4 +1,4 @@
-package com.atypon.nosql.store;
+package com.atypon.nosql.collections;
 
 public class ItemNotFoundException extends Exception {
     public ItemNotFoundException(String id) {

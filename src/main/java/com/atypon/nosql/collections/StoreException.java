@@ -1,4 +1,4 @@
-package com.atypon.nosql.store;
+package com.atypon.nosql.collections;
 
 public class StoreException extends Exception {
     public StoreException(String message) {
