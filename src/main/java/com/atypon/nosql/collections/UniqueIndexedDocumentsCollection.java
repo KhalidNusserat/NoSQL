@@ -2,6 +2,7 @@ package com.atypon.nosql.collections;
 
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.ObjectID;
+import com.atypon.nosql.gsondocument.GsonDocument;
 import com.atypon.nosql.index.FieldIndex;
 import com.atypon.nosql.index.HashedFieldIndex;
 import com.atypon.nosql.io.CopyOnWriteIO;
@@ -19,12 +20,12 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class UniqueIndexedDocumentsCollection<DocumentValue> implements DocumentsCollection<DocumentValue> {
+public class UniqueIndexedDocumentsCollection<T extends Document<?>> implements DocumentsCollection<T> {
     private final FieldIndex<ObjectID, Path> uniqueIndex;
 
     private final CopyOnWriteIO io = new GsonCopyOnWriteIO();
 
-    private final Type documentType = new TypeToken<Document<DocumentValue>>() {}.getType();
+    private final Type documentType = new TypeToken<GsonDocument>() {}.getType();
 
     private final Type uniqueIndexType = new TypeToken<FieldIndex<ObjectID, Path>>() {}.getType();
 
@@ -56,14 +57,14 @@ public class UniqueIndexedDocumentsCollection<DocumentValue> implements Document
     }
 
     @Override
-    public Document<DocumentValue> get(ObjectID id) throws IOException {
+    public T get(ObjectID id) throws IOException {
         Preconditions.checkNotNull(id);
         Preconditions.checkState(uniqueIndex.containsKey(id), ItemNotFoundException.class);
         return io.read(uniqueIndex.getFromKey(id).orElseThrow(), documentType);
     }
 
     @Override
-    public void put(ObjectID id, Document<DocumentValue> document) throws IOException {
+    public void put(ObjectID id, T document) throws IOException {
         Preconditions.checkNotNull(id, document);
         if (uniqueIndex.containsKey(id)) {
             uniqueIndex.put(id, io.update(document, documentType, uniqueIndex.getFromKey(id).orElseThrow(), ".json"));
@@ -86,12 +87,12 @@ public class UniqueIndexedDocumentsCollection<DocumentValue> implements Document
     }
 
     @Override
-    public Collection<Document<DocumentValue>> readAll() throws IOException {
+    public Collection<T> readAll() throws IOException {
         return Files.walk(path)
                 .filter(filepath -> !matcher.matches(filepath))
                 .map(filepath -> {
                     try {
-                        return io.<Document<DocumentValue>>read(filepath, documentType);
+                        return io.<T>read(filepath, documentType);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
