@@ -12,7 +12,7 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class GsonCopyOnWriteIO<T> implements CopyOnWriteIO<T> {
+public class GsonCopyOnWriteIO implements CopyOnWriteIO {
     private final ExecutorService deleteService = Executors.newCachedThreadPool();
 
     private final Gson gson = new Gson();
@@ -20,7 +20,7 @@ public class GsonCopyOnWriteIO<T> implements CopyOnWriteIO<T> {
     private final Random random = new Random();
 
     @Override
-    public Path write(T file, Path directory, String extension) throws IOException {
+    public <T> Path write(T file, Path directory, String extension) throws IOException {
         Path filepath = directory.resolve(random.nextLong() + extension);
         try (BufferedWriter writer = Files.newBufferedWriter(filepath)) {
             gson.toJson(file, writer);
@@ -29,7 +29,7 @@ public class GsonCopyOnWriteIO<T> implements CopyOnWriteIO<T> {
     }
 
     @Override
-    public T read(Path filepath, Type type) throws IOException {
+    public <T> T read(Path filepath, Type type) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(filepath)) {
             return gson.fromJson(reader, type);
         }
@@ -41,7 +41,7 @@ public class GsonCopyOnWriteIO<T> implements CopyOnWriteIO<T> {
     }
 
     @Override
-    public Path update(T newFile, Path filepath, String extension) throws IOException {
+    public <T> Path update(T newFile, Path filepath, String extension) throws IOException {
         Path newFilepath = write(newFile, filepath.getParent(), extension);
         delete(filepath);
         return newFilepath;
