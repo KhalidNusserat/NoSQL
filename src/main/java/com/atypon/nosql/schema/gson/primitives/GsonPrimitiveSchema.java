@@ -18,7 +18,4 @@ public abstract class GsonPrimitiveSchema<DataType>
 
     @Override
     public abstract JsonElement getDefault();
-
-    @Override
-    public abstract JsonElement create(Object argsObject) throws SchemaViolationException;
 }

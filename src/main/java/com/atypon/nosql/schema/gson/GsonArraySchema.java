@@ -18,12 +18,12 @@ public class GsonArraySchema extends ArraySchema<JsonElement> implements GsonSch
     }
 
     @Override
-    public JsonElement create(Object argsObject) throws SchemaViolationException {
-        Preconditions.checkState(argsObject instanceof JsonArray);
-        JsonArray args = (JsonArray) argsObject;
+    public JsonElement validate(JsonElement element) throws SchemaViolationException {
+        Preconditions.checkState(element.isJsonArray());
+        JsonArray args = element.getAsJsonArray();
         JsonArray array = new JsonArray();
         for (JsonElement jsonElement : args) {
-            array.add(itemSchema.create(jsonElement));
+            array.add(itemSchema.validate(jsonElement));
         }
         return array;
     }

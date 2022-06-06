@@ -1,6 +1,5 @@
 package com.atypon.nosql.schema.gson.primitives;
 
-import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
@@ -12,16 +11,14 @@ public class GsonBooleanSchema extends GsonPrimitiveSchema<Boolean> {
     }
 
     @Override
-    public JsonElement create(Object argsObject) throws SchemaViolationException {
-        Preconditions.checkState(argsObject instanceof JsonElement);
-        JsonElement value = (JsonElement) argsObject;
-        if (value.isJsonNull() && !isNullable()) {
-            throw new IllegalArgumentException("Not nullable");
+    public JsonElement validate(JsonElement element) throws SchemaViolationException {
+        if (element.isJsonNull() && !isNullable()) {
+            throw new IllegalArgumentException("Null provided for a non-nullable field");
         }
-        if (value.isJsonNull() || value.getAsJsonPrimitive().isBoolean()) {
-            return value;
+        if (element.isJsonNull() || element.getAsJsonPrimitive().isBoolean()) {
+            return element;
         }
-        throw new SchemaViolationException();
+        throw new SchemaViolationException("Not a JsonBoolean: " + element);
     }
 
     @Override

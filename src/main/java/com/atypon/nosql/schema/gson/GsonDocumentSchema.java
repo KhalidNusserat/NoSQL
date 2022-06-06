@@ -28,14 +28,20 @@ public class GsonDocumentSchema extends DocumentSchema<JsonElement> implements G
     }
 
     @Override
-    public JsonElement create(Object argsObject) throws SchemaViolationException {
-        Preconditions.checkState(argsObject instanceof JsonObject);
-        JsonObject document = (JsonObject) argsObject;
+    public JsonElement validate(JsonElement element) throws SchemaViolationException {
+        if (element.isJsonNull() && isNullable()) {
+            return element;
+        } else if (element.isJsonNull()) {
+            throw new SchemaViolationException("Null provided for a non-nullable field");
+        } else if (!element.isJsonObject()) {
+            throw new SchemaViolationException("Not a JsonObject: " + element);
+        }
+        JsonObject document = element.getAsJsonObject();
         GsonObject.GsonDocumentBuilder builder = GsonObject.builder();
         for (Map.Entry<String, JsonElement> field : document.entrySet()) {
             String fieldName = field.getKey();
             if (this.fields.containsKey(fieldName)) {
-                builder.add(fieldName, this.fields.get(fieldName).create(field.getValue()));
+                builder.add(fieldName, this.fields.get(fieldName).validate(field.getValue()));
             } else {
                 throw new SchemaViolationException("Unrecognized field: " + fieldName);
             }

@@ -59,7 +59,7 @@ class GsonSchemaParserTest {
         KeywordsParser keywordsParser = new SimpleKeywordsParser();
         GsonSchema gsonSchema = new GsonSchemaParser(keywordsParser).parse(gson.fromJson(schema, JsonObject.class));
         String objectJson = "{name: \"Khalid\", grades: [{course: \"CPE231\", grade: 98}], extra: null}";
-        JsonObject object = gsonSchema.create(gson.fromJson(objectJson, JsonObject.class)).getAsJsonObject();
+        JsonObject object = gsonSchema.validate(gson.fromJson(objectJson, JsonObject.class)).getAsJsonObject();
         JsonObject expected = new JsonObject();
         expected.addProperty("name", "Khalid");
         expected.addProperty("age", 18);

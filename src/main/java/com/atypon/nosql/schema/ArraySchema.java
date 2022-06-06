@@ -1,7 +1,5 @@
 package com.atypon.nosql.schema;
 
-import javax.naming.directory.SchemaViolationException;
-
 public abstract class ArraySchema<DocumentElement> implements Schema<DocumentElement> {
     protected final Schema<DocumentElement> itemSchema;
 
@@ -14,9 +12,6 @@ public abstract class ArraySchema<DocumentElement> implements Schema<DocumentEle
         this.nullable = nullable;
         this.itemSchema = itemSchema;
     }
-
-    @Override
-    public abstract DocumentElement create(Object argsObject) throws SchemaViolationException;
 
     @Override
     public boolean isRequired() {
