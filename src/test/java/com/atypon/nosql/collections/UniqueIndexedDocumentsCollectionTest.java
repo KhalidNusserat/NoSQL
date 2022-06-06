@@ -34,17 +34,17 @@ class UniqueIndexedDocumentsCollectionTest {
         Files.createDirectories(testDirectory);
     }
 
-//    @AfterEach
-//    void tearDown() throws IOException {
-//        Files.walk(testDirectory).filter(Files::isRegularFile).forEach(path -> {
-//            try {
-//                Files.delete(path);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        });
-//        Files.delete(testDirectory);
-//    }
+    @AfterEach
+    void tearDown() throws IOException {
+        Files.walk(testDirectory).filter(Files::isRegularFile).forEach(path -> {
+            try {
+                Files.delete(path);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        Files.delete(testDirectory);
+    }
 
     @Test
     void putAndGet() throws IOException, InterruptedException {
