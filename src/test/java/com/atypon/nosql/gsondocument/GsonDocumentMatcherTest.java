@@ -1,13 +1,14 @@
 package com.atypon.nosql.gsondocument;
 
+import com.atypon.nosql.document.DocumentField;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class Person {
     public static JsonObject newPerson(String name, int age, String major) {
@@ -44,13 +45,12 @@ class GsonDocumentMatcherTest {
         university.addProperty("name", "");
         university.addProperty("rating", 0);
         person.add("university", university);
-        var fields = new GsonDocument(person).getFields();
-        assertTrue(List.of(
-                List.of("name"),
-                List.of("age"),
-                List.of("university", "name"),
-                List.of("university", "rating"),
-                List.of("_id")
-        ).containsAll(fields));
+        assertEquals(Set.of(
+                DocumentField.of("name"),
+                DocumentField.of("age"),
+                DocumentField.of("university", "name"),
+                DocumentField.of("university", "rating"),
+                DocumentField.of("_id")
+        ), new GsonDocument(person).getFields());
     }
 }

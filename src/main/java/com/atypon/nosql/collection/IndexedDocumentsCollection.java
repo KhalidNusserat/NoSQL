@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class IndexedDocumentsCollection<E, T extends Document<E>> implements DocumentsCollection<T> {
@@ -18,7 +19,7 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
 
     private final Map<String, Path> uniqueIndex = new ConcurrentHashMap<>();
 
-    private final Map<List<String>, FieldIndex<String, List<E>>> indexes = new ConcurrentHashMap<>();
+    private final Map<Set<List<String>>, FieldIndex<String, List<E>>> indexes = new ConcurrentHashMap<>();
 
     public IndexedDocumentsCollection(DocumentSchema<T> documentSchema, DocumentParser<T> parser, Path directoryPath) {
         this.defaultDocumentsCollection = new DefaultDocumentsCollection<>(documentSchema, parser, directoryPath);

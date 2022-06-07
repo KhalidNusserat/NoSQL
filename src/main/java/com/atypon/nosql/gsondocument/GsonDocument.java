@@ -1,31 +1,28 @@
 package com.atypon.nosql.gsondocument;
 
 import com.atypon.nosql.document.Document;
+import com.atypon.nosql.document.DocumentField;
 import com.atypon.nosql.document.ObjectIDGenerator;
 import com.atypon.nosql.document.RandomObjectIDGenerator;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class GsonDocument implements Document<JsonElement> {
     final JsonObject object;
 
     private final ObjectIDGenerator objectIDGenerator = new RandomObjectIDGenerator();
 
-    private Collection<List<String>> getFields(JsonObject object, List<String> currentField) {
-        List<List<String>> result = new ArrayList<>();
+    private Set<DocumentField> getFields(JsonObject object, DocumentField field) {
+        Set<DocumentField> result = new HashSet<>();
         for (var entry : object.entrySet()) {
-            List<String> newField = new ArrayList<>(currentField);
-            newField.add(entry.getKey());
+            DocumentField currentField = field.with(entry.getKey());
             if (entry.getValue().isJsonPrimitive() || entry.getValue().isJsonNull() || entry.getValue().isJsonArray()) {
-                result.add(newField);
+                result.add(currentField);
             } else {
-                result.addAll(getFields(entry.getValue().getAsJsonObject(), newField));
+                result.addAll(getFields(entry.getValue().getAsJsonObject(), currentField));
             }
         }
         return result;
@@ -92,8 +89,8 @@ public class GsonDocument implements Document<JsonElement> {
     }
 
     @Override
-    public Collection<List<String>> getFields() {
-        return getFields(object, new ArrayList<>());
+    public Set<DocumentField> getFields() {
+        return getFields(object, DocumentField.of());
     }
 
     @Override
