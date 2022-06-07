@@ -1,5 +1,8 @@
 package com.atypon.nosql.document;
 
+import java.util.Collection;
+import java.util.List;
+
 public interface Document<DocumentElement> {
     String id();
 
@@ -12,4 +15,6 @@ public interface Document<DocumentElement> {
     Document<DocumentElement> withoutField(String field);
 
     Document<DocumentElement> matchID();
+
+    Collection<List<String>> getFields();
 }

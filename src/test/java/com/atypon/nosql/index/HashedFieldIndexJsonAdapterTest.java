@@ -2,9 +2,11 @@ package com.atypon.nosql.index;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -14,9 +16,9 @@ class HashedFieldIndexJsonAdapterTest {
     @Test
     public void serializeAndDeserialize() {
         HashedFieldIndex<String, Double> index = new HashedFieldIndex<>();
-        index.put("a", 1.0);
+        index.put("a", 2.0);
         index.put("b", 2.0);
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         String str = gson.toJson(index, new TypeToken<HashedFieldIndex<String, Double>>() {
         }.getType());
         HashedFieldIndex<String, Double> readIndex = gson.fromJson(
@@ -24,7 +26,6 @@ class HashedFieldIndexJsonAdapterTest {
                 new TypeToken<HashedFieldIndex<String, Double>>() {
                 }.getType()
         );
-        assertEquals(1, readIndex.getFromKey("a").orElseThrow());
-        assertEquals(2, readIndex.getFromKey("b").orElseThrow());
+        assertEquals(Set.of("a", "b"), readIndex.getFromValue(2.0));
     }
 }

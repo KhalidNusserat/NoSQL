@@ -19,10 +19,6 @@ class HashedFieldIndexTest {
         index.put(2, 2);
         index.put(3, 1);
         index.put(4, 2);
-        assertEquals(2, index.getFromKey(1).orElseThrow());
-        assertEquals(2, index.getFromKey(2).orElseThrow());
-        assertEquals(1, index.getFromKey(3).orElseThrow());
-        assertEquals(2, index.getFromKey(4).orElseThrow());
         assertTrue(List.of(1, 2, 4).containsAll(index.getFromValue(2)));
         assertTrue(List.of(3).containsAll(index.getFromValue(1)));
 
@@ -46,7 +42,6 @@ class HashedFieldIndexTest {
         index.put(4, 2);
         index.remove(1);
         assertTrue(List.of(2, 4).containsAll(index.getFromValue(2)));
-        assertTrue(index.getFromKey(1).isEmpty());
     }
 
     @Test

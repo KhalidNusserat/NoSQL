@@ -1,7 +1,10 @@
 package com.atypon.nosql.gsondocument;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -30,5 +33,24 @@ class GsonDocumentMatcherTest {
         assertFalse(khalid.matches(john.matchID()));
         assertFalse(hamza.matches(john.matchID()));
         assertTrue(john.matches(john.matchID()));
+    }
+
+    @Test
+    void getFields() {
+        JsonObject person = new JsonObject();
+        person.addProperty("name", "");
+        person.addProperty("age", 0);
+        JsonObject university = new JsonObject();
+        university.addProperty("name", "");
+        university.addProperty("rating", 0);
+        person.add("university", university);
+        var fields = new GsonDocument(person).getFields();
+        assertTrue(List.of(
+                List.of("name"),
+                List.of("age"),
+                List.of("university", "name"),
+                List.of("university", "rating"),
+                List.of("_id")
+        ).containsAll(fields));
     }
 }

@@ -1,7 +1,6 @@
 package com.atypon.nosql.index;
 
-import java.util.Collection;
-import java.util.Optional;
+import java.util.Set;
 
 public interface FieldIndex<K, V> {
     void put(K key, V value);
@@ -10,7 +9,7 @@ public interface FieldIndex<K, V> {
 
     void clear();
 
-    Collection<K> getFromValue(V value);
+    Set<K> getFromValue(V value);
 
     boolean containsKey(K key);
 }

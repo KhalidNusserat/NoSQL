@@ -7,12 +7,29 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 public class GsonDocument implements Document<JsonElement> {
     final JsonObject object;
 
     private final ObjectIDGenerator objectIDGenerator = new RandomObjectIDGenerator();
+
+    private Collection<List<String>> getFields(JsonObject object, List<String> currentField) {
+        List<List<String>> result = new ArrayList<>();
+        for (var entry : object.entrySet()) {
+            List<String> newField = new ArrayList<>(currentField);
+            newField.add(entry.getKey());
+            if (entry.getValue().isJsonPrimitive() || entry.getValue().isJsonNull() || entry.getValue().isJsonArray()) {
+                result.add(newField);
+            } else {
+                result.addAll(getFields(entry.getValue().getAsJsonObject(), newField));
+            }
+        }
+        return result;
+    }
 
     private GsonDocument(GsonDocument other) {
         object = other.object.deepCopy();
@@ -72,6 +89,11 @@ public class GsonDocument implements Document<JsonElement> {
                 .withField("_matchID", new JsonPrimitive(true));
         document.object.addProperty("_id", id());
         return document;
+    }
+
+    @Override
+    public Collection<List<String>> getFields() {
+        return getFields(object, new ArrayList<>());
     }
 
     @Override
