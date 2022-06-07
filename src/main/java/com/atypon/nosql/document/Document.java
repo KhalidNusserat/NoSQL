@@ -16,4 +16,6 @@ public interface Document<DocumentElement> {
     Document<DocumentElement> matchID();
 
     Set<DocumentField> getFields();
+
+    Set<DocumentElement> getValues();
 }

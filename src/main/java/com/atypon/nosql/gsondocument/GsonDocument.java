@@ -28,6 +28,18 @@ public class GsonDocument implements Document<JsonElement> {
         return result;
     }
 
+    private Set<JsonElement> getValues(JsonObject object) {
+        Set<JsonElement> result = new HashSet<>();
+        for (var entry : object.entrySet()) {
+            if (entry.getValue().isJsonPrimitive() || entry.getValue().isJsonNull() || entry.getValue().isJsonArray()) {
+                result.add(entry.getValue());
+            } else {
+                result.addAll(getValues(entry.getValue().getAsJsonObject()));
+            }
+        }
+        return result;
+    }
+
     private GsonDocument(GsonDocument other) {
         object = other.object.deepCopy();
         object.addProperty("_id", objectIDGenerator.getNewId());
@@ -91,6 +103,11 @@ public class GsonDocument implements Document<JsonElement> {
     @Override
     public Set<DocumentField> getFields() {
         return getFields(object, DocumentField.of());
+    }
+
+    @Override
+    public Set<JsonElement> getValues() {
+        return getValues(object);
     }
 
     @Override
