@@ -1,12 +1,12 @@
 package com.atypon.nosql.collection;
 
-import com.atypon.nosql.document.ObjectID;
-import com.atypon.nosql.document.RandomObjectID;
 import com.atypon.nosql.gsondocument.GsonDocument;
 import com.atypon.nosql.gsondocument.GsonDocumentParser;
 import com.atypon.nosql.gsondocument.GsonDocumentSchema;
+import com.atypon.nosql.gsondocument.GsonMatchDocument;
 import com.atypon.nosql.keywordsparser.InvalidKeywordException;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,15 +15,17 @@ import javax.naming.directory.SchemaViolationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class Person {
-    public static JsonObject fromNameAndAge(String name, int age) {
+    public static JsonObject newPerson(String name, int age, String major) {
         JsonObject person = new JsonObject();
         person.addProperty("name", name);
         person.addProperty("age", age);
+        person.addProperty("major", major);
         return person;
     }
 }
@@ -32,7 +34,7 @@ class UniqueIndexedDocumentsCollectionTest {
     private final Path testDirectory = Path.of("./test");
 
     private final GsonDocumentSchema documentSchema = new GsonDocumentSchema(
-            "{name: \"string;required\", age: \"number;default(18)\"}"
+            "{name: \"string;required\", age: \"number;default(18)\", major: \"string;required\"}"
     );
 
     UniqueIndexedDocumentsCollectionTest() throws InvalidKeywordException {
@@ -58,56 +60,34 @@ class UniqueIndexedDocumentsCollectionTest {
     @Test
     void putAndGet() throws IOException, InterruptedException, SchemaViolationException {
         GsonDocumentParser parser = new GsonDocumentParser();
-        DocumentsCollection<GsonDocument> collection = new UniqueIndexedDocumentsCollection<>(documentSchema, parser, testDirectory);
-        JsonObject khalid = Person.fromNameAndAge("Khalid", 22);
-        JsonObject hamza = Person.fromNameAndAge("Hamza", 22);
-        JsonObject john = Person.fromNameAndAge("John", 43);
-        ObjectID khalidID = new RandomObjectID();
-        ObjectID hamzaID = new RandomObjectID();
-        ObjectID johnID = new RandomObjectID();
-        collection.put(khalidID, new GsonDocument(khalid));
-        collection.put(hamzaID, new GsonDocument(hamza));
-        collection.put(johnID, new GsonDocument(john));
-        Thread.sleep(800);
-        assertEquals("Khalid", collection.get(khalidID).get("name").getAsString());
-        assertEquals("Hamza", collection.get(hamzaID).get("name").getAsString());
-        assertEquals("John", collection.get(johnID).get("name").getAsString());
+        DocumentsCollection<GsonDocument> collection =
+                new UniqueIndexedDocumentsCollection<>(documentSchema, parser, testDirectory);
+        GsonDocument khalid = new GsonDocument(Person.newPerson("Khalid", 22, "CPE"));
+        GsonDocument hamza = new GsonDocument(Person.newPerson("Hamza", 22, "CPE"));
+        GsonDocument john = new GsonDocument(Person.newPerson("John", 42, "CIS"));
+        collection.put(khalid);
+        collection.put(hamza);
+        collection.put(john);
+        GsonDocument matchKhalid = (GsonDocument) khalid.withField("_matchID", new JsonPrimitive(true));
+        assertTrue(List.of(khalid).containsAll(collection.get(matchKhalid)));
+        JsonObject matchCpeObject = new JsonObject();
+        matchCpeObject.addProperty("major", "CPE");
+        GsonDocument matchCpe = GsonMatchDocument.newGsonMatchDocument(matchCpeObject, false);
+        Collection<GsonDocument> cpeStudents = collection.get(matchCpe);
+        assertTrue(List.of(khalid, hamza).containsAll(cpeStudents));
     }
 
     @Test
     void remove() throws IOException, SchemaViolationException {
         GsonDocumentParser parser = new GsonDocumentParser();
         DocumentsCollection<GsonDocument> collection = new UniqueIndexedDocumentsCollection<>(documentSchema, parser, testDirectory);
-        JsonObject khalid = Person.fromNameAndAge("Khalid", 22);
-        JsonObject hamza = Person.fromNameAndAge("Hamza", 22);
-        JsonObject john = Person.fromNameAndAge("John", 43);
-        ObjectID khalidID = new RandomObjectID();
-        ObjectID hamzaID = new RandomObjectID();
-        ObjectID johnID = new RandomObjectID();
-        collection.put(khalidID, new GsonDocument(khalid));
-        collection.put(hamzaID, new GsonDocument(hamza));
-        collection.put(johnID, new GsonDocument(john));
-        collection.remove(johnID);
-        assertFalse(collection.containsID(johnID));
+
     }
 
     @Test
     void readAll() throws IOException, SchemaViolationException {
         GsonDocumentParser parser = new GsonDocumentParser();
         DocumentsCollection<GsonDocument> collection = new UniqueIndexedDocumentsCollection<>(documentSchema, parser, testDirectory);
-        JsonObject khalid = Person.fromNameAndAge("Khalid", 22);
-        JsonObject hamza = Person.fromNameAndAge("Hamza", 22);
-        JsonObject john = Person.fromNameAndAge("John", 43);
-        ObjectID khalidID = new RandomObjectID();
-        ObjectID hamzaID = new RandomObjectID();
-        ObjectID johnID = new RandomObjectID();
-        collection.put(khalidID, new GsonDocument(khalid));
-        collection.put(hamzaID, new GsonDocument(hamza));
-        collection.put(johnID, new GsonDocument(john));
-        assertTrue(List.of("Khalid", "Hamza", "John").containsAll(
-                collection.readAll().stream()
-                        .map(gsonDocument -> gsonDocument.get("name").getAsString())
-                        .toList()
-        ));
+
     }
 }

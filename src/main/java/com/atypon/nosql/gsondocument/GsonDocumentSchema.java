@@ -9,10 +9,6 @@ import javax.naming.directory.SchemaViolationException;
 public class GsonDocumentSchema implements DocumentSchema<GsonDocument> {
     private final GsonObjectSchema objectSchema;
 
-    public GsonDocumentSchema(GsonObjectSchema objectSchema) {
-        this.objectSchema = objectSchema;
-    }
-
     public GsonDocumentSchema(String schemaDescription) throws InvalidKeywordException {
         GsonElementSchemaParser parser = new GsonElementSchemaParser(new SimpleKeywordsParser());
         objectSchema = parser.parse(schemaDescription);
@@ -20,6 +16,8 @@ public class GsonDocumentSchema implements DocumentSchema<GsonDocument> {
 
     @Override
     public GsonDocument validate(GsonDocument document) throws SchemaViolationException {
-        return new GsonDocument(objectSchema.validate(document.object));
+        GsonDocument validatedDocument = new GsonDocument(objectSchema.validate(document.object).getAsJsonObject());
+        validatedDocument.object.addProperty("_id", document.id());
+        return validatedDocument;
     }
 }

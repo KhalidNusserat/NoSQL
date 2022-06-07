@@ -9,6 +9,9 @@ public class GsonDocumentParser implements DocumentParser<GsonDocument> {
 
     @Override
     public GsonDocument parse(String src) {
-        return new GsonDocument(gson.fromJson(src, JsonObject.class));
+        JsonObject object = gson.fromJson(src, JsonObject.class);
+        GsonDocument document = new GsonDocument(object);
+        document.object.addProperty("_id", object.get("_id").getAsString());
+        return document;
     }
 }

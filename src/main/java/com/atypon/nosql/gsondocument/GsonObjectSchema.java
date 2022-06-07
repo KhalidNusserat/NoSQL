@@ -16,8 +16,8 @@ public class GsonObjectSchema extends DocumentElementSchema<JsonElement> impleme
         this.fields.putAll(fields);
     }
 
-    public static GsonDocumentSchemaBuilder builder() {
-        return new GsonDocumentSchemaBuilder();
+    public static GsonObjectSchemaBuilder builder() {
+        return new GsonObjectSchemaBuilder();
     }
 
     @Override
@@ -38,7 +38,9 @@ public class GsonObjectSchema extends DocumentElementSchema<JsonElement> impleme
         GsonDocument.GsonDocumentBuilder builder = GsonDocument.builder();
         for (Map.Entry<String, JsonElement> field : document.entrySet()) {
             String fieldName = field.getKey();
-            if (this.fields.containsKey(fieldName)) {
+            if (fieldName.matches("_.+")) {
+                builder.add(fieldName, field.getValue());
+            } else if (this.fields.containsKey(fieldName)) {
                 builder.add(fieldName, this.fields.get(fieldName).validate(field.getValue()));
             } else {
                 throw new SchemaViolationException("Unrecognized field: " + fieldName);
@@ -56,22 +58,22 @@ public class GsonObjectSchema extends DocumentElementSchema<JsonElement> impleme
         return builder.create().getAsJsonObject();
     }
 
-    public static class GsonDocumentSchemaBuilder {
+    public static class GsonObjectSchemaBuilder {
         private final Map<String, GsonElementSchema> fields = new HashMap<>();
         private boolean required = false;
         private boolean nullable = false;
 
-        public GsonDocumentSchemaBuilder required() {
+        public GsonObjectSchemaBuilder required() {
             required = true;
             return this;
         }
 
-        public GsonDocumentSchemaBuilder nullable() {
+        public GsonObjectSchemaBuilder nullable() {
             nullable = true;
             return this;
         }
 
-        public GsonDocumentSchemaBuilder add(String field, GsonElementSchema schema) {
+        public GsonObjectSchemaBuilder add(String field, GsonElementSchema schema) {
             fields.put(field, schema);
             return this;
         }

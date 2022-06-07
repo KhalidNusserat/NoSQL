@@ -1,41 +1,33 @@
 package com.atypon.nosql.gsondocument;
 
 import com.atypon.nosql.document.Document;
-import com.atypon.nosql.document.ObjectID;
-import com.atypon.nosql.document.RandomObjectID;
+import com.atypon.nosql.document.ObjectIDGenerator;
+import com.atypon.nosql.document.RandomObjectIDGenerator;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import java.util.Objects;
 
 public class GsonDocument implements Document<JsonElement> {
     final JsonObject object;
 
-    private final ObjectID objectID = new RandomObjectID();
+    private final ObjectIDGenerator objectIDGenerator = new RandomObjectIDGenerator();
 
     private GsonDocument(GsonDocument other) {
         object = other.object.deepCopy();
-        object.addProperty("_id", objectID.toString());
+        object.addProperty("_id", objectIDGenerator.getNewId());
     }
 
     public GsonDocument() {
         object = new JsonObject();
-        object.addProperty("_id", objectID.toString());
+        object.addProperty("_id", objectIDGenerator.getNewId());
     }
 
     public GsonDocument(JsonObject object) {
         this.object = object.deepCopy();
-        this.object.addProperty("_id", objectID.toString());
-    }
-
-    public GsonDocument(JsonElement element) {
-        Preconditions.checkState(
-                element.isJsonObject(),
-                "Expected a JsonObject, instead got: %s", element
-        );
-        object = element.getAsJsonObject();
-        object.addProperty("_id", objectID.toString());
+        this.object.addProperty("_id", objectIDGenerator.getNewId());
     }
 
     public static GsonDocumentBuilder builder() {
@@ -47,8 +39,8 @@ public class GsonDocument implements Document<JsonElement> {
     }
 
     @Override
-    public ObjectID id() {
-        return objectID;
+    public String id() {
+        return get("_id").getAsString();
     }
 
     @Override
@@ -65,6 +57,21 @@ public class GsonDocument implements Document<JsonElement> {
     public Document<JsonElement> withField(String field, JsonElement element) {
         GsonDocument document = new GsonDocument(this);
         document.object.add(field, element);
+        return document;
+    }
+
+    @Override
+    public Document<JsonElement> withoutField(String field) {
+        GsonDocument document = new GsonDocument(this);
+        document.object.remove(field);
+        return document;
+    }
+
+    @Override
+    public Document<JsonElement> matchID() {
+        GsonDocument document = (GsonDocument) new GsonDocument()
+                .withField("_matchID", new JsonPrimitive(true));
+        document.object.addProperty("_id", id());
         return document;
     }
 

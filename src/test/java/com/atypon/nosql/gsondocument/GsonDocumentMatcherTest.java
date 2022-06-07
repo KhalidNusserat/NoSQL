@@ -26,10 +26,8 @@ class GsonDocumentMatcherTest {
         assertTrue(khalid.matches(GsonMatchDocument.newGsonMatchDocument(majorBoundObject, false)));
         assertTrue(hamza.matches(GsonMatchDocument.newGsonMatchDocument(majorBoundObject, false)));
         assertFalse(john.matches(GsonMatchDocument.newGsonMatchDocument(majorBoundObject, false)));
-        JsonObject idBoundObject = new JsonObject();
-        idBoundObject.addProperty("_id", john.id().toString());
-        assertFalse(khalid.matches(GsonMatchDocument.newGsonMatchDocument(idBoundObject, true)));
-        assertFalse(hamza.matches(GsonMatchDocument.newGsonMatchDocument(idBoundObject, true)));
-        assertTrue(john.matches(GsonMatchDocument.newGsonMatchDocument(idBoundObject, true)));
+        assertFalse(khalid.matches(john.matchID()));
+        assertFalse(hamza.matches(john.matchID()));
+        assertTrue(john.matches(john.matchID()));
     }
 }
