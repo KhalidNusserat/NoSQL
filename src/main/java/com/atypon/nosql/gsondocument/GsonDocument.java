@@ -23,7 +23,7 @@ public class GsonDocument implements Document<JsonElement> {
 
     public GsonDocument(JsonObject object) {
         this.object = object.deepCopy();
-        object.addProperty("_id", objectID.toString());
+        this.object.addProperty("_id", objectID.toString());
     }
 
     public GsonDocument(JsonElement element) {
@@ -37,7 +37,7 @@ public class GsonDocument implements Document<JsonElement> {
 
     public GsonDocument(GsonDocument other) {
         object = other.object.deepCopy();
-        object.addProperty("_id", objectID.toString());
+        object.addProperty("_id", new RandomObjectID().toString());
     }
 
     public static GsonDocumentBuilder builder() {
@@ -64,8 +64,8 @@ public class GsonDocument implements Document<JsonElement> {
     }
 
     @Override
-    public Set<Map.Entry<String, JsonElement>> entrySet() {
-        return object.entrySet();
+    public boolean matches(JsonElement bound) {
+        return GsonDocumentMatcher.matchObject(object, (JsonObject) bound);
     }
 
     @Override

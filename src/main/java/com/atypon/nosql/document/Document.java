@@ -1,8 +1,5 @@
 package com.atypon.nosql.document;
 
-import java.util.Map;
-import java.util.Set;
-
 public interface Document<DocumentElement> {
     ObjectID id();
 
@@ -10,5 +7,5 @@ public interface Document<DocumentElement> {
 
     Document<DocumentElement> deepCopy();
 
-    Set<Map.Entry<String, DocumentElement>> entrySet();
+    boolean matches(DocumentElement bound);
 }
