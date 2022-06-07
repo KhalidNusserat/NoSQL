@@ -30,14 +30,14 @@ class Person {
     }
 }
 
-class UniqueIndexedDocumentsCollectionTest {
+class DefaultDocumentsCollectionTest {
     private final Path testDirectory = Path.of("./test");
 
     private final GsonDocumentSchema documentSchema = new GsonDocumentSchema(
             "{name: \"string;required\", age: \"number;default(18)\", major: \"string;required\"}"
     );
 
-    UniqueIndexedDocumentsCollectionTest() throws InvalidKeywordException {
+    DefaultDocumentsCollectionTest() throws InvalidKeywordException {
     }
 
     @BeforeEach
@@ -61,7 +61,7 @@ class UniqueIndexedDocumentsCollectionTest {
     void putAndGet() throws IOException, InterruptedException, SchemaViolationException {
         GsonDocumentParser parser = new GsonDocumentParser();
         DocumentsCollection<GsonDocument> collection =
-                new UniqueIndexedDocumentsCollection<>(documentSchema, parser, testDirectory);
+                new DefaultDocumentsCollection<>(documentSchema, parser, testDirectory);
         GsonDocument khalid = new GsonDocument(Person.newPerson("Khalid", 22, "CPE"));
         GsonDocument hamza = new GsonDocument(Person.newPerson("Hamza", 22, "CPE"));
         GsonDocument john = new GsonDocument(Person.newPerson("John", 42, "CIS"));
@@ -80,14 +80,14 @@ class UniqueIndexedDocumentsCollectionTest {
     @Test
     void remove() throws IOException, SchemaViolationException {
         GsonDocumentParser parser = new GsonDocumentParser();
-        DocumentsCollection<GsonDocument> collection = new UniqueIndexedDocumentsCollection<>(documentSchema, parser, testDirectory);
+        DocumentsCollection<GsonDocument> collection = new DefaultDocumentsCollection<>(documentSchema, parser, testDirectory);
 
     }
 
     @Test
     void readAll() throws IOException, SchemaViolationException {
         GsonDocumentParser parser = new GsonDocumentParser();
-        DocumentsCollection<GsonDocument> collection = new UniqueIndexedDocumentsCollection<>(documentSchema, parser, testDirectory);
+        DocumentsCollection<GsonDocument> collection = new DefaultDocumentsCollection<>(documentSchema, parser, testDirectory);
 
     }
 }

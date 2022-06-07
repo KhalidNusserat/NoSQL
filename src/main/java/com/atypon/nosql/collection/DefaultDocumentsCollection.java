@@ -6,7 +6,6 @@ import com.atypon.nosql.io.CopyOnWriteIO;
 import com.atypon.nosql.io.GsonCopyOnWriteIO;
 import com.atypon.nosql.schema.DocumentSchema;
 import com.atypon.nosql.utils.ExtraFileUtils;
-import com.google.gson.JsonPrimitive;
 
 import javax.naming.directory.SchemaViolationException;
 import java.io.IOException;
@@ -14,9 +13,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
-public class UniqueIndexedDocumentsCollection<E, T extends Document<E>> implements DocumentsCollection<T> {
+public class DefaultDocumentsCollection<E, T extends Document<E>> implements DocumentsCollection<T> {
     private final DocumentSchema<T> documentSchema;
 
     private final CopyOnWriteIO io = new GsonCopyOnWriteIO();
@@ -25,7 +23,7 @@ public class UniqueIndexedDocumentsCollection<E, T extends Document<E>> implemen
 
     private final Path directoryPath;
 
-    public UniqueIndexedDocumentsCollection(DocumentSchema<T> documentSchema, DocumentParser<T> parser, Path directoryPath) {
+    public DefaultDocumentsCollection(DocumentSchema<T> documentSchema, DocumentParser<T> parser, Path directoryPath) {
         this.documentSchema = documentSchema;
         this.parser = parser;
         this.directoryPath = directoryPath;
