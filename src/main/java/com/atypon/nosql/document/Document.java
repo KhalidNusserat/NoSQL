@@ -5,5 +5,5 @@ public interface Document<DocumentElement> {
 
     DocumentElement get(String field);
 
-    boolean match(Document<DocumentElement> bound);
+    boolean matches(Document<DocumentElement> bound);
 }

@@ -52,8 +52,8 @@ public class GsonDocument implements Document<JsonElement> {
     }
 
     @Override
-    public boolean match(Document<JsonElement> bound) {
-        return GsonDocumentMatcher.match(this, (GsonDocument) bound);
+    public boolean matches(Document<JsonElement> bound) {
+        return GsonDocumentMatcher.matches(this, (GsonDocument) bound);
     }
 
     @Override

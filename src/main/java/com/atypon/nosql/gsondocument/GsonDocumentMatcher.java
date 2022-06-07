@@ -40,7 +40,7 @@ public class GsonDocumentMatcher {
         return true;
     }
 
-    public static boolean match(GsonDocument document, GsonDocument matchDocument) {
+    public static boolean matches(GsonDocument document, GsonDocument matchDocument) {
         Preconditions.checkState(
                 matchDocument.object.has("_matchID"),
                 "Match documents must have the field \"_matchID\""
