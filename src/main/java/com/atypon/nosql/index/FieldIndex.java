@@ -11,5 +11,5 @@ public interface FieldIndex<K, V> {
 
     Set<K> getFromValue(V value);
 
-    boolean containsKey(K key);
+    boolean containsValue(V value);
 }
