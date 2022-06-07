@@ -1,6 +1,5 @@
-package com.atypon.nosql.schema.gson;
+package com.atypon.nosql.gsondocument;
 
-import com.atypon.nosql.gsondocument.GsonDocument;
 import com.atypon.nosql.schema.DocumentElementSchema;
 import com.atypon.nosql.schema.ElementSchema;
 import com.google.gson.JsonElement;
@@ -11,8 +10,8 @@ import javax.naming.directory.SchemaViolationException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GsonObjectElementSchema extends DocumentElementSchema<JsonElement> implements GsonElementSchema {
-    public GsonObjectElementSchema(Map<String, GsonElementSchema> fields, boolean required, boolean nullable) {
+public class GsonObjectSchema extends DocumentElementSchema<JsonElement> implements GsonElementSchema {
+    public GsonObjectSchema(Map<String, GsonElementSchema> fields, boolean required, boolean nullable) {
         super(required, nullable);
         this.fields.putAll(fields);
     }
@@ -77,8 +76,8 @@ public class GsonObjectElementSchema extends DocumentElementSchema<JsonElement> 
             return this;
         }
 
-        public GsonObjectElementSchema create() {
-            return new GsonObjectElementSchema(fields, required, nullable);
+        public GsonObjectSchema create() {
+            return new GsonObjectSchema(fields, required, nullable);
         }
     }
 }

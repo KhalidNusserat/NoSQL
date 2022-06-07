@@ -1,14 +1,14 @@
-package com.atypon.nosql.schema.gson;
+package com.atypon.nosql.gsondocument;
 
 import com.atypon.nosql.schema.PrimitiveElementSchema;
 import com.google.gson.JsonElement;
 
-public abstract class GsonPrimitiveElementSchema<DataType>
+public abstract class GsonPrimitiveSchema<DataType>
         extends PrimitiveElementSchema<JsonElement>
         implements GsonElementSchema {
     protected final DataType defaultValue;
 
-    public GsonPrimitiveElementSchema(DataType defaultValue, boolean required, boolean nullable) {
+    public GsonPrimitiveSchema(DataType defaultValue, boolean required, boolean nullable) {
         super(required, nullable);
         this.defaultValue = defaultValue;
     }

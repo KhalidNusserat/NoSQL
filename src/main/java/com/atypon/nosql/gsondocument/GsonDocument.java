@@ -10,7 +10,7 @@ import com.google.gson.JsonObject;
 import java.util.Objects;
 
 public class GsonDocument implements Document<JsonElement> {
-    private final JsonObject object;
+    final JsonObject object;
 
     private final ObjectID objectID = new RandomObjectID();
 

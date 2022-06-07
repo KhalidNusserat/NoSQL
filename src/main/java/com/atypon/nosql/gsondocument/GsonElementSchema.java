@@ -1,4 +1,4 @@
-package com.atypon.nosql.schema.gson;
+package com.atypon.nosql.gsondocument;
 
 import com.atypon.nosql.schema.ElementSchema;
 import com.google.gson.JsonElement;
