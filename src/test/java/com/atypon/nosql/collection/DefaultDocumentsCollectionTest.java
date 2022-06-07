@@ -18,7 +18,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class Person {
     public static JsonObject newPerson(String name, int age, String major) {

@@ -3,7 +3,8 @@ package com.atypon.nosql.gsondocument;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class Person {
     public static JsonObject newPerson(String name, int age, String major) {
