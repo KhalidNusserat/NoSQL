@@ -7,7 +7,9 @@ import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class GsonDocument implements Document<JsonElement> {
     final JsonObject object;
@@ -59,6 +61,11 @@ public class GsonDocument implements Document<JsonElement> {
     @Override
     public Document<JsonElement> deepCopy() {
         return new GsonDocument(this);
+    }
+
+    @Override
+    public Set<Map.Entry<String, JsonElement>> entrySet() {
+        return object.entrySet();
     }
 
     @Override
