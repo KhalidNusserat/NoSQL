@@ -14,6 +14,11 @@ public class GsonDocument implements Document<JsonElement> {
 
     private final ObjectID objectID = new RandomObjectID();
 
+    private GsonDocument(GsonDocument other) {
+        object = other.object.deepCopy();
+        object.addProperty("_id", objectID.toString());
+    }
+
     public GsonDocument() {
         object = new JsonObject();
         object.addProperty("_id", objectID.toString());
@@ -54,6 +59,13 @@ public class GsonDocument implements Document<JsonElement> {
     @Override
     public boolean matches(Document<JsonElement> bound) {
         return GsonDocumentMatcher.matches(this, (GsonDocument) bound);
+    }
+
+    @Override
+    public Document<JsonElement> withField(String field, JsonElement element) {
+        GsonDocument document = new GsonDocument(this);
+        document.object.add(field, element);
+        return document;
     }
 
     @Override

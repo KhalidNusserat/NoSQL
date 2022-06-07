@@ -6,4 +6,6 @@ public interface Document<DocumentElement> {
     DocumentElement get(String field);
 
     boolean matches(Document<DocumentElement> bound);
+
+    Document<DocumentElement> withField(String field, DocumentElement element);
 }
