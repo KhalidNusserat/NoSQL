@@ -4,11 +4,14 @@ import com.atypon.nosql.document.ObjectID;
 import com.atypon.nosql.document.RandomObjectID;
 import com.atypon.nosql.gsondocument.GsonDocument;
 import com.atypon.nosql.gsondocument.GsonDocumentParser;
+import com.atypon.nosql.gsondocument.GsonDocumentSchema;
+import com.atypon.nosql.keywordsparser.InvalidKeywordException;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.naming.directory.SchemaViolationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,6 +31,13 @@ class Person {
 class UniqueIndexedDocumentsCollectionTest {
     private final Path testDirectory = Path.of("./test");
 
+    private final GsonDocumentSchema documentSchema = new GsonDocumentSchema(
+            "{name: \"string;required\", age: \"number;default(18)\"}"
+    );
+
+    UniqueIndexedDocumentsCollectionTest() throws InvalidKeywordException {
+    }
+
     @BeforeEach
     void setUp() throws IOException {
         Files.createDirectories(testDirectory);
@@ -46,9 +56,9 @@ class UniqueIndexedDocumentsCollectionTest {
     }
 
     @Test
-    void putAndGet() throws IOException, InterruptedException {
+    void putAndGet() throws IOException, InterruptedException, SchemaViolationException {
         GsonDocumentParser parser = new GsonDocumentParser();
-        DocumentsCollection<GsonDocument> collection = new UniqueIndexedDocumentsCollection<>(parser, testDirectory);
+        DocumentsCollection<GsonDocument> collection = new UniqueIndexedDocumentsCollection<>(documentSchema, parser, testDirectory);
         JsonObject khalid = Person.fromNameAndAge("Khalid", 22);
         JsonObject hamza = Person.fromNameAndAge("Hamza", 22);
         JsonObject john = Person.fromNameAndAge("John", 43);
@@ -65,9 +75,9 @@ class UniqueIndexedDocumentsCollectionTest {
     }
 
     @Test
-    void remove() throws IOException {
+    void remove() throws IOException, SchemaViolationException {
         GsonDocumentParser parser = new GsonDocumentParser();
-        DocumentsCollection<GsonDocument> collection = new UniqueIndexedDocumentsCollection<>(parser, testDirectory);
+        DocumentsCollection<GsonDocument> collection = new UniqueIndexedDocumentsCollection<>(documentSchema, parser, testDirectory);
         JsonObject khalid = Person.fromNameAndAge("Khalid", 22);
         JsonObject hamza = Person.fromNameAndAge("Hamza", 22);
         JsonObject john = Person.fromNameAndAge("John", 43);
@@ -82,9 +92,9 @@ class UniqueIndexedDocumentsCollectionTest {
     }
 
     @Test
-    void readAll() throws IOException {
+    void readAll() throws IOException, SchemaViolationException {
         GsonDocumentParser parser = new GsonDocumentParser();
-        DocumentsCollection<GsonDocument> collection = new UniqueIndexedDocumentsCollection<>(parser, testDirectory);
+        DocumentsCollection<GsonDocument> collection = new UniqueIndexedDocumentsCollection<>(documentSchema, parser, testDirectory);
         JsonObject khalid = Person.fromNameAndAge("Khalid", 22);
         JsonObject hamza = Person.fromNameAndAge("Hamza", 22);
         JsonObject john = Person.fromNameAndAge("John", 43);

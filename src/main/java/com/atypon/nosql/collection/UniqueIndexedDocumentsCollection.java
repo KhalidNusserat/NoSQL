@@ -7,9 +7,11 @@ import com.atypon.nosql.index.FieldIndex;
 import com.atypon.nosql.index.HashedFieldIndex;
 import com.atypon.nosql.io.CopyOnWriteIO;
 import com.atypon.nosql.io.GsonCopyOnWriteIO;
+import com.atypon.nosql.schema.DocumentSchema;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 
+import javax.naming.directory.SchemaViolationException;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.FileSystems;
@@ -23,6 +25,8 @@ import java.util.stream.Stream;
 public class UniqueIndexedDocumentsCollection<T extends Document<?>> implements DocumentsCollection<T> {
     private final FieldIndex<ObjectID, String> uniqueIndex;
 
+    private final DocumentSchema<T> documentSchema;
+
     private final CopyOnWriteIO io = new GsonCopyOnWriteIO();
 
     private final DocumentParser<T> parser;
@@ -34,10 +38,16 @@ public class UniqueIndexedDocumentsCollection<T extends Document<?>> implements 
 
     private final PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**/*.index");
 
-    public UniqueIndexedDocumentsCollection(DocumentParser<T> parser, Path directoryPath) throws IOException {
+    public UniqueIndexedDocumentsCollection(
+            DocumentSchema<T> documentSchema,
+            DocumentParser<T> parser,
+            Path directoryPath) throws IOException
+    {
+        Preconditions.checkNotNull(documentSchema);
         Preconditions.checkNotNull(directoryPath);
         Preconditions.checkNotNull(parser);
         this.directoryPath = directoryPath;
+        this.documentSchema = documentSchema;
         this.parser = parser;
         this.uniqueIndex = readUniqueIndex();
     }
@@ -77,13 +87,14 @@ public class UniqueIndexedDocumentsCollection<T extends Document<?>> implements 
     }
 
     @Override
-    public void put(ObjectID id, T document) throws IOException {
+    public void put(ObjectID id, T document) throws IOException, SchemaViolationException {
         Preconditions.checkNotNull(id, document);
+        T validatedDocument = documentSchema.validate(document);
         if (uniqueIndex.containsKey(id)) {
             uniqueIndex.put(
                     id,
                     io.update(
-                            document.toString(),
+                            validatedDocument.toString(),
                             String.class,
                             Path.of(uniqueIndex.getFromKey(id).orElseThrow()),
                             ".json"
@@ -93,7 +104,7 @@ public class UniqueIndexedDocumentsCollection<T extends Document<?>> implements 
             uniqueIndex.put(
                     id,
                     io.write(
-                            document.toString(),
+                            validatedDocument.toString(),
                             String.class,
                             directoryPath,
                             ".json"
