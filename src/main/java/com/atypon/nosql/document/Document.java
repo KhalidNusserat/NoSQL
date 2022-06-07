@@ -5,7 +5,5 @@ public interface Document<DocumentElement> {
 
     DocumentElement get(String field);
 
-    Document<DocumentElement> deepCopy();
-
-    boolean matches(DocumentElement bound);
+    boolean match(Document<DocumentElement> bound);
 }

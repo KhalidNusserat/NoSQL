@@ -23,13 +23,13 @@ class GsonDocumentMatcherTest {
         GsonDocument john = new GsonDocument(Person.newPerson("John", 42, "CIS"));
         JsonObject majorBoundObject = new JsonObject();
         majorBoundObject.addProperty("major", "CPE");
-        assertTrue(khalid.matches(majorBoundObject));
-        assertTrue(hamza.matches(majorBoundObject));
-        assertFalse(john.matches(majorBoundObject));
+        assertTrue(khalid.match(GsonMatchDocument.newGsonMatchDocument(majorBoundObject, false)));
+        assertTrue(hamza.match(GsonMatchDocument.newGsonMatchDocument(majorBoundObject, false)));
+        assertFalse(john.match(GsonMatchDocument.newGsonMatchDocument(majorBoundObject, false)));
         JsonObject idBoundObject = new JsonObject();
         idBoundObject.addProperty("_id", john.id().toString());
-        assertFalse(khalid.matches(idBoundObject));
-        assertFalse(hamza.matches(idBoundObject));
-        assertTrue(john.matches(idBoundObject));
+        assertFalse(khalid.match(GsonMatchDocument.newGsonMatchDocument(idBoundObject, true)));
+        assertFalse(hamza.match(GsonMatchDocument.newGsonMatchDocument(idBoundObject, true)));
+        assertTrue(john.match(GsonMatchDocument.newGsonMatchDocument(idBoundObject, true)));
     }
 }

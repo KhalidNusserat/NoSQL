@@ -7,9 +7,7 @@ import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 public class GsonDocument implements Document<JsonElement> {
     final JsonObject object;
@@ -35,11 +33,6 @@ public class GsonDocument implements Document<JsonElement> {
         object.addProperty("_id", objectID.toString());
     }
 
-    public GsonDocument(GsonDocument other) {
-        object = other.object.deepCopy();
-        object.addProperty("_id", new RandomObjectID().toString());
-    }
-
     public static GsonDocumentBuilder builder() {
         return new GsonDocumentBuilder();
     }
@@ -59,13 +52,8 @@ public class GsonDocument implements Document<JsonElement> {
     }
 
     @Override
-    public Document<JsonElement> deepCopy() {
-        return new GsonDocument(this);
-    }
-
-    @Override
-    public boolean matches(JsonElement bound) {
-        return GsonDocumentMatcher.matchObject(object, (JsonObject) bound);
+    public boolean match(Document<JsonElement> bound) {
+        return GsonDocumentMatcher.match(this, (GsonDocument) bound);
     }
 
     @Override

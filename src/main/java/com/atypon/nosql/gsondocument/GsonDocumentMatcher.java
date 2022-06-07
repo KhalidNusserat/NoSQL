@@ -1,12 +1,12 @@
 package com.atypon.nosql.gsondocument;
 
+import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 public class GsonDocumentMatcher {
     private static boolean matchPrimitive(JsonPrimitive primitive, JsonPrimitive bound) {
@@ -28,15 +28,40 @@ public class GsonDocumentMatcher {
         }
     }
 
-    public static boolean matchObject(JsonObject object, JsonObject bound) {
-        Set<Map.Entry<String, JsonElement>> documentFields = object.entrySet();
-        Set<Map.Entry<String, JsonElement>> boundFields = bound.entrySet();
-        for (var entry : boundFields) {
-            Optional<Map.Entry<String, JsonElement>> fieldEntry = documentFields.stream()
+    private static boolean matchObject(JsonObject object, JsonObject bound) {
+        for (var entry : bound.entrySet()) {
+            Optional<Map.Entry<String, JsonElement>> fieldEntry = object.entrySet().stream()
                     .filter(e -> e.getKey().equals(entry.getKey()))
                     .findAny();
             if (fieldEntry.isPresent() && !matches(entry.getValue(), fieldEntry.get().getValue())) {
                 return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean match(GsonDocument document, GsonDocument matchDocument) {
+        Preconditions.checkState(
+                matchDocument.object.has("_matchID"),
+                "Match documents must have the field \"_matchID\""
+        );
+        boolean matchID = matchDocument.object.get("_matchID").getAsBoolean();
+        for (var entry : matchDocument.object.entrySet()) {
+            if (entry.getKey().equals("_matchID")) {
+                continue;
+            }
+            if (entry.getKey().equals("_id") && !matchID) {
+                continue;
+            }
+            Optional<Map.Entry<String, JsonElement>> fieldEntry = document.object.entrySet().stream()
+                    .filter(e -> e.getKey().equals(entry.getKey()))
+                    .findAny();
+            if (fieldEntry.isPresent()) {
+                if (!matches(entry.getValue(), fieldEntry.get().getValue())) {
+                    return false;
+                }
+            } else {
+                throw new IllegalArgumentException("Invalid field specified: " + entry.getKey());
             }
         }
         return true;
