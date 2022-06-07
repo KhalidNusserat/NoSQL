@@ -45,7 +45,7 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
 
 
     @Override
-    public boolean containsID(T bound) throws IOException {
+    public boolean contains(T bound) throws IOException {
         return !get(bound).isEmpty();
     }
 

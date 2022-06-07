@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 public interface DocumentsCollection<T extends Document<?>> {
-    boolean containsID(T bound) throws IOException;
+    boolean contains(T bound) throws IOException;
 
     Collection<T> get(T bound) throws IOException;
 
