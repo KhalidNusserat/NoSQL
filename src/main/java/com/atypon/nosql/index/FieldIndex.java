@@ -10,8 +10,6 @@ public interface FieldIndex<K, V> {
 
     void clear();
 
-    Optional<V> getFromKey(K key);
-
     Collection<K> getFromValue(V value);
 
     boolean containsKey(K key);

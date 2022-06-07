@@ -50,14 +50,6 @@ public class HashedFieldIndex<K, V> implements FieldIndex<K, V> {
     }
 
     @Override
-    public Optional<V> getFromKey(K key) {
-        lock.readLock().lock();
-        V value = keyToValue.get(key);
-        lock.readLock().unlock();
-        return Optional.ofNullable(value);
-    }
-
-    @Override
     public Collection<K> getFromValue(V value) {
         lock.readLock().lock();
         Collection<K> keys = valueToKeys.getOrDefault(value, Set.of());
