@@ -1,14 +1,14 @@
 package com.atypon.nosql.schema.gson;
 
-import com.atypon.nosql.schema.ArraySchema;
+import com.atypon.nosql.schema.ArrayElementSchema;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
 import javax.naming.directory.SchemaViolationException;
 
-public class GsonArraySchema extends ArraySchema<JsonElement> implements GsonSchema {
-    public GsonArraySchema(GsonSchema itemSchema, boolean required, boolean nullable) {
+public class GsonArrayElementSchema extends ArrayElementSchema<JsonElement> implements GsonElementSchema {
+    public GsonArrayElementSchema(GsonElementSchema itemSchema, boolean required, boolean nullable) {
         super(itemSchema, required, nullable);
     }
 
@@ -23,7 +23,7 @@ public class GsonArraySchema extends ArraySchema<JsonElement> implements GsonSch
         JsonArray args = element.getAsJsonArray();
         JsonArray array = new JsonArray();
         for (JsonElement jsonElement : args) {
-            array.add(itemSchema.validate(jsonElement));
+            array.add(itemElementSchema.validate(jsonElement));
         }
         return array;
     }

@@ -5,8 +5,8 @@ import com.google.gson.JsonPrimitive;
 
 import javax.naming.directory.SchemaViolationException;
 
-public class GsonBooleanSchema extends GsonPrimitiveSchema<Boolean> {
-    public GsonBooleanSchema(boolean defaultValue, boolean required, boolean nullable) {
+public class GsonStringElementSchema extends GsonPrimitiveElementSchema<String> {
+    public GsonStringElementSchema(String defaultValue, boolean required, boolean nullable) {
         super(defaultValue, required, nullable);
     }
 
@@ -15,10 +15,10 @@ public class GsonBooleanSchema extends GsonPrimitiveSchema<Boolean> {
         if (element.isJsonNull() && !isNullable()) {
             throw new IllegalArgumentException("Null provided for a non-nullable field");
         }
-        if (element.isJsonNull() || element.getAsJsonPrimitive().isBoolean()) {
+        if (element.isJsonNull() || element.getAsJsonPrimitive().isString()) {
             return element;
         }
-        throw new SchemaViolationException("Not a JsonBoolean: " + element);
+        throw new SchemaViolationException("Not a JsonString: " + element);
     }
 
     @Override

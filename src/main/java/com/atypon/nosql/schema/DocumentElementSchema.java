@@ -1,16 +1,18 @@
 package com.atypon.nosql.schema;
 
-public abstract class ArraySchema<DocumentElement> implements Schema<DocumentElement> {
-    protected final Schema<DocumentElement> itemSchema;
+import java.util.HashMap;
+import java.util.Map;
+
+public abstract class DocumentElementSchema<DocumentElement> implements ElementSchema<DocumentElement> {
+    protected final Map<String, ElementSchema<DocumentElement>> fields = new HashMap<>();
 
     private final boolean required;
 
     private final boolean nullable;
 
-    public ArraySchema(Schema<DocumentElement> itemSchema, boolean required, boolean nullable) {
+    public DocumentElementSchema(boolean required, boolean nullable) {
         this.required = required;
         this.nullable = nullable;
-        this.itemSchema = itemSchema;
     }
 
     @Override

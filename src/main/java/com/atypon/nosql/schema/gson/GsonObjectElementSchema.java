@@ -1,8 +1,8 @@
 package com.atypon.nosql.schema.gson;
 
 import com.atypon.nosql.gsondocument.GsonDocument;
-import com.atypon.nosql.schema.DocumentSchema;
-import com.atypon.nosql.schema.Schema;
+import com.atypon.nosql.schema.DocumentElementSchema;
+import com.atypon.nosql.schema.ElementSchema;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
@@ -11,8 +11,8 @@ import javax.naming.directory.SchemaViolationException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GsonObjectSchema extends DocumentSchema<JsonElement> implements GsonSchema {
-    public GsonObjectSchema(Map<String, GsonSchema> fields, boolean required, boolean nullable) {
+public class GsonObjectElementSchema extends DocumentElementSchema<JsonElement> implements GsonElementSchema {
+    public GsonObjectElementSchema(Map<String, GsonElementSchema> fields, boolean required, boolean nullable) {
         super(required, nullable);
         this.fields.putAll(fields);
     }
@@ -45,7 +45,7 @@ public class GsonObjectSchema extends DocumentSchema<JsonElement> implements Gso
                 throw new SchemaViolationException("Unrecognized field: " + fieldName);
             }
         }
-        for (Map.Entry<String, Schema<JsonElement>> field : fields.entrySet()) {
+        for (Map.Entry<String, ElementSchema<JsonElement>> field : fields.entrySet()) {
             if (!builder.containsKey(field.getKey())) {
                 if (field.getValue().isRequired()) {
                     throw new IllegalArgumentException("Missing required field: " + field.getKey());
@@ -58,7 +58,7 @@ public class GsonObjectSchema extends DocumentSchema<JsonElement> implements Gso
     }
 
     public static class GsonDocumentSchemaBuilder {
-        private final Map<String, GsonSchema> fields = new HashMap<>();
+        private final Map<String, GsonElementSchema> fields = new HashMap<>();
         private boolean required = false;
         private boolean nullable = false;
 
@@ -72,13 +72,13 @@ public class GsonObjectSchema extends DocumentSchema<JsonElement> implements Gso
             return this;
         }
 
-        public GsonDocumentSchemaBuilder add(String field, GsonSchema schema) {
+        public GsonDocumentSchemaBuilder add(String field, GsonElementSchema schema) {
             fields.put(field, schema);
             return this;
         }
 
-        public GsonObjectSchema create() {
-            return new GsonObjectSchema(fields, required, nullable);
+        public GsonObjectElementSchema create() {
+            return new GsonObjectElementSchema(fields, required, nullable);
         }
     }
 }

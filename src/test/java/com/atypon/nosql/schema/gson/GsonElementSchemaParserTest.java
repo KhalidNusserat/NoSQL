@@ -10,7 +10,7 @@ import javax.naming.directory.SchemaViolationException;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class GsonSchemaParserTest {
+class GsonElementSchemaParserTest {
     private boolean compareGsonDocuments(JsonElement first, JsonElement second) {
         if (first.getClass() != second.getClass()) {
             return false;
@@ -57,7 +57,7 @@ class GsonSchemaParserTest {
                 "extra: \"string;nullable\"}";
         Gson gson = new Gson();
         KeywordsParser keywordsParser = new SimpleKeywordsParser();
-        GsonSchema gsonSchema = new GsonSchemaParser(keywordsParser).parse(gson.fromJson(schema, JsonObject.class));
+        GsonElementSchema gsonSchema = new GsonSchemaElementParser(keywordsParser).parse(gson.fromJson(schema, JsonObject.class));
         String objectJson = "{name: \"Khalid\", grades: [{course: \"CPE231\", grade: 98}], extra: null}";
         JsonObject object = gsonSchema.validate(gson.fromJson(objectJson, JsonObject.class)).getAsJsonObject();
         JsonObject expected = new JsonObject();

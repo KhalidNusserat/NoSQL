@@ -12,14 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class GsonSchemaParser {
+public class GsonSchemaElementParser {
     private final KeywordsParser keywordsParser;
 
-    public GsonSchemaParser(KeywordsParser keywordsParser) {
+    public GsonSchemaElementParser(KeywordsParser keywordsParser) {
         this.keywordsParser = keywordsParser;
     }
 
-    private GsonPrimitiveSchema<?> parsePrimitive(JsonPrimitive jsonPrimitive) throws InvalidKeywordException {
+    private GsonPrimitiveElementSchema<?> parsePrimitive(JsonPrimitive jsonPrimitive) throws InvalidKeywordException {
         if (jsonPrimitive.isString()) {
             String keywordsString = jsonPrimitive.getAsString();
             List<Keyword> keywords = keywordsParser.parse(keywordsString);
@@ -29,31 +29,31 @@ public class GsonSchemaParser {
                     .filter(keyword -> keyword.getName().equals("default"))
                     .findFirst();
             if (keywords.contains(Keyword.fromString("number"))) {
-                return defaultKeyword.map(keyword -> new GsonNumberSchema(
+                return defaultKeyword.map(keyword -> new GsonNumberElementSchema(
                         keyword.getArgAsNumber(),
                         required,
                         nullable
-                )).orElseGet(() -> new GsonNumberSchema(
+                )).orElseGet(() -> new GsonNumberElementSchema(
                         0,
                         required,
                         nullable
                 ));
             } else if (keywords.contains(Keyword.fromString("boolean"))) {
-                return defaultKeyword.map(keyword -> new GsonBooleanSchema(
+                return defaultKeyword.map(keyword -> new GsonBooleanElementSchema(
                         keyword.getArgAsBoolean(),
                         required,
                         nullable
-                )).orElseGet(() -> new GsonBooleanSchema(
+                )).orElseGet(() -> new GsonBooleanElementSchema(
                         false,
                         required,
                         nullable
                 ));
             } else if (keywords.contains(Keyword.fromString("string"))) {
-                return defaultKeyword.map(keyword -> new GsonStringSchema(
+                return defaultKeyword.map(keyword -> new GsonStringElementSchema(
                         keyword.getArgAsString(),
                         required,
                         nullable
-                )).orElseGet(() -> new GsonStringSchema(
+                )).orElseGet(() -> new GsonStringElementSchema(
                         "",
                         required,
                         nullable
@@ -66,25 +66,25 @@ public class GsonSchemaParser {
         }
     }
 
-    private GsonArraySchema parseArray(JsonArray jsonArray) throws InvalidKeywordException {
-        return new GsonArraySchema(
+    private GsonArrayElementSchema parseArray(JsonArray jsonArray) throws InvalidKeywordException {
+        return new GsonArrayElementSchema(
                 parse(jsonArray.get(0)),
                 false,
                 false
         );
     }
 
-    private GsonObjectSchema parseDocument(JsonObject jsonObject) throws InvalidKeywordException {
-        GsonObjectSchema.GsonDocumentSchemaBuilder builder =
-                GsonObjectSchema.builder().nullable();
+    private GsonObjectElementSchema parseDocument(JsonObject jsonObject) throws InvalidKeywordException {
+        GsonObjectElementSchema.GsonDocumentSchemaBuilder builder =
+                GsonObjectElementSchema.builder().nullable();
         for (Map.Entry<String, JsonElement> field : jsonObject.entrySet()) {
             builder.add(field.getKey(), parse(field.getValue()));
         }
         return builder.create();
     }
 
-    public GsonSchema parse(JsonElement jsonElement) throws InvalidKeywordException {
-        GsonSchema gsonSchema = null;
+    public GsonElementSchema parse(JsonElement jsonElement) throws InvalidKeywordException {
+        GsonElementSchema gsonSchema = null;
         if (jsonElement.isJsonObject()) {
             gsonSchema = parseDocument(jsonElement.getAsJsonObject());
         } else if (jsonElement.isJsonPrimitive()) {

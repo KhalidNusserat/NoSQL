@@ -1,11 +1,11 @@
 package com.atypon.nosql.schema;
 
-public abstract class PrimitiveSchema<DocumentElement> implements Schema<DocumentElement> {
+public abstract class PrimitiveElementSchema<DocumentElement> implements ElementSchema<DocumentElement> {
     private final boolean required;
 
     private final boolean nullable;
 
-    public PrimitiveSchema(boolean required, boolean nullable) {
+    public PrimitiveElementSchema(boolean required, boolean nullable) {
         this.required = required;
         this.nullable = nullable;
     }

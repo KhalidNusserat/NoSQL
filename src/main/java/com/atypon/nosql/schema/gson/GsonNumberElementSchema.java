@@ -5,8 +5,8 @@ import com.google.gson.JsonPrimitive;
 
 import javax.naming.directory.SchemaViolationException;
 
-public class GsonNumberSchema extends GsonPrimitiveSchema<Number> {
-    public GsonNumberSchema(Number defaultValue, boolean required, boolean nullable) {
+public class GsonNumberElementSchema extends GsonPrimitiveElementSchema<Number> {
+    public GsonNumberElementSchema(Number defaultValue, boolean required, boolean nullable) {
         super(defaultValue, required, nullable);
     }
 
