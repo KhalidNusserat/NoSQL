@@ -9,6 +9,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class GsonDocument implements Document<JsonElement> {
     final JsonObject object;
@@ -28,13 +29,13 @@ public class GsonDocument implements Document<JsonElement> {
         return result;
     }
 
-    private Set<JsonElement> getValues(JsonObject object) {
+    private Set<JsonElement> getAll(JsonObject object) {
         Set<JsonElement> result = new HashSet<>();
         for (var entry : object.entrySet()) {
             if (entry.getValue().isJsonPrimitive() || entry.getValue().isJsonNull() || entry.getValue().isJsonArray()) {
                 result.add(entry.getValue());
             } else {
-                result.addAll(getValues(entry.getValue().getAsJsonObject()));
+                result.addAll(getAll(entry.getValue().getAsJsonObject()));
             }
         }
         return result;
@@ -65,11 +66,11 @@ public class GsonDocument implements Document<JsonElement> {
 
     @Override
     public String id() {
-        return get("_id").getAsString();
+        return getAll("_id").getAsString();
     }
 
     @Override
-    public JsonElement get(String field) {
+    public JsonElement getAll(String field) {
         return object.get(field);
     }
 
@@ -106,8 +107,29 @@ public class GsonDocument implements Document<JsonElement> {
     }
 
     @Override
-    public Set<JsonElement> getValues() {
-        return getValues(object);
+    public Set<JsonElement> getAll() {
+        return getAll(object);
+    }
+
+    @Override
+    public JsonElement get(DocumentField field) {
+        JsonObject currentObject = object;
+        for (Iterator<String> iterator = field.iterator(); iterator.hasNext();) {
+            JsonElement element = currentObject.get(iterator.next());
+            if (iterator.hasNext()) {
+                currentObject = element.getAsJsonObject();
+            } else {
+                return element;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Set<JsonElement> getAll(Set<DocumentField> fields) {
+        return fields.stream()
+                .map(this::get)
+                .collect(Collectors.toSet());
     }
 
     @Override

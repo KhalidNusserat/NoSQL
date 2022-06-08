@@ -5,7 +5,7 @@ import java.util.Set;
 public interface Document<DocumentElement> {
     String id();
 
-    DocumentElement get(String field);
+    DocumentElement getAll(String field);
 
     boolean matches(Document<DocumentElement> bound);
 
@@ -17,5 +17,9 @@ public interface Document<DocumentElement> {
 
     Set<DocumentField> getFields();
 
-    Set<DocumentElement> getValues();
+    Set<DocumentElement> getAll();
+
+    Set<DocumentElement> getAll(Set<DocumentField> fields);
+
+    DocumentElement get(DocumentField field);
 }
