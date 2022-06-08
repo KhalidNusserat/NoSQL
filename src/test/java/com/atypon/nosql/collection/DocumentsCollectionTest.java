@@ -3,7 +3,9 @@ package com.atypon.nosql.collection;
 import com.atypon.nosql.gsondocument.GsonDocument;
 import com.atypon.nosql.gsondocument.GsonDocumentParser;
 import com.atypon.nosql.gsondocument.GsonMatchDocument;
+import com.atypon.nosql.io.GsonDocumentsIO;
 import com.atypon.nosql.utils.ExtraFileUtils;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.junit.jupiter.api.AfterEach;
@@ -40,6 +42,10 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
     protected final GsonDocument john = new GsonDocument(Person.newPerson("John", 42, "CIS"));
 
     protected final GsonDocumentParser parser = new GsonDocumentParser();
+
+    protected final GsonDocumentsIO documentsIO = new GsonDocumentsIO(parser);
+
+    protected final DocumentsMatchIO<JsonElement, GsonDocument> documentsMatchIO = new DocumentsMatchIO<>(documentsIO);
 
     public abstract T create();
 

@@ -1,8 +1,7 @@
 package com.atypon.nosql.collection;
 
 import com.atypon.nosql.document.Document;
-import com.atypon.nosql.document.DocumentParser;
-import com.atypon.nosql.io.CopyOnWriteIO;
+import com.atypon.nosql.io.DocumentsIO;
 import com.google.common.base.Preconditions;
 
 import javax.naming.directory.SchemaViolationException;
@@ -12,20 +11,20 @@ import java.util.Collection;
 import java.util.List;
 
 public class DefaultDocumentsCollection<E, T extends Document<E>> implements DocumentsCollection<T> {
-    private final CopyOnWriteIO io;
+    private final DocumentsIO<T> documentsIO;
 
     private final Path directoryPath;
 
-    private final DocumentUtils<E, T> documentUtils;
+    private final DocumentsMatchIO<E, T> documentsMatchIO;
 
     private DefaultDocumentsCollection(
-            CopyOnWriteIO io,
-            DocumentParser<T> parser,
-            Path directoryPath
+            DocumentsIO<T> documentsIO,
+            Path directoryPath,
+            DocumentsMatchIO<E, T> documentsMatchIO
     ) {
-        this.io = io;
+        this.documentsIO = documentsIO;
         this.directoryPath = directoryPath;
-        documentUtils = new DocumentUtils<>(directoryPath, parser, this.io);
+        this.documentsMatchIO = documentsMatchIO;
     }
 
     public static <E, T extends Document<E>> DefaultDocumentsCollectionBuilder<E, T> builder() {
@@ -34,27 +33,27 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
 
     @Override
     public boolean contains(T matchDocument) throws IOException {
-        return documentUtils.contains(matchDocument);
+        return documentsMatchIO.contains(matchDocument, directoryPath);
     }
 
     @Override
     public Collection<T> getAllThatMatches(T matchDocument) throws IOException {
-        return documentUtils.getAllThatMatches(matchDocument);
+        return documentsMatchIO.getAllThatMatches(matchDocument, directoryPath);
     }
 
     @Override
-    public Collection<T> getAll() throws IOException {
-        return documentUtils.getAll();
+    public Collection<T> getAll() {
+        return documentsIO.readAll(directoryPath);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Path put(T document) throws IOException, SchemaViolationException {
-        List<Path> paths = documentUtils.getPaths((T) document.matchID());
+        List<Path> paths = documentsMatchIO.getPaths((T) document.matchID(), directoryPath);
         if (paths.size() == 1) {
-            return io.update(document.toString(), String.class, paths.get(0), ".json");
+            return documentsIO.update(document, paths.get(0));
         } else if (paths.size() == 0) {
-            return io.write(document.toString(), String.class, directoryPath, ".json");
+            return documentsIO.write(document, directoryPath);
         } else {
             throw new IllegalStateException("There are multiple files with the same ObjectID");
         }
@@ -62,19 +61,19 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
 
     @Override
     public void remove(T matchDocument) throws IOException {
-        for (Path path : documentUtils.getPaths(matchDocument)) {
-            io.delete(path);
+        for (Path path : documentsMatchIO.getPaths(matchDocument, directoryPath)) {
+            documentsIO.delete(path);
         }
     }
 
     public static class DefaultDocumentsCollectionBuilder<E, T extends Document<E>> {
-        private CopyOnWriteIO io;
+        private DocumentsIO<T> io;
 
         private Path directoryPath;
 
-        private DocumentParser<T> documentParser;
+        private DocumentsMatchIO<E, T> documentsMatchIO;
 
-        public DefaultDocumentsCollectionBuilder<E, T> setIO(CopyOnWriteIO io) {
+        public DefaultDocumentsCollectionBuilder<E, T> setDocumentsIO(DocumentsIO<T> io) {
             this.io = io;
             return this;
         }
@@ -84,16 +83,16 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
             return this;
         }
 
-        public DefaultDocumentsCollectionBuilder<E, T> setDocumentParser(DocumentParser<T> documentParser) {
-            this.documentParser = documentParser;
+        public DefaultDocumentsCollectionBuilder<E, T> setDocumentsMatchIO(DocumentsMatchIO<E, T> documentsMatchIO) {
+            this.documentsMatchIO = documentsMatchIO;
             return this;
         }
 
         public DefaultDocumentsCollection<E, T> create() {
             Preconditions.checkNotNull(io);
             Preconditions.checkNotNull(directoryPath);
-            Preconditions.checkNotNull(documentParser);
-            return new DefaultDocumentsCollection<>(io, documentParser, directoryPath);
+            Preconditions.checkNotNull(documentsMatchIO);
+            return new DefaultDocumentsCollection<>(io, directoryPath, documentsMatchIO);
         }
     }
 }

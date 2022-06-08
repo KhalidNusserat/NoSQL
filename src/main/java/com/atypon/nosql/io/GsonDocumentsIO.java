@@ -59,7 +59,7 @@ public class GsonDocumentsIO implements DocumentsIO<GsonDocument> {
     public Path write(GsonDocument document, Path directoryPath) throws IOException {
         Path filepath = directoryPath.resolve(random.nextLong() + ".json");
         try (BufferedWriter writer = Files.newBufferedWriter(filepath)) {
-            gson.toJson(document.toString());
+            writer.write(document.toString());
         }
         return filepath;
     }

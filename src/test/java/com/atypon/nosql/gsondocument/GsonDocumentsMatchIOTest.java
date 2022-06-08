@@ -16,7 +16,7 @@ class Person {
     }
 }
 
-class GsonDocumentUtilsTest {
+class GsonDocumentsMatchIOTest {
     @Test
     void matches() {
         GsonDocument khalid = new GsonDocument(Person.newPerson("Khalid", 22, "CPE"));
