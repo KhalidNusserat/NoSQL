@@ -21,8 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class IndexedDocumentsCollection<E, T extends Document<E>> implements DocumentsCollection<T> {
     private final DefaultDocumentsCollection<E, T> defaultDocumentsCollection;
 
-    private final DocumentSchema<T> documentSchema;
-
     private final CopyOnWriteIO io;
 
     private final DocumentUtils<E, T> documentUtils;
@@ -32,7 +30,6 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
     private final Map<Set<DocumentField>, FieldIndex<String, Set<E>>> indexes = new ConcurrentHashMap<>();
 
     private IndexedDocumentsCollection(
-            DocumentSchema<T> documentSchema,
             CopyOnWriteIO io,
             DocumentParser<T> documentParser,
             Path directoryPath
@@ -40,10 +37,8 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
         this.defaultDocumentsCollection = DefaultDocumentsCollection.<E, T>builder()
                 .setDirectoryPath(directoryPath)
                 .setDocumentParser(documentParser)
-                .setDocumentSchema(documentSchema)
                 .setIO(io)
                 .create();
-    this.documentSchema = documentSchema;
     this.io = io;
         documentUtils = new DocumentUtils<>(directoryPath, documentParser, io);
     }
@@ -77,12 +72,11 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
 
     @Override
     public Path put(T document) throws IOException, SchemaViolationException {
-        T validatedDocument = documentSchema.validate(document);
         for (Set<DocumentField> fields : indexes.keySet()) {
             indexes.putIfAbsent(fields, new HashedFieldIndex<>());
             indexes.get(fields).put(document.id(), document.getAll(fields));
         }
-        Path documentPath = defaultDocumentsCollection.put(validatedDocument);
+        Path documentPath = defaultDocumentsCollection.put(document);
         uniqueIndex.put(document.id(), documentPath);
         return documentPath;
     }
@@ -106,18 +100,11 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
     }
 
     public static class IndexedDocumentsCollectionsBuilder<E, T extends Document<E>> {
-        private DocumentSchema<T> documentSchema;
-
         private CopyOnWriteIO io;
 
         private Path directoryPath;
 
         private DocumentParser<T> documentParser;
-
-        public IndexedDocumentsCollectionsBuilder<E, T> setDocumentSchema(DocumentSchema<T> documentSchema) {
-            this.documentSchema = documentSchema;
-            return this;
-        }
 
         public IndexedDocumentsCollectionsBuilder<E, T> setIO(CopyOnWriteIO io) {
             this.io = io;
@@ -135,11 +122,10 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
         }
 
         public IndexedDocumentsCollection<E, T> create() {
-            Preconditions.checkNotNull(documentSchema);
             Preconditions.checkNotNull(io);
             Preconditions.checkNotNull(directoryPath);
             Preconditions.checkNotNull(documentParser);
-            return new IndexedDocumentsCollection<>(documentSchema, io, documentParser, directoryPath);
+            return new IndexedDocumentsCollection<>(io, documentParser, directoryPath);
         }
     }
 }

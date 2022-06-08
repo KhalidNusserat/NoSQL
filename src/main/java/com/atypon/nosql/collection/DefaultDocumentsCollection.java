@@ -13,8 +13,6 @@ import java.util.Collection;
 import java.util.List;
 
 public class DefaultDocumentsCollection<E, T extends Document<E>> implements DocumentsCollection<T> {
-    private final DocumentSchema<T> documentSchema;
-
     private final CopyOnWriteIO io;
 
     private final Path directoryPath;
@@ -22,12 +20,10 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
     private final DocumentUtils<E, T> documentUtils;
 
     private DefaultDocumentsCollection(
-            DocumentSchema<T> documentSchema,
             CopyOnWriteIO io,
             DocumentParser<T> parser,
             Path directoryPath
     ) {
-        this.documentSchema = documentSchema;
         this.io = io;
         this.directoryPath = directoryPath;
         documentUtils = new DocumentUtils<>(directoryPath, parser, this.io);
@@ -55,12 +51,11 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
     @Override
     @SuppressWarnings("unchecked")
     public Path put(T document) throws IOException, SchemaViolationException {
-        T validatedDocument = documentSchema.validate(document);
         List<Path> paths = documentUtils.getPaths((T) document.matchID());
         if (paths.size() == 1) {
-            return io.update(validatedDocument.toString(), String.class, paths.get(0), ".json");
+            return io.update(document.toString(), String.class, paths.get(0), ".json");
         } else if (paths.size() == 0) {
-            return io.write(validatedDocument.toString(), String.class, directoryPath, ".json");
+            return io.write(document.toString(), String.class, directoryPath, ".json");
         } else {
             throw new IllegalStateException("There are multiple files with the same ObjectID");
         }
@@ -74,18 +69,11 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
     }
 
     public static class DefaultDocumentsCollectionBuilder<E, T extends Document<E>> {
-        private DocumentSchema<T> documentSchema;
-
         private CopyOnWriteIO io;
 
         private Path directoryPath;
 
         private DocumentParser<T> documentParser;
-
-        public DefaultDocumentsCollectionBuilder<E, T> setDocumentSchema(DocumentSchema<T> documentSchema) {
-            this.documentSchema = documentSchema;
-            return this;
-        }
 
         public DefaultDocumentsCollectionBuilder<E, T> setIO(CopyOnWriteIO io) {
             this.io = io;
@@ -103,11 +91,10 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
         }
 
         public DefaultDocumentsCollection<E, T> create() {
-            Preconditions.checkNotNull(documentSchema);
             Preconditions.checkNotNull(io);
             Preconditions.checkNotNull(directoryPath);
             Preconditions.checkNotNull(documentParser);
-            return new DefaultDocumentsCollection<>(documentSchema, io, documentParser, directoryPath);
+            return new DefaultDocumentsCollection<>(io, documentParser, directoryPath);
         }
     }
 }

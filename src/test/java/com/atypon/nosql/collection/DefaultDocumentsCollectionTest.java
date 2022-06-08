@@ -38,18 +38,11 @@ class Person {
 class DefaultDocumentsCollectionTest {
     private final Path testDirectory = Path.of("./test");
 
-    private final GsonDocumentSchema documentSchema = new GsonDocumentSchema(
-            "{name: \"string;required\", age: \"number;default(18)\", major: \"string;required\"}"
-    );
-
     private final GsonDocument khalid = new GsonDocument(Person.newPerson("Khalid", 22, "CPE"));
 
     private final GsonDocument hamza = new GsonDocument(Person.newPerson("Hamza", 22, "CPE"));
 
     private final GsonDocument john = new GsonDocument(Person.newPerson("John", 42, "CIS"));
-
-    DefaultDocumentsCollectionTest() throws InvalidKeywordException {
-    }
 
     @BeforeEach
     void setUp() throws IOException {
@@ -69,12 +62,11 @@ class DefaultDocumentsCollectionTest {
     }
 
     @Test
-    void putAndGet() throws IOException, InterruptedException, SchemaViolationException {
+    void putAndGet() throws IOException, SchemaViolationException {
         GsonDocumentParser parser = new GsonDocumentParser();
         DocumentsCollection<GsonDocument> collection = DefaultDocumentsCollection.<JsonElement, GsonDocument>builder()
                 .setDirectoryPath(testDirectory)
                 .setDocumentParser(parser)
-                .setDocumentSchema(documentSchema)
                 .setIO(new GsonCopyOnWriteIO())
                 .create();
         collection.put(khalid);
@@ -94,7 +86,6 @@ class DefaultDocumentsCollectionTest {
         DocumentsCollection<GsonDocument> collection = DefaultDocumentsCollection.<JsonElement, GsonDocument>builder()
                 .setDirectoryPath(testDirectory)
                 .setDocumentParser(parser)
-                .setDocumentSchema(documentSchema)
                 .setIO(new GsonCopyOnWriteIO())
                 .create();
         collection.put(khalid);
@@ -114,7 +105,6 @@ class DefaultDocumentsCollectionTest {
         DocumentsCollection<GsonDocument> collection = DefaultDocumentsCollection.<JsonElement, GsonDocument>builder()
                 .setDirectoryPath(testDirectory)
                 .setDocumentParser(parser)
-                .setDocumentSchema(documentSchema)
                 .setIO(new GsonCopyOnWriteIO())
                 .create();
         collection.put(khalid);
