@@ -1,5 +1,6 @@
 package com.atypon.nosql.index;
 
+import com.atypon.nosql.utils.ReversedHashMap;
 import com.google.common.collect.Range;
 import org.junit.jupiter.api.Test;
 
@@ -9,11 +10,11 @@ import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class HashedFieldIndexTest {
+class ReversedHashMapTest {
 
     @Test
     void putAndGet() throws InterruptedException {
-        HashedFieldIndex<Integer, Integer> index = new HashedFieldIndex<>();
+        ReversedHashMap<Integer, Integer> index = new ReversedHashMap<>();
         index.put(1, 2);
         index.put(2, 2);
         index.put(3, 1);
@@ -34,7 +35,7 @@ class HashedFieldIndexTest {
 
     @Test
     void remove() {
-        HashedFieldIndex<Integer, Integer> index = new HashedFieldIndex<>();
+        ReversedHashMap<Integer, Integer> index = new ReversedHashMap<>();
         index.put(1, 2);
         index.put(2, 2);
         index.put(3, 1);
@@ -45,7 +46,7 @@ class HashedFieldIndexTest {
 
     @Test
     void clear() {
-        HashedFieldIndex<Integer, Integer> index = new HashedFieldIndex<>();
+        ReversedHashMap<Integer, Integer> index = new ReversedHashMap<>();
         index.put(1, 2);
         index.put(2, 2);
         index.put(3, 1);

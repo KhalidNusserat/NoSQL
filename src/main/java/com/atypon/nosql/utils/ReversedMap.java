@@ -1,8 +1,8 @@
-package com.atypon.nosql.index;
+package com.atypon.nosql.utils;
 
 import java.util.Set;
 
-public interface FieldIndex<K, V> {
+public interface ReversedMap<K, V> {
     void put(K key, V value);
 
     void remove(K key);

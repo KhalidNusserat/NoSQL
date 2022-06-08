@@ -1,4 +1,4 @@
-package com.atypon.nosql.index;
+package com.atypon.nosql.utils;
 
 import com.google.gson.annotations.Expose;
 
@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class HashedFieldIndex<K, V> implements FieldIndex<K, V> {
+public class ReversedHashMap<K, V> implements ReversedMap<K, V> {
     @Expose
     final Map<V, Set<K>> valueToKeys;
 
@@ -17,7 +17,7 @@ public class HashedFieldIndex<K, V> implements FieldIndex<K, V> {
 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    public HashedFieldIndex() {
+    public ReversedHashMap() {
         keyToValue = new HashMap<>();
         valueToKeys = new HashMap<>();
     }
