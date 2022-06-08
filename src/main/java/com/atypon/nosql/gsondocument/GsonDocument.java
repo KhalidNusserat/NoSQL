@@ -67,6 +67,10 @@ public class GsonDocument implements Document<JsonElement> {
         return object;
     }
 
+    public static GsonDocument of(JsonObject object) {
+        return new GsonDocument(object);
+    }
+
     @Override
     public String id() {
         return getAll("_id").getAsString();
