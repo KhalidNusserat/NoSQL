@@ -5,6 +5,7 @@ import com.atypon.nosql.document.Document;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface DocumentsIO<T extends Document<?>> {

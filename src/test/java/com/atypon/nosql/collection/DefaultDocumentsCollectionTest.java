@@ -7,10 +7,6 @@ class DefaultDocumentsCollectionTest extends DocumentsCollectionTest<DefaultDocu
 
     @Override
     public DefaultDocumentsCollection<JsonElement, GsonDocument> create() {
-        return DefaultDocumentsCollection.<JsonElement, GsonDocument>builder()
-                .setDirectoryPath(testDirectory)
-                .setDocumentsMatchIO(documentsMatchIO)
-                .setDocumentsIO(documentsIO)
-                .create();
+        return DefaultDocumentsCollection.from(documentsIO, testDirectory);
     }
 }

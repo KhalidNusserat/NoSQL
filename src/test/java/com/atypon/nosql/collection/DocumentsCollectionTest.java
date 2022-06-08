@@ -45,8 +45,6 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
 
     protected final GsonDocumentsIO documentsIO = new GsonDocumentsIO(parser);
 
-    protected final DocumentsMatchIO<JsonElement, GsonDocument> documentsMatchIO = new DocumentsMatchIO<>(documentsIO);
-
     public abstract T create();
 
     @BeforeEach

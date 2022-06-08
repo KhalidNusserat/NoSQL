@@ -2,43 +2,67 @@ package com.atypon.nosql.collection;
 
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.io.DocumentsIO;
+import com.atypon.nosql.utils.ExtraFileUtils;
 import com.google.common.base.Preconditions;
 
 import javax.naming.directory.SchemaViolationException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DefaultDocumentsCollection<E, T extends Document<E>> implements DocumentsCollection<T> {
     private final DocumentsIO<T> documentsIO;
 
     private final Path directoryPath;
 
-    private final DocumentsMatchIO<E, T> documentsMatchIO;
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    private DefaultDocumentsCollection(
-            DocumentsIO<T> documentsIO,
-            Path directoryPath,
-            DocumentsMatchIO<E, T> documentsMatchIO
-    ) {
+    public DefaultDocumentsCollection(DocumentsIO<T> documentsIO, Path directoryPath) {
         this.documentsIO = documentsIO;
         this.directoryPath = directoryPath;
-        this.documentsMatchIO = documentsMatchIO;
     }
 
-    public static <E, T extends Document<E>> DefaultDocumentsCollectionBuilder<E, T> builder() {
-        return new DefaultDocumentsCollectionBuilder<>();
-    }
-
-    @Override
-    public boolean contains(T matchDocument) throws IOException {
-        return documentsMatchIO.contains(matchDocument, directoryPath);
+    public static <E, T extends Document<E>> DefaultDocumentsCollection<E, T> from(
+            DocumentsIO<T> documentsIO, Path directoryPath) {
+        return new DefaultDocumentsCollection<>(documentsIO, directoryPath);
     }
 
     @Override
-    public Collection<T> getAllThatMatches(T matchDocument) throws IOException {
-        return documentsMatchIO.getAllThatMatches(matchDocument, directoryPath);
+    public boolean contains(T matchDocument) {
+        lock.readLock().lock();
+        try {
+            return Files.walk(directoryPath)
+                    .filter(ExtraFileUtils::isJsonFile)
+                    .map(documentsIO::read)
+                    .filter(Optional::isPresent)
+                    .anyMatch(document -> document.get().matches(matchDocument));
+        } catch (IOException e) {
+            throw new RuntimeException("Couldn't access the directory: " + directoryPath);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Collection<T> getAllThatMatches(T matchDocument) {
+        lock.readLock().lock();
+        try {
+            return Files.walk(directoryPath)
+                    .filter(ExtraFileUtils::isJsonFile)
+                    .map(documentsIO::read)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .filter(document -> document.matches(matchDocument))
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException("Couldn't access the directory: " + directoryPath);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     @Override
@@ -49,7 +73,7 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
     @Override
     @SuppressWarnings("unchecked")
     public Path put(T document) throws IOException, SchemaViolationException {
-        List<Path> paths = documentsMatchIO.getPaths((T) document.matchID(), directoryPath);
+        List<Path> paths = getPathsThatMatch((T) document.matchID());
         if (paths.size() == 1) {
             return documentsIO.update(document, paths.get(0));
         } else if (paths.size() == 0) {
@@ -61,38 +85,24 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
 
     @Override
     public void remove(T matchDocument) throws IOException {
-        for (Path path : documentsMatchIO.getPaths(matchDocument, directoryPath)) {
+        for (Path path : getPathsThatMatch(matchDocument)) {
             documentsIO.delete(path);
         }
     }
 
-    public static class DefaultDocumentsCollectionBuilder<E, T extends Document<E>> {
-        private DocumentsIO<T> io;
-
-        private Path directoryPath;
-
-        private DocumentsMatchIO<E, T> documentsMatchIO;
-
-        public DefaultDocumentsCollectionBuilder<E, T> setDocumentsIO(DocumentsIO<T> io) {
-            this.io = io;
-            return this;
-        }
-
-        public DefaultDocumentsCollectionBuilder<E, T> setDirectoryPath(Path directoryPath) {
-            this.directoryPath = directoryPath;
-            return this;
-        }
-
-        public DefaultDocumentsCollectionBuilder<E, T> setDocumentsMatchIO(DocumentsMatchIO<E, T> documentsMatchIO) {
-            this.documentsMatchIO = documentsMatchIO;
-            return this;
-        }
-
-        public DefaultDocumentsCollection<E, T> create() {
-            Preconditions.checkNotNull(io);
-            Preconditions.checkNotNull(directoryPath);
-            Preconditions.checkNotNull(documentsMatchIO);
-            return new DefaultDocumentsCollection<>(io, directoryPath, documentsMatchIO);
+    private List<Path> getPathsThatMatch(T matchDocument) {
+        lock.readLock().lock();
+        try {
+            return Files.walk(directoryPath)
+                    .filter(ExtraFileUtils::isJsonFile)
+                    .filter(path -> documentsIO.read(path)
+                            .map(document -> document.matches(matchDocument))
+                            .orElse(false))
+                    .toList();
+        } catch (IOException e) {
+            throw new RuntimeException("Couldn't access the directory: " + directoryPath);
+        } finally {
+            lock.readLock().unlock();
         }
     }
 }
