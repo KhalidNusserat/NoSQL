@@ -1,12 +1,14 @@
 package com.atypon.nosql.document;
 
 import com.google.common.collect.ImmutableList;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-public class DocumentField {
+public class DocumentField implements Iterable<String> {
     private final List<String> fieldComponents;
 
     public DocumentField(List<String> fieldComponents) {
@@ -47,5 +49,11 @@ public class DocumentField {
     @Override
     public String toString() {
         return "DocumentField{" + fieldComponents + '}';
+    }
+
+    @NotNull
+    @Override
+    public Iterator<String> iterator() {
+        return fieldComponents.iterator();
     }
 }
