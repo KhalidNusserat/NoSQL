@@ -59,7 +59,18 @@ public class LRUCache<K, V> implements Cache<K, V> {
 
     @Override
     public boolean containsKey(K key) {
-        return map.containsKey(key);
+        lock.readLock().lock();
+        boolean contains = map.containsKey(key);
+        lock.readLock().unlock();
+        return contains;
+    }
+
+    @Override
+    public void remove(K key) {
+        lock.writeLock().lock();
+        linkedList.remove(map.get(key));
+        map.remove(key);
+        lock.writeLock().unlock();
     }
 
     private void removeLeastUsed() {
