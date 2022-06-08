@@ -1,9 +1,11 @@
 package com.atypon.nosql.index;
 
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.JsonAdapter;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class HashedFieldIndex<K, V> implements FieldIndex<K, V> {

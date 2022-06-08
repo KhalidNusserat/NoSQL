@@ -8,13 +8,35 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class GsonDocument implements Document<JsonElement> {
     final JsonObject object;
 
     private final ObjectIDGenerator objectIDGenerator = new RandomObjectIDGenerator();
+
+    private GsonDocument(GsonDocument other) {
+        object = other.object.deepCopy();
+        object.addProperty("_id", objectIDGenerator.getNewId());
+    }
+
+    public GsonDocument() {
+        object = new JsonObject();
+        object.addProperty("_id", objectIDGenerator.getNewId());
+    }
+
+    public GsonDocument(JsonObject object) {
+        this.object = object.deepCopy();
+        this.object.addProperty("_id", objectIDGenerator.getNewId());
+    }
+
+    public static GsonDocumentBuilder builder() {
+        return new GsonDocumentBuilder();
+    }
 
     private Set<DocumentField> getFields(JsonObject object, DocumentField field) {
         Set<DocumentField> result = new HashSet<>();
@@ -39,25 +61,6 @@ public class GsonDocument implements Document<JsonElement> {
             }
         }
         return result;
-    }
-
-    private GsonDocument(GsonDocument other) {
-        object = other.object.deepCopy();
-        object.addProperty("_id", objectIDGenerator.getNewId());
-    }
-
-    public GsonDocument() {
-        object = new JsonObject();
-        object.addProperty("_id", objectIDGenerator.getNewId());
-    }
-
-    public GsonDocument(JsonObject object) {
-        this.object = object.deepCopy();
-        this.object.addProperty("_id", objectIDGenerator.getNewId());
-    }
-
-    public static GsonDocumentBuilder builder() {
-        return new GsonDocumentBuilder();
     }
 
     public JsonObject getAsJsonObject() {
@@ -114,7 +117,7 @@ public class GsonDocument implements Document<JsonElement> {
     @Override
     public JsonElement get(DocumentField field) {
         JsonObject currentObject = object;
-        for (Iterator<String> iterator = field.iterator(); iterator.hasNext();) {
+        for (Iterator<String> iterator = field.iterator(); iterator.hasNext(); ) {
             JsonElement element = currentObject.get(iterator.next());
             if (iterator.hasNext()) {
                 currentObject = element.getAsJsonObject();

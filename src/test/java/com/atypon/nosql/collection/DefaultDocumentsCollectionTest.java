@@ -2,10 +2,8 @@ package com.atypon.nosql.collection;
 
 import com.atypon.nosql.gsondocument.GsonDocument;
 import com.atypon.nosql.gsondocument.GsonDocumentParser;
-import com.atypon.nosql.gsondocument.GsonDocumentSchema;
 import com.atypon.nosql.gsondocument.GsonMatchDocument;
 import com.atypon.nosql.io.GsonCopyOnWriteIO;
-import com.atypon.nosql.keywordsparser.InvalidKeywordException;
 import com.atypon.nosql.utils.ExtraFileUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -18,7 +16,6 @@ import javax.naming.directory.SchemaViolationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 

@@ -6,7 +6,6 @@ import com.atypon.nosql.document.DocumentParser;
 import com.atypon.nosql.index.FieldIndex;
 import com.atypon.nosql.index.HashedFieldIndex;
 import com.atypon.nosql.io.CopyOnWriteIO;
-import com.atypon.nosql.schema.DocumentSchema;
 import com.google.common.base.Preconditions;
 
 import javax.naming.directory.SchemaViolationException;
@@ -39,7 +38,7 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
                 .setDocumentParser(documentParser)
                 .setIO(io)
                 .create();
-    this.io = io;
+        this.io = io;
         documentUtils = new DocumentUtils<>(directoryPath, documentParser, io);
     }
 

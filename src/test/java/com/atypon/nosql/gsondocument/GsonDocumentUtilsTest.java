@@ -1,14 +1,10 @@
 package com.atypon.nosql.gsondocument;
 
-import com.atypon.nosql.document.DocumentField;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import org.junit.jupiter.api.Test;
 
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class Person {
     public static JsonObject newPerson(String name, int age, String major) {

@@ -3,7 +3,6 @@ package com.atypon.nosql.collection;
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentParser;
 import com.atypon.nosql.io.CopyOnWriteIO;
-import com.atypon.nosql.schema.DocumentSchema;
 import com.google.common.base.Preconditions;
 
 import javax.naming.directory.SchemaViolationException;
