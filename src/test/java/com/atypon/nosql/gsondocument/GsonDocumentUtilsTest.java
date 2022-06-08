@@ -20,7 +20,7 @@ class Person {
     }
 }
 
-class GsonDocumentMatcherTest {
+class GsonDocumentUtilsTest {
     @Test
     void matches() {
         GsonDocument khalid = new GsonDocument(Person.newPerson("Khalid", 22, "CPE"));

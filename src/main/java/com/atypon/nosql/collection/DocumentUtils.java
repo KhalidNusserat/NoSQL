@@ -10,29 +10,35 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
-public class DocumentMatcher<E, T extends Document<E>> {
+public class DocumentUtils<E, T extends Document<E>> {
     private final Path directoryPath;
 
     private final DocumentParser<T> parser;
 
     private final CopyOnWriteIO io;
 
-    public DocumentMatcher(Path directoryPath, DocumentParser<T> parser, CopyOnWriteIO io) {
+    public DocumentUtils(Path directoryPath, DocumentParser<T> parser, CopyOnWriteIO io) {
         this.directoryPath = directoryPath;
         this.parser = parser;
         this.io = io;
+    }
+
+    public Optional<T> readDocument(Path path) {
+        Optional<String> src = io.read(path, String.class);
+        return src.map(parser::parse);
     }
 
     public List<Path> getPaths(T matchDocument) throws IOException {
         return Files.walk(directoryPath)
                 .filter(ExtraFileUtils::isJsonFile)
                 .filter(path -> {
-                    try {
-                        T parsedDocument = parser.parse(io.read(path, String.class));
-                        return parsedDocument.matches(matchDocument);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                    Optional<T> parsedDocument = readDocument(path);
+                    if (parsedDocument.isEmpty()) {
+                        return false;
+                    } else {
+                        return parsedDocument.get().matches(matchDocument);
                     }
                 })
                 .toList();
@@ -41,21 +47,17 @@ public class DocumentMatcher<E, T extends Document<E>> {
     public Collection<T> getAll() throws IOException {
         return Files.walk(directoryPath)
                 .filter(ExtraFileUtils::isJsonFile)
-                .map(filepath -> {
-                    try {
-                        return parser.parse(io.read(filepath, String.class));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
+                .map(this::readDocument)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .toList();
     }
 
-    public Collection<T> getAll(T matchDocument) throws IOException {
+    public Collection<T> getAllThatMatches(T matchDocument) throws IOException {
         return getAll().stream().filter(document -> document.matches(matchDocument)).toList();
     }
 
     public boolean contains(T matchDocument) throws IOException {
-        return !getAll(matchDocument).isEmpty();
+        return !getAllThatMatches(matchDocument).isEmpty();
     }
 }

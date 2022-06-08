@@ -4,7 +4,10 @@ import com.atypon.nosql.gsondocument.GsonDocument;
 import com.atypon.nosql.gsondocument.GsonDocumentParser;
 import com.atypon.nosql.gsondocument.GsonDocumentSchema;
 import com.atypon.nosql.gsondocument.GsonMatchDocument;
+import com.atypon.nosql.io.GsonCopyOnWriteIO;
 import com.atypon.nosql.keywordsparser.InvalidKeywordException;
+import com.atypon.nosql.utils.ExtraFileUtils;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.junit.jupiter.api.AfterEach;
@@ -15,9 +18,11 @@ import javax.naming.directory.SchemaViolationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class Person {
@@ -36,6 +41,12 @@ class DefaultDocumentsCollectionTest {
     private final GsonDocumentSchema documentSchema = new GsonDocumentSchema(
             "{name: \"string;required\", age: \"number;default(18)\", major: \"string;required\"}"
     );
+
+    private final GsonDocument khalid = new GsonDocument(Person.newPerson("Khalid", 22, "CPE"));
+
+    private final GsonDocument hamza = new GsonDocument(Person.newPerson("Hamza", 22, "CPE"));
+
+    private final GsonDocument john = new GsonDocument(Person.newPerson("John", 42, "CIS"));
 
     DefaultDocumentsCollectionTest() throws InvalidKeywordException {
     }
@@ -60,34 +71,55 @@ class DefaultDocumentsCollectionTest {
     @Test
     void putAndGet() throws IOException, InterruptedException, SchemaViolationException {
         GsonDocumentParser parser = new GsonDocumentParser();
-        DocumentsCollection<GsonDocument> collection =
-                new DefaultDocumentsCollection<>(documentSchema, parser, testDirectory);
-        GsonDocument khalid = new GsonDocument(Person.newPerson("Khalid", 22, "CPE"));
-        GsonDocument hamza = new GsonDocument(Person.newPerson("Hamza", 22, "CPE"));
-        GsonDocument john = new GsonDocument(Person.newPerson("John", 42, "CIS"));
+        DocumentsCollection<GsonDocument> collection = DefaultDocumentsCollection.<JsonElement, GsonDocument>builder()
+                .setDirectoryPath(testDirectory)
+                .setDocumentParser(parser)
+                .setDocumentSchema(documentSchema)
+                .setIO(new GsonCopyOnWriteIO())
+                .create();
         collection.put(khalid);
         collection.put(hamza);
         collection.put(john);
         GsonDocument matchKhalid = (GsonDocument) khalid.withField("_matchID", new JsonPrimitive(true));
-        assertTrue(List.of(khalid).containsAll(collection.get(matchKhalid)));
+        assertTrue(List.of(khalid).containsAll(collection.getAllThatMatches(matchKhalid)));
         JsonObject matchCpeObject = new JsonObject();
         matchCpeObject.addProperty("major", "CPE");
         GsonDocument matchCpe = GsonMatchDocument.newGsonMatchDocument(matchCpeObject, false);
-        Collection<GsonDocument> cpeStudents = collection.get(matchCpe);
-        assertTrue(List.of(khalid, hamza).containsAll(cpeStudents));
+        assertEquals(Set.of(khalid, hamza), Set.copyOf(collection.getAllThatMatches(matchCpe)));
     }
 
     @Test
     void remove() throws IOException, SchemaViolationException {
         GsonDocumentParser parser = new GsonDocumentParser();
-        DocumentsCollection<GsonDocument> collection = new DefaultDocumentsCollection<>(documentSchema, parser, testDirectory);
-
+        DocumentsCollection<GsonDocument> collection = DefaultDocumentsCollection.<JsonElement, GsonDocument>builder()
+                .setDirectoryPath(testDirectory)
+                .setDocumentParser(parser)
+                .setDocumentSchema(documentSchema)
+                .setIO(new GsonCopyOnWriteIO())
+                .create();
+        collection.put(khalid);
+        collection.put(hamza);
+        collection.put(john);
+        JsonObject matchCpeObject = new JsonObject();
+        matchCpeObject.addProperty("major", "CPE");
+        GsonDocument matchCpe = GsonMatchDocument.newGsonMatchDocument(matchCpeObject, false);
+        collection.remove(matchCpe);
+        assertEquals(List.of(john), collection.getAll());
+        assertEquals(1, ExtraFileUtils.getDirectoryContent(testDirectory).size());
     }
 
     @Test
-    void readAll() throws IOException, SchemaViolationException {
+    void getAll() throws IOException, SchemaViolationException {
         GsonDocumentParser parser = new GsonDocumentParser();
-        DocumentsCollection<GsonDocument> collection = new DefaultDocumentsCollection<>(documentSchema, parser, testDirectory);
-
+        DocumentsCollection<GsonDocument> collection = DefaultDocumentsCollection.<JsonElement, GsonDocument>builder()
+                .setDirectoryPath(testDirectory)
+                .setDocumentParser(parser)
+                .setDocumentSchema(documentSchema)
+                .setIO(new GsonCopyOnWriteIO())
+                .create();
+        collection.put(khalid);
+        collection.put(hamza);
+        collection.put(john);
+        assertTrue(List.of(khalid, hamza, john).containsAll(collection.getAll()));
     }
 }
