@@ -38,6 +38,10 @@ public class GsonDocument implements Document<JsonElement> {
         return new GsonDocumentBuilder();
     }
 
+    public static GsonDocument of(JsonObject object) {
+        return new GsonDocument(object);
+    }
+
     private Set<DocumentField> getFields(JsonObject object, DocumentField field) {
         Set<DocumentField> result = new HashSet<>();
         for (var entry : object.entrySet()) {
@@ -65,10 +69,6 @@ public class GsonDocument implements Document<JsonElement> {
 
     public JsonObject getAsJsonObject() {
         return object;
-    }
-
-    public static GsonDocument of(JsonObject object) {
-        return new GsonDocument(object);
     }
 
     @Override

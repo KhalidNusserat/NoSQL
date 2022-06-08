@@ -3,7 +3,6 @@ package com.atypon.nosql.io;
 import com.atypon.nosql.document.Document;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
