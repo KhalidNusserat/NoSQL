@@ -40,7 +40,7 @@ class GsonCopyOnWriteIOTest {
     void writeAndRead() throws IOException {
         CopyOnWriteIO io = new GsonCopyOnWriteIO();
         Path filepath = io.write(List.of("Khalid"), listType, testDirectory, ".json");
-        assertEquals(List.of("Khalid"), io.read(filepath, listType));
+        assertEquals(List.of("Khalid"), io.read(filepath, listType).orElseThrow());
     }
 
     @Test
@@ -60,7 +60,7 @@ class GsonCopyOnWriteIOTest {
         Path filepath = io.write(List.of("Old"), listType, testDirectory, ".json");
         filepath = io.update(List.of("New"), listType, filepath, ".json");
         Thread.sleep(200);
-        assertEquals(List.of("New"), io.read(filepath, listType));
+        assertEquals(List.of("New"), io.read(filepath, listType).orElseThrow());
         assertEquals(2, Files.walk(testDirectory).toList().size());
     }
 }
