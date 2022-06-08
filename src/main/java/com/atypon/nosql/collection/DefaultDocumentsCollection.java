@@ -5,11 +5,9 @@ import com.atypon.nosql.document.DocumentParser;
 import com.atypon.nosql.io.CopyOnWriteIO;
 import com.atypon.nosql.io.GsonCopyOnWriteIO;
 import com.atypon.nosql.schema.DocumentSchema;
-import com.atypon.nosql.utils.ExtraFileUtils;
 
 import javax.naming.directory.SchemaViolationException;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
@@ -19,46 +17,32 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
 
     private final CopyOnWriteIO io = new GsonCopyOnWriteIO();
 
-    private final DocumentParser<T> parser;
-
     private final Path directoryPath;
+
+    private final DocumentMatcher<E, T> documentMatcher;
 
     public DefaultDocumentsCollection(DocumentSchema<T> documentSchema, DocumentParser<T> parser, Path directoryPath) {
         this.documentSchema = documentSchema;
-        this.parser = parser;
         this.directoryPath = directoryPath;
-    }
-
-    private List<Path> getPaths(T bound) throws IOException {
-        return Files.walk(directoryPath)
-                .filter(ExtraFileUtils::isJsonFile)
-                .filter(path -> {
-                    try {
-                        T parsedDocument = parser.parse(io.read(path, String.class));
-                        return parsedDocument.matches(bound);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .toList();
+        documentMatcher = new DocumentMatcher<>(directoryPath, parser, io);
     }
 
 
     @Override
-    public boolean contains(T bound) throws IOException {
-        return !get(bound).isEmpty();
+    public boolean contains(T matchDocument) throws IOException {
+        return documentMatcher.contains(matchDocument);
     }
 
     @Override
-    public Collection<T> get(T bound) throws IOException {
-        return readAll().stream().filter(document -> document.matches(bound)).toList();
+    public Collection<T> get(T matchDocument) throws IOException {
+        return documentMatcher.getAll(matchDocument);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void put(T document) throws IOException, SchemaViolationException {
         T validatedDocument = documentSchema.validate(document);
-        List<Path> paths = getPaths((T) document.matchID());
+        List<Path> paths = documentMatcher.getPaths((T) document.matchID());
         if (paths.size() == 1) {
             io.update(validatedDocument.toString(), String.class, paths.get(0), ".json");
         } else if (paths.size() == 0) {
@@ -69,23 +53,14 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
     }
 
     @Override
-    public void remove(T bound) throws IOException {
-        for (Path path : getPaths(bound)) {
+    public void remove(T matchDocument) throws IOException {
+        for (Path path : documentMatcher.getPaths(matchDocument)) {
             io.delete(path);
         }
     }
 
     @Override
-    public Collection<T> readAll() throws IOException {
-        return Files.walk(directoryPath)
-                .filter(ExtraFileUtils::isJsonFile)
-                .map(filepath -> {
-                    try {
-                        return parser.parse(io.read(filepath, String.class));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .toList();
+    public Collection<T> getAll() throws IOException {
+        return documentMatcher.getAll();
     }
 }

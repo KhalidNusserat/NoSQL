@@ -15,5 +15,5 @@ public interface DocumentsCollection<T extends Document<?>> {
 
     void remove(T bound) throws IOException;
 
-    Collection<T> readAll() throws IOException;
+    Collection<T> getAll() throws IOException;
 }
