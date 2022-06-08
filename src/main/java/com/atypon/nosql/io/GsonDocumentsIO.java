@@ -7,7 +7,6 @@ import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -15,7 +14,6 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
@@ -26,9 +24,9 @@ public class GsonDocumentsIO implements DocumentsIO<GsonDocument> {
 
     private final Random random = new Random();
 
-    private int attempts = 5;
+    private final int ATTEMPTS = 5;
 
-    private int retryDelay = 10;
+    private final int RETRY_DELAY = 10;
 
     private final DocumentParser<GsonDocument> documentParser;
 
@@ -46,7 +44,7 @@ public class GsonDocumentsIO implements DocumentsIO<GsonDocument> {
             return Optional.of(documentParser.parse(reader.lines().collect(Collectors.joining())));
         } catch (IOException e) {
             try {
-                Thread.sleep(retryDelay);
+                Thread.sleep(RETRY_DELAY);
             } catch (InterruptedException ex) {
                 throw new RuntimeException("Interrupted while reading a file: " + documentPath);
             }
@@ -56,7 +54,7 @@ public class GsonDocumentsIO implements DocumentsIO<GsonDocument> {
 
     @Override
     public Optional<GsonDocument> read(Path documentPath) {
-        return read(documentPath, attempts);
+        return read(documentPath, ATTEMPTS);
     }
 
     @Override
@@ -101,21 +99,5 @@ public class GsonDocumentsIO implements DocumentsIO<GsonDocument> {
         } finally {
             lock.readLock().unlock();
         }
-    }
-
-    public int getAttempts() {
-        return attempts;
-    }
-
-    public void setAttempts(int attempts) {
-        this.attempts = attempts;
-    }
-
-    public int getRetryDelay() {
-        return retryDelay;
-    }
-
-    public void setRetryDelay(int retryDelay) {
-        this.retryDelay = retryDelay;
     }
 }
