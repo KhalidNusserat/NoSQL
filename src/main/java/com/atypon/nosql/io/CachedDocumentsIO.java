@@ -9,11 +9,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class CachedDocumentsIO<T extends Document<?>> implements DocumentsIO<T> {
     private final DocumentsIO<T> documentsIO;
 
     private final Cache<Path, T> cache;
+
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     public CachedDocumentsIO(DocumentsIO<T> documentsIO, Cache<Path, T> cache) {
         this.documentsIO = documentsIO;
@@ -43,19 +46,24 @@ public class CachedDocumentsIO<T extends Document<?>> implements DocumentsIO<T> 
 
     @Override
     public void delete(Path documentPath) {
+        lock.writeLock().lock();
         cache.remove(documentPath);
         documentsIO.delete(documentPath);
+        lock.writeLock().unlock();
     }
 
     @Override
     public Path update(T newDocument, Path documentPath) throws IOException {
+        lock.writeLock().lock();
         Path filepath = documentsIO.update(newDocument, documentPath);
         cache.put(filepath, newDocument);
+        lock.writeLock().unlock();
         return filepath;
     }
 
     @Override
     public Collection<T> readAll(Path directoryPath) {
+        lock.readLock().lock();
         try {
             return Files.walk(directoryPath)
                     .filter(ExtraFileUtils::isJsonFile)
@@ -63,6 +71,8 @@ public class CachedDocumentsIO<T extends Document<?>> implements DocumentsIO<T> 
                     .toList();
         } catch (IOException e) {
             throw new RuntimeException("Interrupted while reading all documents in the directory: " + directoryPath);
+        } finally {
+            lock.readLock().unlock();
         }
     }
 }
