@@ -57,6 +57,11 @@ public class LRUCache<K, V> implements Cache<K, V> {
         lock.writeLock().unlock();
     }
 
+    @Override
+    public boolean containsKey(K key) {
+        return map.containsKey(key);
+    }
+
     private void removeLeastUsed() {
         lock.writeLock().lock();
         Node<CacheElement<K, V>> leastUsed = linkedList.getFront();

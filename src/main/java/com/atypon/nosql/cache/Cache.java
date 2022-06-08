@@ -8,4 +8,6 @@ public interface Cache<K, V> {
     Optional<V> get(K key);
 
     void clear();
+
+    boolean containsKey(K key);
 }
