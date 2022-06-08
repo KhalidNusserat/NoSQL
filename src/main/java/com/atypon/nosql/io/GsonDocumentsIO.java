@@ -15,6 +15,8 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 public class GsonDocumentsIO implements DocumentsIO<GsonDocument> {
@@ -29,6 +31,8 @@ public class GsonDocumentsIO implements DocumentsIO<GsonDocument> {
     private int retryDelay = 10;
 
     private final DocumentParser<GsonDocument> documentParser;
+
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     public GsonDocumentsIO(DocumentParser<GsonDocument> documentParser) {
         this.documentParser = documentParser;
@@ -57,27 +61,35 @@ public class GsonDocumentsIO implements DocumentsIO<GsonDocument> {
 
     @Override
     public Path write(GsonDocument document, Path directoryPath) throws IOException {
+        lock.writeLock().lock();
         Path filepath = directoryPath.resolve(random.nextLong() + ".json");
         try (BufferedWriter writer = Files.newBufferedWriter(filepath)) {
             writer.write(document.toString());
+        } finally {
+            lock.writeLock().unlock();
         }
         return filepath;
     }
 
     @Override
     public void delete(Path path) {
+        lock.writeLock().lock();
         deleteService.submit(() -> Files.deleteIfExists(path));
+        lock.writeLock().unlock();
     }
 
     @Override
     public Path update(GsonDocument newDocument, Path documentPath) throws IOException {
+        lock.writeLock().lock();
         Path newFilepath = write(newDocument, documentPath.getParent());
         delete(documentPath);
+        lock.writeLock().unlock();
         return newFilepath;
     }
 
     @Override
     public Collection<GsonDocument> readAll(Path directoryPath) {
+        lock.readLock().lock();
         try {
             return Files.walk(directoryPath)
                     .map(this::read)
@@ -86,6 +98,8 @@ public class GsonDocumentsIO implements DocumentsIO<GsonDocument> {
                     .toList();
         } catch (IOException e) {
             throw new RuntimeException("Couldn't access the directory: " + directoryPath);
+        } finally {
+            lock.readLock().unlock();
         }
     }
 
