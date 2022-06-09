@@ -123,6 +123,9 @@ public class GsonDocument implements Document<JsonElement> {
         JsonObject currentObject = object;
         for (Iterator<String> iterator = field.iterator(); iterator.hasNext(); ) {
             JsonElement element = currentObject.get(iterator.next());
+            if (element == null) {
+                throw new IllegalArgumentException("Invalid field: " + field + " for the document: " + this);
+            }
             if (iterator.hasNext()) {
                 currentObject = element.getAsJsonObject();
             } else {
