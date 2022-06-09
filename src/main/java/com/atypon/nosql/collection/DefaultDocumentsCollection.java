@@ -85,7 +85,11 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
 
     @Override
     public void remove(T matchDocument) throws IOException {
-        for (Path path : getPathsThatMatch(matchDocument)) {
+        List<Path> paths = getPathsThatMatch(matchDocument);
+        if (paths.size() > 1) {
+            throw new IllegalArgumentException("Attempted to delete more than one item that matches: " + matchDocument);
+        }
+        for (Path path : paths) {
             documentsIO.delete(path);
         }
     }
