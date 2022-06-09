@@ -7,7 +7,7 @@ public interface Document<DocumentElement> {
 
     DocumentElement getAll(String field);
 
-    boolean matches(Document<DocumentElement> bound);
+    boolean matches(Document<?> matchDocument);
 
     Document<DocumentElement> withField(String field, DocumentElement element);
 

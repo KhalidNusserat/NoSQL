@@ -4,6 +4,7 @@ import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentField;
 import com.atypon.nosql.document.ObjectIDGenerator;
 import com.atypon.nosql.document.RandomObjectIDGenerator;
+import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -82,8 +83,9 @@ public class GsonDocument implements Document<JsonElement> {
     }
 
     @Override
-    public boolean matches(Document<JsonElement> bound) {
-        return GsonDocumentMatcher.matches(this, (GsonDocument) bound);
+    public boolean matches(Document<?> matchDocument) {
+        Preconditions.checkState(matchDocument instanceof GsonDocument);
+        return GsonDocumentMatcher.matches(this, (GsonDocument) matchDocument);
     }
 
     @Override

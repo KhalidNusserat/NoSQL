@@ -14,26 +14,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class DefaultDocumentsCollection<E, T extends Document<E>> implements DocumentsCollection<T> {
+public class DefaultDocumentsCollection<T extends Document<?>> implements DocumentsCollection<T> {
     private final DocumentsIO<T> documentsIO;
 
     private final Path directoryPath;
-
-    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     public DefaultDocumentsCollection(DocumentsIO<T> documentsIO, Path directoryPath) {
         this.documentsIO = documentsIO;
         this.directoryPath = directoryPath;
     }
 
-    public static <E, T extends Document<E>> DefaultDocumentsCollection<E, T> from(
+    public static <T extends Document<?>> DefaultDocumentsCollection<T> from(
             DocumentsIO<T> documentsIO, Path directoryPath) {
         return new DefaultDocumentsCollection<>(documentsIO, directoryPath);
     }
 
     @Override
     public boolean contains(T matchDocument) {
-        lock.readLock().lock();
         try {
             return Files.walk(directoryPath)
                     .filter(ExtraFileUtils::isJsonFile)
@@ -42,14 +39,11 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
                     .anyMatch(document -> document.get().matches(matchDocument));
         } catch (IOException e) {
             throw new RuntimeException("Couldn't access the directory: " + directoryPath);
-        } finally {
-            lock.readLock().unlock();
         }
     }
 
     @Override
     public Collection<T> getAllThatMatches(T matchDocument) {
-        lock.readLock().lock();
         try {
             return Files.walk(directoryPath)
                     .filter(ExtraFileUtils::isJsonFile)
@@ -60,8 +54,6 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
                     .toList();
         } catch (IOException e) {
             throw new RuntimeException("Couldn't access the directory: " + directoryPath);
-        } finally {
-            lock.readLock().unlock();
         }
     }
 
@@ -95,7 +87,6 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
     }
 
     private List<Path> getPathsThatMatch(T matchDocument) {
-        lock.readLock().lock();
         try {
             return Files.walk(directoryPath)
                     .filter(ExtraFileUtils::isJsonFile)
@@ -105,8 +96,6 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
                     .toList();
         } catch (IOException e) {
             throw new RuntimeException("Couldn't access the directory: " + directoryPath);
-        } finally {
-            lock.readLock().unlock();
         }
     }
 }

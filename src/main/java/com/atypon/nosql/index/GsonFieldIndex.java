@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class GsonFieldIndex implements FieldIndex<JsonElement, GsonDocument> {
+public class GsonFieldIndex implements FieldIndex<GsonDocument> {
     private final Set<DocumentField> documentFields;
 
     private final ReversedMap<Path, Set<JsonElement>> pathToValues;
