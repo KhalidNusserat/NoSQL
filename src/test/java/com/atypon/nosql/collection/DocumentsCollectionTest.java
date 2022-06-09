@@ -85,10 +85,12 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
         collection.put(khalid);
         collection.put(hamza);
         collection.put(john);
-        collection.remove((GsonDocument) john.matchID());
+        JsonObject matchCpeStudents = new JsonObject();
+        matchCpeStudents.addProperty("major", "CPE");
+        collection.remove(GsonMatchDocument.newGsonMatchDocument(matchCpeStudents, false));
         Thread.sleep(100);
-        assertEquals(Set.of(khalid, hamza), Set.copyOf(collection.getAll()));
-        assertEquals(2, ExtraFileUtils.getDirectoryContent(testDirectory).size());
+        assertEquals(Set.of(john), Set.copyOf(collection.getAll()));
+        assertEquals(1, ExtraFileUtils.getDirectoryContent(testDirectory).size());
     }
 
     @Test

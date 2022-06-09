@@ -76,9 +76,6 @@ public class DefaultDocumentsCollection<T extends Document<?>> implements Docume
     @Override
     public void remove(T matchDocument) throws IOException {
         List<Path> paths = getPathsThatMatch(matchDocument);
-        if (paths.size() > 1) {
-            throw new IllegalArgumentException("Attempted to delete more than one item that matches: " + matchDocument);
-        }
         for (Path path : paths) {
             documentsIO.delete(path);
         }
