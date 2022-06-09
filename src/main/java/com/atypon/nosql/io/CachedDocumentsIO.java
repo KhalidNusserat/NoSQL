@@ -62,7 +62,7 @@ public class CachedDocumentsIO<T extends Document<?>> implements DocumentsIO<T> 
     }
 
     @Override
-    public Collection<T> readAll(Path directoryPath) {
+    public Collection<T> readDirectory(Path directoryPath) {
         lock.readLock().lock();
         try {
             return Files.walk(directoryPath)

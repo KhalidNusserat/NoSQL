@@ -3,7 +3,6 @@ package com.atypon.nosql.collection;
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.io.DocumentsIO;
 import com.atypon.nosql.utils.ExtraFileUtils;
-import com.google.common.base.Preconditions;
 
 import javax.naming.directory.SchemaViolationException;
 import java.io.IOException;
@@ -12,7 +11,6 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DefaultDocumentsCollection<T extends Document<?>> implements DocumentsCollection<T> {
     private final DocumentsIO<T> documentsIO;
@@ -59,7 +57,7 @@ public class DefaultDocumentsCollection<T extends Document<?>> implements Docume
 
     @Override
     public Collection<T> getAll() {
-        return documentsIO.readAll(directoryPath);
+        return documentsIO.readDirectory(directoryPath);
     }
 
     @Override

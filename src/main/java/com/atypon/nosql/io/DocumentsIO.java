@@ -5,7 +5,6 @@ import com.atypon.nosql.document.Document;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 public interface DocumentsIO<T extends Document<?>> {
@@ -17,5 +16,5 @@ public interface DocumentsIO<T extends Document<?>> {
 
     Path update(T newDocument, Path documentPath) throws IOException;
 
-    Collection<T> readAll(Path directoryPath);
+    Collection<T> readDirectory(Path directoryPath);
 }

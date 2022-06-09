@@ -77,7 +77,7 @@ public class GsonDocumentsIO implements DocumentsIO<GsonDocument> {
     }
 
     @Override
-    public Collection<GsonDocument> readAll(Path directoryPath) {
+    public Collection<GsonDocument> readDirectory(Path directoryPath) {
         try {
             return Files.walk(directoryPath)
                     .map(this::read)
