@@ -32,11 +32,30 @@ public class ReversedHashMap<K, V> implements ReversedMap<K, V> {
     }
 
     @Override
-    public void remove(K key) {
+    public void putIfAbsent(K key, V value) {
+        lock.writeLock().lock();
+        if (!keyToValue.containsKey(key)) {
+            put(key, value);
+        }
+        lock.writeLock().unlock();
+    }
+
+    @Override
+    public void removeByKey(K key) {
         lock.writeLock().lock();
         V value = keyToValue.get(key);
         keyToValue.remove(key);
         valueToKeys.get(value).remove(key);
+        lock.writeLock().unlock();
+    }
+
+    @Override
+    public void removeByValue(V value) {
+        lock.writeLock().lock();
+        for (K key : valueToKeys.get(value)) {
+            keyToValue.remove(key);
+        }
+        valueToKeys.remove(value);
         lock.writeLock().unlock();
     }
 

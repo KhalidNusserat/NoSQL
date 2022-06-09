@@ -40,7 +40,7 @@ class ReversedHashMapTest {
         index.put(2, 2);
         index.put(3, 1);
         index.put(4, 2);
-        index.remove(1);
+        index.removeByKey(1);
         assertTrue(List.of(2, 4).containsAll(index.getFromValue(2)));
     }
 

@@ -5,7 +5,11 @@ import java.util.Set;
 public interface ReversedMap<K, V> {
     void put(K key, V value);
 
-    void remove(K key);
+    void putIfAbsent(K key, V value);
+
+    void removeByKey(K key);
+
+    void removeByValue(V value);
 
     void clear();
 
