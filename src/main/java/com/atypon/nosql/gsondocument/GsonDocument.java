@@ -1,7 +1,9 @@
 package com.atypon.nosql.gsondocument;
 
-import com.atypon.nosql.document.*;
-import com.google.common.base.Preconditions;
+import com.atypon.nosql.document.Document;
+import com.atypon.nosql.document.DocumentField;
+import com.atypon.nosql.document.ObjectIDGenerator;
+import com.atypon.nosql.document.RandomObjectIDGenerator;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;

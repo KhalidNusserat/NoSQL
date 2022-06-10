@@ -2,8 +2,8 @@ package com.atypon.nosql.collection;
 
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentField;
-import com.atypon.nosql.index.FieldIndexManager;
 import com.atypon.nosql.index.FieldIndex;
+import com.atypon.nosql.index.FieldIndexManager;
 import com.atypon.nosql.io.DocumentsIO;
 import com.atypon.nosql.utils.ExtraFileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -24,13 +24,6 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
     private final Map<Set<DocumentField>, FieldIndex<E, T>> fieldIndexes = new ConcurrentHashMap<>();
 
     private final FieldIndexManager<E, T> fieldIndexManager;
-
-    @NotNull
-    private Set<DocumentField> getDocumentFields(T matchDocument) {
-        Set<DocumentField> documentFields = matchDocument.getFields();
-        documentFields.remove(DocumentField.of("_id"));
-        return documentFields;
-    }
 
     public IndexedDocumentsCollection(
             DocumentsIO<T> documentsIO,
@@ -56,6 +49,13 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
         } catch (IOException e) {
             throw new RuntimeException("Could not access the indexes folder at: " + indexesPath);
         }
+    }
+
+    @NotNull
+    private Set<DocumentField> getDocumentFields(T matchDocument) {
+        Set<DocumentField> documentFields = matchDocument.getFields();
+        documentFields.remove(DocumentField.of("_id"));
+        return documentFields;
     }
 
     @Override
