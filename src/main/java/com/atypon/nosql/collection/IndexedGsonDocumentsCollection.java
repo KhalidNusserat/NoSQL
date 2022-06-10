@@ -1,11 +1,12 @@
 package com.atypon.nosql.collection;
 
-import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentField;
+import com.atypon.nosql.gsondocument.GsonDocument;
 import com.atypon.nosql.index.FieldIndex;
 import com.atypon.nosql.index.FieldIndexManager;
 import com.atypon.nosql.io.DocumentsIO;
 import com.atypon.nosql.utils.ExtraFileUtils;
+import com.google.gson.JsonElement;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -14,26 +15,27 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class IndexedDocumentsCollection<E, T extends Document<E>> implements DocumentsCollection<T> {
-    private final DefaultDocumentsCollection<E, T> documentsCollection;
+public class IndexedGsonDocumentsCollection implements DocumentsCollection<GsonDocument> {
+    private final DefaultGsonDocumentsCollection documentsCollection;
 
-    private final DocumentsIO<T> documentsIO;
+    private final DocumentsIO<GsonDocument> documentsIO;
 
     private final Path directoryPath;
 
-    private final Map<Set<DocumentField>, FieldIndex<E, T>> fieldIndexes = new ConcurrentHashMap<>();
+    private final Map<Set<DocumentField>, FieldIndex<JsonElement, GsonDocument>> fieldIndexes =
+            new ConcurrentHashMap<>();
 
-    private final FieldIndexManager<E, T> fieldIndexManager;
+    private final FieldIndexManager<JsonElement, GsonDocument> fieldIndexManager;
 
-    public IndexedDocumentsCollection(
-            DocumentsIO<T> documentsIO,
+    public IndexedGsonDocumentsCollection(
+            DocumentsIO<GsonDocument> documentsIO,
             Path collectionsPath,
-            FieldIndexManager<E, T> fieldIndexManager
+            FieldIndexManager<JsonElement, GsonDocument> fieldIndexManager
     ) {
         this.documentsIO = documentsIO;
         this.directoryPath = collectionsPath;
         Path indexesPath = collectionsPath.resolve("indexes/");
-        this.documentsCollection = DefaultDocumentsCollection.from(documentsIO, collectionsPath);
+        this.documentsCollection = DefaultGsonDocumentsCollection.from(documentsIO, collectionsPath);
         this.fieldIndexManager = fieldIndexManager;
         try {
             Files.createDirectories(indexesPath);
@@ -52,14 +54,14 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
     }
 
     @NotNull
-    private Set<DocumentField> getDocumentFields(T matchDocument) {
+    private Set<DocumentField> getDocumentFields(GsonDocument matchDocument) {
         Set<DocumentField> documentFields = matchDocument.getFields();
         documentFields.remove(DocumentField.of("_id"));
         return documentFields;
     }
 
     @Override
-    public boolean contains(T matchDocument) {
+    public boolean contains(GsonDocument matchDocument) {
         Set<DocumentField> documentFields = getDocumentFields(matchDocument);
         if (fieldIndexes.containsKey(documentFields)) {
             return fieldIndexes.get(documentFields).contains(matchDocument);
@@ -69,7 +71,7 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
     }
 
     @Override
-    public Collection<T> getAllThatMatches(T matchDocument) {
+    public Collection<GsonDocument> getAllThatMatches(GsonDocument matchDocument) {
         Set<DocumentField> documentFields = getDocumentFields(matchDocument);
         if (fieldIndexes.containsKey(documentFields)) {
             return fieldIndexes.get(documentFields)
@@ -86,12 +88,11 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Path put(T document) throws IOException {
+    public Path put(GsonDocument document) throws IOException {
         Path documentPath;
-        if (contains((T) document.matchID())) {
+        if (contains((GsonDocument) document.matchID())) {
             Path oldDocumentPath = fieldIndexes.get(Set.of(DocumentField.of("_matchID")))
-                    .get((T) document.matchID())
+                    .get((GsonDocument) document.matchID())
                     .stream()
                     .findFirst()
                     .map(Path::of)
@@ -108,7 +109,7 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
     }
 
     @Override
-    public void remove(T matchDocument) throws IOException {
+    public void remove(GsonDocument matchDocument) throws IOException {
         Set<DocumentField> documentFields = getDocumentFields(matchDocument);
         if (fieldIndexes.containsKey(documentFields)) {
             fieldIndexes.get(documentFields).get(matchDocument)
@@ -123,7 +124,7 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
     }
 
     @Override
-    public Collection<T> getAll() {
+    public Collection<GsonDocument> getAll() {
         return documentsCollection.getAll();
     }
 }

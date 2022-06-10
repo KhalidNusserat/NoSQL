@@ -1,6 +1,6 @@
 package com.atypon.nosql.collection;
 
-import com.atypon.nosql.document.Document;
+import com.atypon.nosql.gsondocument.GsonDocument;
 import com.atypon.nosql.io.DocumentsIO;
 import com.atypon.nosql.utils.ExtraFileUtils;
 
@@ -12,23 +12,23 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public class DefaultDocumentsCollection<E, T extends Document<E>> implements DocumentsCollection<T> {
-    private final DocumentsIO<T> documentsIO;
+public class DefaultGsonDocumentsCollection implements DocumentsCollection<GsonDocument> {
+    private final DocumentsIO<GsonDocument> documentsIO;
 
     private final Path directoryPath;
 
-    public DefaultDocumentsCollection(DocumentsIO<T> documentsIO, Path directoryPath) {
+    public DefaultGsonDocumentsCollection(DocumentsIO<GsonDocument> documentsIO, Path directoryPath) {
         this.documentsIO = documentsIO;
         this.directoryPath = directoryPath;
     }
 
-    public static <E, T extends Document<E>> DefaultDocumentsCollection<E, T> from(
-            DocumentsIO<T> documentsIO, Path directoryPath) {
-        return new DefaultDocumentsCollection<>(documentsIO, directoryPath);
+    public static DefaultGsonDocumentsCollection from(
+            DocumentsIO<GsonDocument> documentsIO, Path directoryPath) {
+        return new DefaultGsonDocumentsCollection(documentsIO, directoryPath);
     }
 
     @Override
-    public boolean contains(T matchDocument) {
+    public boolean contains(GsonDocument matchDocument) {
         try {
             return Files.walk(directoryPath, 1)
                     .filter(ExtraFileUtils::isJsonFile)
@@ -41,7 +41,7 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
     }
 
     @Override
-    public Collection<T> getAllThatMatches(T matchDocument) {
+    public Collection<GsonDocument> getAllThatMatches(GsonDocument matchDocument) {
         try {
             return Files.walk(directoryPath, 1)
                     .filter(ExtraFileUtils::isJsonFile)
@@ -56,14 +56,13 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
     }
 
     @Override
-    public Collection<T> getAll() {
+    public Collection<GsonDocument> getAll() {
         return documentsIO.readDirectory(directoryPath);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Path put(T document) throws IOException, SchemaViolationException {
-        List<Path> paths = getPathsThatMatch((T) document.matchID());
+    public Path put(GsonDocument document) throws IOException, SchemaViolationException {
+        List<Path> paths = getPathsThatMatch((GsonDocument) document.matchID());
         if (paths.size() == 1) {
             return documentsIO.update(document, paths.get(0));
         } else if (paths.size() == 0) {
@@ -74,14 +73,14 @@ public class DefaultDocumentsCollection<E, T extends Document<E>> implements Doc
     }
 
     @Override
-    public void remove(T matchDocument) throws IOException {
+    public void remove(GsonDocument matchDocument) throws IOException {
         List<Path> paths = getPathsThatMatch(matchDocument);
         for (Path path : paths) {
             documentsIO.delete(path);
         }
     }
 
-    private List<Path> getPathsThatMatch(T matchDocument) {
+    private List<Path> getPathsThatMatch(GsonDocument matchDocument) {
         try {
             return Files.walk(directoryPath, 1)
                     .filter(ExtraFileUtils::isJsonFile)
