@@ -12,7 +12,7 @@ public interface DocumentsCollection<T extends Document<?>> {
 
     Collection<T> getAllThatMatches(T matchDocument) throws IOException;
 
-    Path put(T document) throws IOException, SchemaViolationException;
+    Path put(T document) throws IOException;
 
     void remove(T matchDocument) throws IOException;
 
