@@ -2,8 +2,8 @@ package com.atypon.nosql.collection;
 
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentField;
-import com.atypon.nosql.index.FieldIndexManager;
 import com.atypon.nosql.index.FieldIndex;
+import com.atypon.nosql.index.FieldIndexManager;
 import com.atypon.nosql.io.DocumentsIO;
 import com.atypon.nosql.utils.ExtraFileUtils;
 import org.jetbrains.annotations.NotNull;
@@ -24,13 +24,6 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
     private final Map<Set<DocumentField>, FieldIndex<E, T>> fieldIndexes = new ConcurrentHashMap<>();
 
     private final FieldIndexManager<E, T> fieldIndexManager;
-
-    @NotNull
-    private Set<DocumentField> getDocumentFields(T matchDocument) {
-        Set<DocumentField> documentFields = matchDocument.getFields();
-        documentFields.remove(DocumentField.of("_id"));
-        return documentFields;
-    }
 
     public IndexedDocumentsCollection(
             DocumentsIO<T> documentsIO,
@@ -58,8 +51,15 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
         }
     }
 
+    @NotNull
+    private Set<DocumentField> getDocumentFields(T matchDocument) {
+        Set<DocumentField> documentFields = matchDocument.getFields();
+        documentFields.remove(DocumentField.of("_id"));
+        return documentFields;
+    }
+
     @Override
-    public boolean contains(T matchDocument) throws IOException {
+    public boolean contains(T matchDocument) {
         Set<DocumentField> documentFields = getDocumentFields(matchDocument);
         if (fieldIndexes.containsKey(documentFields)) {
             return fieldIndexes.get(documentFields).contains(matchDocument);
@@ -69,7 +69,7 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
     }
 
     @Override
-    public Collection<T> getAllThatMatches(T matchDocument) throws IOException {
+    public Collection<T> getAllThatMatches(T matchDocument) {
         Set<DocumentField> documentFields = getDocumentFields(matchDocument);
         if (fieldIndexes.containsKey(documentFields)) {
             return fieldIndexes.get(documentFields)
@@ -123,7 +123,7 @@ public class IndexedDocumentsCollection<E, T extends Document<E>> implements Doc
     }
 
     @Override
-    public Collection<T> getAll() throws IOException {
+    public Collection<T> getAll() {
         return documentsCollection.getAll();
     }
 }

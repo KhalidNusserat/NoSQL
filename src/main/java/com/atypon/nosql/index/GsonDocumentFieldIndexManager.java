@@ -4,10 +4,8 @@ import com.atypon.nosql.document.DocumentField;
 import com.atypon.nosql.gsondocument.GsonDocument;
 import com.atypon.nosql.io.DocumentsIO;
 import com.atypon.nosql.utils.ExtraFileUtils;
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -45,9 +43,7 @@ public class GsonDocumentFieldIndexManager implements FieldIndexManager<JsonElem
         try {
             Files.walk(collectionsPath, 1)
                     .filter(ExtraFileUtils::isJsonFile)
-                    .forEach(path -> {
-                        documentsIO.read(path).ifPresent(document -> gsonFieldIndex.add(document, path));
-                    });
+                    .forEach(path -> documentsIO.read(path).ifPresent(document -> gsonFieldIndex.add(document, path)));
             return gsonFieldIndex;
         } catch (IOException e) {
             throw new RuntimeException("Could not access the directory: " + collectionsPath);

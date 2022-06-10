@@ -4,7 +4,6 @@ import com.atypon.nosql.gsondocument.GsonDocument;
 import com.atypon.nosql.gsondocument.GsonDocumentsIO;
 import com.atypon.nosql.utils.ExtraFileUtils;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,7 +70,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
     }
 
     @AfterEach
-    void tearDown() throws IOException {
+    void tearDown() {
         deleteDirectory(testDirectory);
     }
 
