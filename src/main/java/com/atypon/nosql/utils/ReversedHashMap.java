@@ -1,7 +1,5 @@
 package com.atypon.nosql.utils;
 
-import com.google.gson.annotations.Expose;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -9,17 +7,20 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ReversedHashMap<K, V> implements ReversedMap<K, V> {
-    @Expose
-    final Map<V, Set<K>> valueToKeys;
+    private final Map<V, Set<K>> valueToKeys;
 
-    @Expose
-    final Map<K, V> keyToValue;
+    private final Map<K, V> keyToValue;
 
-    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private transient final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     public ReversedHashMap() {
         keyToValue = new HashMap<>();
         valueToKeys = new HashMap<>();
+    }
+
+    public ReversedHashMap(ReversedHashMap<K, V> other) {
+        this.valueToKeys = new HashMap<>(other.valueToKeys);
+        this.keyToValue = new HashMap<>(other.keyToValue);
     }
 
     @Override

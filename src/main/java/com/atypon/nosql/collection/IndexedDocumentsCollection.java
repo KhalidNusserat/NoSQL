@@ -2,129 +2,128 @@ package com.atypon.nosql.collection;
 
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentField;
-import com.atypon.nosql.document.DocumentParser;
+import com.atypon.nosql.index.FieldIndexManager;
 import com.atypon.nosql.index.FieldIndex;
-import com.atypon.nosql.index.HashedFieldIndex;
-import com.atypon.nosql.io.CopyOnWriteIO;
-import com.google.common.base.Preconditions;
+import com.atypon.nosql.io.DocumentsIO;
+import com.atypon.nosql.utils.ExtraFileUtils;
+import org.jetbrains.annotations.NotNull;
 
-import javax.naming.directory.SchemaViolationException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class IndexedDocumentsCollection<E, T extends Document<E>> implements DocumentsCollection<T> {
-    private final DefaultDocumentsCollection<E, T> defaultDocumentsCollection;
+    private final DefaultDocumentsCollection<E, T> documentsCollection;
 
-    private final CopyOnWriteIO io;
+    private final DocumentsIO<T> documentsIO;
 
-    private final DocumentUtils<E, T> documentUtils;
+    private final Path directoryPath;
 
-    private final Map<String, Path> uniqueIndex = new ConcurrentHashMap<>();
+    private final Map<Set<DocumentField>, FieldIndex<E, T>> fieldIndexes = new ConcurrentHashMap<>();
 
-    private final Map<Set<DocumentField>, FieldIndex<String, Set<E>>> indexes = new ConcurrentHashMap<>();
+    private final FieldIndexManager<E, T> fieldIndexManager;
 
-    private IndexedDocumentsCollection(
-            CopyOnWriteIO io,
-            DocumentParser<T> documentParser,
-            Path directoryPath
+    @NotNull
+    private Set<DocumentField> getDocumentFields(T matchDocument) {
+        Set<DocumentField> documentFields = matchDocument.getFields();
+        documentFields.remove(DocumentField.of("_id"));
+        return documentFields;
+    }
+
+    public IndexedDocumentsCollection(
+            DocumentsIO<T> documentsIO,
+            Path collectionsPath,
+            FieldIndexManager<E, T> fieldIndexManager
     ) {
-        this.defaultDocumentsCollection = DefaultDocumentsCollection.<E, T>builder()
-                .setDirectoryPath(directoryPath)
-                .setDocumentParser(documentParser)
-                .setIO(io)
-                .create();
-        this.io = io;
-        documentUtils = new DocumentUtils<>(directoryPath, documentParser, io);
+        this.documentsIO = documentsIO;
+        this.directoryPath = collectionsPath;
+        Path indexesPath = collectionsPath.resolve("indexes/");
+        this.documentsCollection = DefaultDocumentsCollection.from(documentsIO, collectionsPath);
+        this.fieldIndexManager = fieldIndexManager;
+        try {
+            Files.createDirectories(indexesPath);
+            Files.walk(indexesPath)
+                    .filter(ExtraFileUtils::isIndexFile)
+                    .map(fieldIndexManager::read)
+                    .filter(Objects::nonNull)
+                    .forEach(fieldIndex -> fieldIndexes.put(fieldIndex.getDocumentFields(), fieldIndex));
+            Set<DocumentField> idField = Set.of(DocumentField.of("_matchID"));
+            if (!fieldIndexes.containsKey(idField)) {
+                fieldIndexes.put(idField, fieldIndexManager.create(idField, collectionsPath, indexesPath));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Could not access the indexes folder at: " + indexesPath);
+        }
     }
 
     @Override
     public boolean contains(T matchDocument) throws IOException {
-        Set<DocumentField> fields = matchDocument.getFields();
-        if (indexes.containsKey(fields)) {
-            return indexes.get(fields).containsValue(matchDocument.getAll());
+        Set<DocumentField> documentFields = getDocumentFields(matchDocument);
+        if (fieldIndexes.containsKey(documentFields)) {
+            return fieldIndexes.get(documentFields).contains(matchDocument);
         } else {
-            return defaultDocumentsCollection.contains(matchDocument);
+            return documentsCollection.contains(matchDocument);
         }
     }
 
     @Override
     public Collection<T> getAllThatMatches(T matchDocument) throws IOException {
-        Set<DocumentField> fields = matchDocument.getFields();
-        if (indexes.containsKey(fields)) {
-            return indexes.get(fields)
-                    .getFromValue(matchDocument.getAll(fields))
+        Set<DocumentField> documentFields = getDocumentFields(matchDocument);
+        if (fieldIndexes.containsKey(documentFields)) {
+            return fieldIndexes.get(documentFields)
+                    .get(matchDocument)
                     .stream()
-                    .map(uniqueIndex::get)
-                    .map(documentUtils::readDocument)
+                    .map(Path::of)
+                    .map(documentsIO::read)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .toList();
         } else {
-            return defaultDocumentsCollection.getAllThatMatches(matchDocument);
+            return documentsCollection.getAllThatMatches(matchDocument);
         }
     }
 
     @Override
-    public Path put(T document) throws IOException, SchemaViolationException {
-        for (Set<DocumentField> fields : indexes.keySet()) {
-            indexes.putIfAbsent(fields, new HashedFieldIndex<>());
-            indexes.get(fields).put(document.id(), document.getAll(fields));
+    @SuppressWarnings("unchecked")
+    public Path put(T document) throws IOException {
+        Path documentPath;
+        if (contains((T) document.matchID())) {
+            Path oldDocumentPath = fieldIndexes.get(Set.of(DocumentField.of("_matchID")))
+                    .get((T) document.matchID())
+                    .stream()
+                    .findFirst()
+                    .map(Path::of)
+                    .orElseThrow();
+            documentPath = documentsIO.update(document, oldDocumentPath);
+        } else {
+            documentPath = documentsIO.write(document, directoryPath);
         }
-        Path documentPath = defaultDocumentsCollection.put(document);
-        uniqueIndex.put(document.id(), documentPath);
+        fieldIndexes.forEach(((documentFields, fieldIndex) -> {
+            fieldIndex.add(document, documentPath);
+            fieldIndexManager.update(fieldIndex);
+        }));
         return documentPath;
     }
 
     @Override
     public void remove(T matchDocument) throws IOException {
-        Set<DocumentField> fields = matchDocument.getFields();
-        if (indexes.containsKey(fields)) {
-            indexes.get(fields).getFromValue(matchDocument.getAll(fields))
-                    .stream()
-                    .map(uniqueIndex::get)
-                    .forEach(io::delete);
+        Set<DocumentField> documentFields = getDocumentFields(matchDocument);
+        if (fieldIndexes.containsKey(documentFields)) {
+            fieldIndexes.get(documentFields).get(matchDocument)
+                    .forEach(pathString -> documentsIO.delete(Path.of(pathString)));
+            fieldIndexes.forEach(((fields, fieldIndex) -> {
+                fieldIndex.remove(matchDocument);
+                fieldIndexManager.update(fieldIndex);
+            }));
         } else {
-            defaultDocumentsCollection.remove(matchDocument);
+            documentsCollection.remove(matchDocument);
         }
     }
 
     @Override
     public Collection<T> getAll() throws IOException {
-        return defaultDocumentsCollection.getAll();
-    }
-
-    public static class IndexedDocumentsCollectionsBuilder<E, T extends Document<E>> {
-        private CopyOnWriteIO io;
-
-        private Path directoryPath;
-
-        private DocumentParser<T> documentParser;
-
-        public IndexedDocumentsCollectionsBuilder<E, T> setIO(CopyOnWriteIO io) {
-            this.io = io;
-            return this;
-        }
-
-        public IndexedDocumentsCollectionsBuilder<E, T> setDirectoryPath(Path directoryPath) {
-            this.directoryPath = directoryPath;
-            return this;
-        }
-
-        public IndexedDocumentsCollectionsBuilder<E, T> setDocumentParser(DocumentParser<T> documentParser) {
-            this.documentParser = documentParser;
-            return this;
-        }
-
-        public IndexedDocumentsCollection<E, T> create() {
-            Preconditions.checkNotNull(io);
-            Preconditions.checkNotNull(directoryPath);
-            Preconditions.checkNotNull(documentParser);
-            return new IndexedDocumentsCollection<>(io, documentParser, directoryPath);
-        }
+        return documentsCollection.getAll();
     }
 }

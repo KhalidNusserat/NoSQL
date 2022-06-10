@@ -65,7 +65,7 @@ public class CachedDocumentsIO<T extends Document<?>> implements DocumentsIO<T> 
     public Collection<T> readDirectory(Path directoryPath) {
         lock.readLock().lock();
         try {
-            return Files.walk(directoryPath)
+            return Files.walk(directoryPath, 1)
                     .filter(ExtraFileUtils::isJsonFile)
                     .map(path -> cache.get(path).orElse(documentsIO.read(path).orElseThrow()))
                     .toList();

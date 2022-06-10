@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class GsonDocumentTest {
     @Test
@@ -70,5 +69,36 @@ class GsonDocumentTest {
                 3,
                 new GsonDocument(person).get(DocumentField.of("university", "rating")).getAsInt()
         );
+    }
+
+    @Test
+    public void match() {
+        JsonObject person = new JsonObject();
+        person.addProperty("name", "Khalid");
+        GsonDocument matchName = GsonDocument.of(person);
+        person.addProperty("age", 18);
+        GsonDocument matchNameAndAge = GsonDocument.of(person);
+        JsonObject university = new JsonObject();
+        university.addProperty("name", "Yarmouk");
+        university.addProperty("rating", 3);
+        person.add("university", university);
+        GsonDocument matchEverything = GsonDocument.of(person);
+        GsonDocument khalid = GsonDocument.of(person);
+        assertTrue(khalid.matches(matchName));
+        assertTrue(khalid.matches(matchEverything));
+        assertTrue(khalid.matches(matchNameAndAge));
+        assertTrue(khalid.matches(khalid.matchID()));
+        JsonObject otherPerson = new JsonObject();
+        otherPerson.addProperty("name", "John Doe");
+        GsonDocument matchOtherName = GsonDocument.of(otherPerson);
+        otherPerson.addProperty("age", "42");
+        GsonDocument matchOtherNameAndAge = GsonDocument.of(otherPerson);
+        otherPerson.add("university", university);
+        GsonDocument matchOtherEverything = GsonDocument.of(otherPerson);
+        GsonDocument otherPersonDocument = GsonDocument.of(otherPerson);
+        assertFalse(khalid.matches(matchOtherName));
+        assertFalse(khalid.matches(matchOtherNameAndAge));
+        assertFalse(khalid.matches(matchOtherEverything));
+        assertFalse(khalid.matches(otherPersonDocument.matchID()));
     }
 }

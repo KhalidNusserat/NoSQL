@@ -95,7 +95,7 @@ public class GsonElementSchemaParser {
     }
 
     public GsonObjectSchema parse(String src) throws InvalidKeywordException {
-        Gson gson = new Gson();
+        Gson gson = new Gson(); // TODO: Dependency injection
         return parseDocument(gson.fromJson(src, JsonObject.class));
     }
 }

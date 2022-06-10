@@ -35,10 +35,10 @@ public class GsonObjectSchema extends DocumentElementSchema<JsonElement> impleme
             throw new SchemaViolationException("Not a JsonObject: " + element);
         }
         JsonObject document = element.getAsJsonObject();
-        GsonDocument.GsonDocumentBuilder builder = GsonDocument.builder();
+        GsonDocument.GsonDocumentBuilder builder = GsonDocument.builder(); // TODO: unnecessary
         for (Map.Entry<String, JsonElement> field : document.entrySet()) {
             String fieldName = field.getKey();
-            if (fieldName.matches("_.+")) {
+            if (fieldName.matches("_.+")) { // TODO: bad performance, fix
                 builder.add(fieldName, field.getValue());
             } else if (this.fields.containsKey(fieldName)) {
                 builder.add(fieldName, this.fields.get(fieldName).validate(field.getValue()));

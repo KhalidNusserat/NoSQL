@@ -1,9 +1,6 @@
 package com.atypon.nosql.gsondocument;
 
-import com.atypon.nosql.document.Document;
-import com.atypon.nosql.document.DocumentField;
-import com.atypon.nosql.document.ObjectIDGenerator;
-import com.atypon.nosql.document.RandomObjectIDGenerator;
+import com.atypon.nosql.document.*;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -56,13 +53,13 @@ public class GsonDocument implements Document<JsonElement> {
         return result;
     }
 
-    private Set<JsonElement> getAll(JsonObject object) {
+    private Set<JsonElement> get(JsonObject object) {
         Set<JsonElement> result = new HashSet<>();
         for (var entry : object.entrySet()) {
             if (entry.getValue().isJsonPrimitive() || entry.getValue().isJsonNull() || entry.getValue().isJsonArray()) {
                 result.add(entry.getValue());
             } else {
-                result.addAll(getAll(entry.getValue().getAsJsonObject()));
+                result.addAll(get(entry.getValue().getAsJsonObject()));
             }
         }
         return result;
@@ -74,18 +71,12 @@ public class GsonDocument implements Document<JsonElement> {
 
     @Override
     public String id() {
-        return getAll("_id").getAsString();
+        return get("_id").getAsString();
     }
 
     @Override
-    public JsonElement getAll(String field) {
+    public JsonElement get(String field) {
         return object.get(field);
-    }
-
-    @Override
-    public boolean matches(Document<?> matchDocument) {
-        Preconditions.checkState(matchDocument instanceof GsonDocument);
-        return GsonDocumentMatcher.matches(this, (GsonDocument) matchDocument);
     }
 
     @Override
@@ -104,10 +95,8 @@ public class GsonDocument implements Document<JsonElement> {
 
     @Override
     public Document<JsonElement> matchID() {
-        GsonDocument document = (GsonDocument) new GsonDocument()
-                .withField("_matchID", new JsonPrimitive(true));
-        document.object.addProperty("_id", id());
-        return document;
+        return (GsonDocument) new GsonDocument()
+                .withField("_matchID", new JsonPrimitive(id()));
     }
 
     @Override
@@ -117,7 +106,7 @@ public class GsonDocument implements Document<JsonElement> {
 
     @Override
     public Set<JsonElement> getAll() {
-        return getAll(object);
+        return get(object);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.atypon.nosql.document;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.annotations.Expose;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

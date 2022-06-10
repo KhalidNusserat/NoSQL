@@ -1,4 +1,4 @@
-package com.atypon.nosql.index;
+package com.atypon.nosql.utils;
 
 import com.atypon.nosql.utils.ReversedHashMap;
 import com.google.common.collect.Range;

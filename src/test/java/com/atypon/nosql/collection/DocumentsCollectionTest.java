@@ -1,13 +1,11 @@
 package com.atypon.nosql.collection;
 
 import com.atypon.nosql.gsondocument.GsonDocument;
-import com.atypon.nosql.gsondocument.GsonDocumentParser;
-import com.atypon.nosql.gsondocument.GsonMatchDocument;
-import com.atypon.nosql.io.GsonDocumentsIO;
+import com.atypon.nosql.gsondocument.GsonDocumentsIO;
 import com.atypon.nosql.utils.ExtraFileUtils;
-import com.google.gson.JsonElement;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,11 +39,31 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
 
     protected final GsonDocument john = new GsonDocument(Person.newPerson("John", 42, "CIS"));
 
-    protected final GsonDocumentParser parser = new GsonDocumentParser();
+    protected final Gson gson = new Gson();
 
-    protected final GsonDocumentsIO documentsIO = new GsonDocumentsIO(parser);
+    protected final GsonDocumentsIO documentsIO = new GsonDocumentsIO(gson);
 
     public abstract T create();
+
+    private void deleteDirectory(Path directory) {
+        try {
+            Files.walk(directory)
+                    .forEach(path -> {
+                        if (!path.equals(directory) && Files.isDirectory(path)) {
+                            deleteDirectory(path);
+                        } else if (Files.isRegularFile(path)) {
+                            try {
+                                Files.delete(path);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+            Files.delete(directory);
+        } catch (IOException e) {
+            throw new RuntimeException();
+        }
+    }
 
     @BeforeEach
     void setUp() throws IOException {
@@ -54,14 +72,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
 
     @AfterEach
     void tearDown() throws IOException {
-        Files.walk(testDirectory).filter(Files::isRegularFile).forEach(path -> {
-            try {
-                Files.delete(path);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-        Files.delete(testDirectory);
+        deleteDirectory(testDirectory);
     }
 
     @Test
@@ -70,32 +81,29 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
         collection.put(khalid);
         collection.put(hamza);
         collection.put(john);
-        GsonDocument matchKhalid = (GsonDocument) khalid.withField("_matchID", new JsonPrimitive(true));
-        assertTrue(List.of(khalid).containsAll(collection.getAllThatMatches(matchKhalid)));
+        assertEquals(List.of(khalid), collection.getAllThatMatches((GsonDocument) khalid.matchID()));
         JsonObject matchCpeObject = new JsonObject();
         matchCpeObject.addProperty("major", "CPE");
-        GsonDocument matchCpe = GsonMatchDocument.newGsonMatchDocument(matchCpeObject, false);
+        GsonDocument matchCpe = GsonDocument.of(matchCpeObject);
         assertEquals(Set.of(khalid, hamza), Set.copyOf(collection.getAllThatMatches(matchCpe)));
     }
 
     @Test
     void remove() throws IOException, SchemaViolationException, InterruptedException {
-        GsonDocumentParser parser = new GsonDocumentParser();
         T collection = create();
         collection.put(khalid);
         collection.put(hamza);
         collection.put(john);
         JsonObject matchCpeStudents = new JsonObject();
         matchCpeStudents.addProperty("major", "CPE");
-        collection.remove(GsonMatchDocument.newGsonMatchDocument(matchCpeStudents, false));
+        collection.remove(GsonDocument.of(matchCpeStudents));
         Thread.sleep(100);
         assertEquals(Set.of(john), Set.copyOf(collection.getAll()));
-        assertEquals(1, ExtraFileUtils.getDirectoryContent(testDirectory).size());
+        assertEquals(1, ExtraFileUtils.countFiles(testDirectory, 1));
     }
 
     @Test
     void getAll() throws IOException, SchemaViolationException {
-        GsonDocumentParser parser = new GsonDocumentParser();
         T collection = create();
         collection.put(khalid);
         collection.put(hamza);

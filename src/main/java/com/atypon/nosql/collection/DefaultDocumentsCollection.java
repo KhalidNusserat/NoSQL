@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public class DefaultDocumentsCollection<T extends Document<?>> implements DocumentsCollection<T> {
+public class DefaultDocumentsCollection<E, T extends Document<E>> implements DocumentsCollection<T> {
     private final DocumentsIO<T> documentsIO;
 
     private final Path directoryPath;
@@ -22,7 +22,7 @@ public class DefaultDocumentsCollection<T extends Document<?>> implements Docume
         this.directoryPath = directoryPath;
     }
 
-    public static <T extends Document<?>> DefaultDocumentsCollection<T> from(
+    public static <E, T extends Document<E>> DefaultDocumentsCollection<E, T> from(
             DocumentsIO<T> documentsIO, Path directoryPath) {
         return new DefaultDocumentsCollection<>(documentsIO, directoryPath);
     }
@@ -30,7 +30,7 @@ public class DefaultDocumentsCollection<T extends Document<?>> implements Docume
     @Override
     public boolean contains(T matchDocument) {
         try {
-            return Files.walk(directoryPath)
+            return Files.walk(directoryPath, 1)
                     .filter(ExtraFileUtils::isJsonFile)
                     .map(documentsIO::read)
                     .filter(Optional::isPresent)
@@ -43,7 +43,7 @@ public class DefaultDocumentsCollection<T extends Document<?>> implements Docume
     @Override
     public Collection<T> getAllThatMatches(T matchDocument) {
         try {
-            return Files.walk(directoryPath)
+            return Files.walk(directoryPath, 1)
                     .filter(ExtraFileUtils::isJsonFile)
                     .map(documentsIO::read)
                     .filter(Optional::isPresent)
@@ -83,7 +83,7 @@ public class DefaultDocumentsCollection<T extends Document<?>> implements Docume
 
     private List<Path> getPathsThatMatch(T matchDocument) {
         try {
-            return Files.walk(directoryPath)
+            return Files.walk(directoryPath, 1)
                     .filter(ExtraFileUtils::isJsonFile)
                     .filter(path -> documentsIO.read(path)
                             .map(document -> document.matches(matchDocument))

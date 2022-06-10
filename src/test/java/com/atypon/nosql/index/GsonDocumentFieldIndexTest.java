@@ -2,8 +2,7 @@ package com.atypon.nosql.index;
 
 import com.atypon.nosql.document.DocumentField;
 import com.atypon.nosql.gsondocument.GsonDocument;
-import com.atypon.nosql.gsondocument.GsonDocumentParser;
-import com.atypon.nosql.io.GsonDocumentsIO;
+import com.atypon.nosql.gsondocument.GsonDocumentsIO;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.AfterEach;
@@ -13,18 +12,16 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class GsonFieldIndexTest {
+class GsonDocumentFieldIndexTest {
     private final Path testDirectory = Path.of("./test");
 
     private final Gson gson = new Gson();
 
-    private final GsonDocumentsIO documentsIO = new GsonDocumentsIO(new GsonDocumentParser());
+    private final GsonDocumentsIO documentsIO = new GsonDocumentsIO(gson);
 
     @BeforeEach
     void setUp() throws IOException {
@@ -45,13 +42,12 @@ class GsonFieldIndexTest {
 
     @Test
     public void putAndGet() {
-        GsonFieldIndex fieldIndex = new GsonFieldIndex(
+        GsonDocumentFieldIndex fieldIndex = new GsonDocumentFieldIndex(
                 Set.of(
                         DocumentField.of("name"),
                         DocumentField.of("university", "name")
                 ),
-                testDirectory,
-                gson
+                testDirectory
         );
         JsonObject khalidObject = new JsonObject();
         khalidObject.addProperty("name", "Khalid");
@@ -81,7 +77,7 @@ class GsonFieldIndexTest {
         fieldIndex.add(hamza, hamzaPath);
         fieldIndex.add(ahmad, ahmadPath);
         fieldIndex.add(otherKhalid, otherKhalidPath);
-        assertEquals(Set.of(khalidPath, otherKhalidPath), fieldIndex.get(khalid));
-        assertEquals(Set.of(hamzaPath), fieldIndex.get(hamza));
+        assertEquals(Set.of(khalidPath.toString(), otherKhalidPath.toString()), fieldIndex.get(khalid));
+        assertEquals(Set.of(hamzaPath.toString()), fieldIndex.get(hamza));
     }
 }
