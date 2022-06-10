@@ -13,4 +13,9 @@
       <module name="NoSQL" target="16" />
     </bytecodeTargetLevel>
   </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="NoSQL" options="--add-modules java.base,java.naming" />
+    </option>
+  </component>
 </project>
