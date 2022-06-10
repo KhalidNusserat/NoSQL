@@ -61,7 +61,7 @@ public class DefaultGsonDocumentsCollection implements DocumentsCollection<GsonD
     }
 
     @Override
-    public Path put(GsonDocument document) throws IOException, SchemaViolationException {
+    public Path put(GsonDocument document) throws IOException {
         List<Path> paths = getPathsThatMatch((GsonDocument) document.matchID());
         if (paths.size() == 1) {
             return documentsIO.update(document, paths.get(0));

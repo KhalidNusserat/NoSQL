@@ -16,6 +16,15 @@ public class GsonElementSchemaParser {
         this.keywordsParser = keywordsParser;
     }
 
+    public GsonObjectSchema parseObject(JsonObject jsonObject) throws InvalidKeywordException {
+        GsonObjectSchema.GsonObjectSchemaBuilder builder =
+                GsonObjectSchema.builder().nullable();
+        for (Map.Entry<String, JsonElement> field : jsonObject.entrySet()) {
+            builder.add(field.getKey(), parse(field.getValue()));
+        }
+        return builder.create();
+    }
+
     private GsonPrimitiveSchema<?> parsePrimitive(JsonPrimitive jsonPrimitive) throws InvalidKeywordException {
         if (jsonPrimitive.isString()) {
             String keywordsString = jsonPrimitive.getAsString();
@@ -71,19 +80,10 @@ public class GsonElementSchemaParser {
         );
     }
 
-    private GsonObjectSchema parseDocument(JsonObject jsonObject) throws InvalidKeywordException {
-        GsonObjectSchema.GsonObjectSchemaBuilder builder =
-                GsonObjectSchema.builder().nullable();
-        for (Map.Entry<String, JsonElement> field : jsonObject.entrySet()) {
-            builder.add(field.getKey(), parse(field.getValue()));
-        }
-        return builder.create();
-    }
-
-    public GsonElementSchema parse(JsonElement jsonElement) throws InvalidKeywordException {
+    private GsonElementSchema parse(JsonElement jsonElement) throws InvalidKeywordException {
         GsonElementSchema gsonSchema = null;
         if (jsonElement.isJsonObject()) {
-            gsonSchema = parseDocument(jsonElement.getAsJsonObject());
+            gsonSchema = parseObject(jsonElement.getAsJsonObject());
         } else if (jsonElement.isJsonPrimitive()) {
             gsonSchema = parsePrimitive(jsonElement.getAsJsonPrimitive());
         } else if (jsonElement.isJsonArray()) {
@@ -92,10 +92,5 @@ public class GsonElementSchemaParser {
             throw new IllegalArgumentException("Null is not a valid schema object");
         }
         return gsonSchema;
-    }
-
-    public GsonObjectSchema parse(String src) throws InvalidKeywordException {
-        Gson gson = new Gson(); // TODO: Dependency injection
-        return parseDocument(gson.fromJson(src, JsonObject.class));
     }
 }

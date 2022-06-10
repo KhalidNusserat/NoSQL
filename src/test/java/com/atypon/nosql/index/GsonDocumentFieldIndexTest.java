@@ -19,10 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class GsonDocumentFieldIndexTest {
     private final Path testDirectory = Path.of("./test");
 
-    private final Gson gson = new Gson();
-
-    private final GsonDocumentsIO documentsIO = new GsonDocumentsIO(gson);
-
     @BeforeEach
     void setUp() throws IOException {
         Files.createDirectories(testDirectory);
@@ -46,8 +42,7 @@ class GsonDocumentFieldIndexTest {
                 Set.of(
                         DocumentField.of("name"),
                         DocumentField.of("university", "name")
-                ),
-                testDirectory
+                )
         );
         JsonObject khalidObject = new JsonObject();
         khalidObject.addProperty("name", "Khalid");

@@ -20,12 +20,14 @@ public class IndexedGsonDocumentsCollection implements DocumentsCollection<GsonD
 
     private final DocumentsIO<GsonDocument> documentsIO;
 
-    private final Path directoryPath;
+    private final Path documentsPath;
 
     private final Map<Set<DocumentField>, FieldIndex<JsonElement, GsonDocument>> fieldIndexes =
             new ConcurrentHashMap<>();
 
     private final FieldIndexManager<JsonElement, GsonDocument> fieldIndexManager;
+
+    private final Path indexesPath;
 
     public IndexedGsonDocumentsCollection(
             DocumentsIO<GsonDocument> documentsIO,
@@ -33,24 +35,33 @@ public class IndexedGsonDocumentsCollection implements DocumentsCollection<GsonD
             FieldIndexManager<JsonElement, GsonDocument> fieldIndexManager
     ) {
         this.documentsIO = documentsIO;
-        this.directoryPath = collectionsPath;
-        Path indexesPath = collectionsPath.resolve("indexes/");
+        this.documentsPath = collectionsPath;
         this.documentsCollection = DefaultGsonDocumentsCollection.from(documentsIO, collectionsPath);
         this.fieldIndexManager = fieldIndexManager;
+        indexesPath = collectionsPath.resolve("indexes/");
         try {
             Files.createDirectories(indexesPath);
             Files.walk(indexesPath)
                     .filter(ExtraFileUtils::isIndexFile)
-                    .map(fieldIndexManager::read)
-                    .filter(Objects::nonNull)
+                    .map(path -> fieldIndexManager.createFromStoredFieldIndex(path, collectionsPath))
                     .forEach(fieldIndex -> fieldIndexes.put(fieldIndex.getDocumentFields(), fieldIndex));
             Set<DocumentField> idField = Set.of(DocumentField.of("_matchID"));
             if (!fieldIndexes.containsKey(idField)) {
-                fieldIndexes.put(idField, fieldIndexManager.create(idField, collectionsPath, indexesPath));
+                fieldIndexes.put(
+                        idField,
+                        fieldIndexManager.createNewFieldIndex(idField, collectionsPath, indexesPath)
+                );
             }
         } catch (IOException e) {
             throw new RuntimeException("Could not access the indexes folder at: " + indexesPath);
         }
+    }
+
+    public void createIndex(Set<DocumentField> documentFields) {
+        fieldIndexes.put(
+                documentFields,
+                fieldIndexManager.createNewFieldIndex(documentFields, documentsPath, indexesPath)
+        );
     }
 
     @NotNull
@@ -99,12 +110,9 @@ public class IndexedGsonDocumentsCollection implements DocumentsCollection<GsonD
                     .orElseThrow();
             documentPath = documentsIO.update(document, oldDocumentPath);
         } else {
-            documentPath = documentsIO.write(document, directoryPath);
+            documentPath = documentsIO.write(document, documentsPath);
         }
-        fieldIndexes.forEach(((documentFields, fieldIndex) -> {
-            fieldIndex.add(document, documentPath);
-            fieldIndexManager.update(fieldIndex);
-        }));
+        fieldIndexes.forEach(((documentFields, fieldIndex) -> fieldIndex.add(document, documentPath)));
         return documentPath;
     }
 
@@ -114,10 +122,7 @@ public class IndexedGsonDocumentsCollection implements DocumentsCollection<GsonD
         if (fieldIndexes.containsKey(documentFields)) {
             fieldIndexes.get(documentFields).get(matchDocument)
                     .forEach(pathString -> documentsIO.delete(Path.of(pathString)));
-            fieldIndexes.forEach(((fields, fieldIndex) -> {
-                fieldIndex.remove(matchDocument);
-                fieldIndexManager.update(fieldIndex);
-            }));
+            fieldIndexes.forEach(((fields, fieldIndex) -> fieldIndex.remove(matchDocument)));
         } else {
             documentsCollection.remove(matchDocument);
         }

@@ -69,10 +69,10 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
         Files.createDirectories(testDirectory);
     }
 
-    @AfterEach
-    void tearDown() {
-        deleteDirectory(testDirectory);
-    }
+//    @AfterEach
+//    void tearDown() {
+//        deleteDirectory(testDirectory);
+//    }
 
     @Test
     void putAndGet() throws IOException, SchemaViolationException {

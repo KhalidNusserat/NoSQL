@@ -17,29 +17,14 @@ public class GsonDocumentFieldIndex implements FieldIndex<JsonElement, GsonDocum
 
     private final ReversedHashMap<String, Set<JsonElement>> pathToValues;
 
-    private final String indexPath;
-
-    public GsonDocumentFieldIndex(Set<DocumentField> documentFields, Path indexPath) {
+    public GsonDocumentFieldIndex(Set<DocumentField> documentFields) {
         this.documentFields = documentFields;
-        this.indexPath = indexPath.toString();
         pathToValues = new ReversedHashMap<>();
         translatedDocumentFields = new HashSet<>(documentFields);
         if (documentFields.contains(DocumentField.of("_matchID"))) {
             translatedDocumentFields.remove(DocumentField.of("_matchID"));
             translatedDocumentFields.add(DocumentField.of("_id"));
         }
-    }
-
-    GsonDocumentFieldIndex(
-            Set<DocumentField> documentFields,
-            Set<DocumentField> translatedDocumentFields,
-            ReversedHashMap<String, Set<JsonElement>> pathToValues,
-            String indexPath
-    ) {
-        this.documentFields = new HashSet<>(documentFields);
-        this.translatedDocumentFields = new HashSet<>(translatedDocumentFields);
-        this.pathToValues = pathToValues;
-        this.indexPath = indexPath;
     }
 
     public void add(GsonDocument document, Path documentPath) {
@@ -61,9 +46,5 @@ public class GsonDocumentFieldIndex implements FieldIndex<JsonElement, GsonDocum
 
     public boolean contains(GsonDocument matchDocument) {
         return pathToValues.containsValue(matchDocument.getAll(documentFields));
-    }
-
-    public Path getPath() {
-        return Path.of(indexPath);
     }
 }

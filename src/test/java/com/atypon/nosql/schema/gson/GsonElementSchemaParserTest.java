@@ -59,7 +59,7 @@ class GsonElementSchemaParserTest {
                 "extra: \"string;nullable\"}";
         Gson gson = new Gson();
         KeywordsParser keywordsParser = new SimpleKeywordsParser();
-        GsonElementSchema gsonSchema = new GsonElementSchemaParser(keywordsParser).parse(gson.fromJson(schema, JsonObject.class));
+        GsonElementSchema gsonSchema = new GsonElementSchemaParser(keywordsParser).parseObject(gson.fromJson(schema, JsonObject.class));
         String objectJson = "{name: \"Khalid\", grades: [{course: \"CPE231\", grade: 98}], extra: null}";
         JsonObject object = gsonSchema.validate(gson.fromJson(objectJson, JsonObject.class)).getAsJsonObject();
         JsonObject expected = new JsonObject();
