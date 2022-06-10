@@ -9,5 +9,8 @@
         <module name="NoSQL" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="NoSQL" target="16" />
+    </bytecodeTargetLevel>
   </component>
 </project>
