@@ -19,7 +19,7 @@ public class CachedIOEngine implements IOEngine {
 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    public CachedIOEngine(IOEngine ioEngine, Cache<Path, Document<?>> cache) {
+    private CachedIOEngine(IOEngine ioEngine, Cache<Path, Document<?>> cache) {
         this.ioEngine = ioEngine;
         this.cache = cache;
     }
