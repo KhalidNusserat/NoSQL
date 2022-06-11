@@ -1,12 +1,13 @@
 package com.atypon.nosql.keywordsparser;
 
-import com.google.common.base.Preconditions;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-public class Keyword {
+public class Keyword implements Iterable<String> {
     private final String name;
 
     private final List<String> args;
@@ -56,5 +57,11 @@ public class Keyword {
                 "name='" + name + '\'' +
                 ", args=" + args +
                 '}';
+    }
+
+    @NotNull
+    @Override
+    public Iterator<String> iterator() {
+        return args.iterator();
     }
 }
