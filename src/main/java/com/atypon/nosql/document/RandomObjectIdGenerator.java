@@ -2,7 +2,7 @@ package com.atypon.nosql.document;
 
 import java.util.Random;
 
-public class RandomObjectIDGenerator implements ObjectIDGenerator {
+public class RandomObjectIdGenerator implements ObjectIdGenerator {
     private final Random random = new Random();
 
     @Override

@@ -1,7 +1,12 @@
 package com.atypon.nosql.collection;
 
+import com.atypon.nosql.document.DocumentGenerator;
+import com.atypon.nosql.document.ObjectIdGenerator;
+import com.atypon.nosql.document.RandomObjectIdGenerator;
+import com.atypon.nosql.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.gsondocument.GsonDocument;
-import com.atypon.nosql.gsondocument.GsonDocumentsIO;
+import com.atypon.nosql.gsondocument.GsonDocumentGenerator;
+import com.atypon.nosql.io.GsonIOEngine;
 import com.atypon.nosql.utils.ExtraFileUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -20,27 +25,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class Person {
-    public static JsonObject newPerson(String name, int age, String major) {
-        JsonObject person = new JsonObject();
-        person.addProperty("name", name);
-        person.addProperty("age", age);
-        person.addProperty("major", major);
-        return person;
+    private static final ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
+
+    private static final GsonDocumentGenerator documentGenerator = new GsonDocumentGenerator(idGenerator);
+
+    public static GsonDocument newPerson(String name, int age, String major) {
+        String src = String.format("{name: %s, age: %d, major: %s}", name, age, major);
+        return documentGenerator.appendId(documentGenerator.createFromString(src));
     }
 }
 
 public abstract class DocumentsCollectionTest<T extends DocumentsCollection<GsonDocument>> {
     protected final Path testDirectory = Path.of("./test");
 
-    protected final GsonDocument khalid = new GsonDocument(Person.newPerson("Khalid", 22, "CPE"));
+    protected final GsonDocument khalid = Person.newPerson("Khalid", 22, "CPE");
 
-    protected final GsonDocument hamza = new GsonDocument(Person.newPerson("Hamza", 22, "CPE"));
+    protected final GsonDocument hamza = Person.newPerson("Hamza", 22, "CPE");
 
-    protected final GsonDocument john = new GsonDocument(Person.newPerson("John", 42, "CIS"));
+    protected final GsonDocument john = Person.newPerson("John", 42, "CIS");
 
     protected final Gson gson = new Gson();
 
-    protected final GsonDocumentsIO documentsIO = new GsonDocumentsIO(gson);
+    protected final GsonIOEngine ioEngine = new GsonIOEngine(gson);
+
+    protected final ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
+
+    protected final DocumentGenerator<GsonDocument> documentGenerator = new GsonDocumentGenerator(idGenerator);
 
     public abstract T create();
 
@@ -75,12 +85,12 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
     }
 
     @Test
-    void putAndGet() throws IOException, SchemaViolationException {
+    void putAndGet() throws IOException, FieldsDoNotMatchException {
         T collection = create();
-        collection.put(khalid);
-        collection.put(hamza);
-        collection.put(john);
-        assertEquals(List.of(khalid), collection.getAllThatMatches((GsonDocument) khalid.matchID()));
+        collection.addDocument(khalid);
+        collection.addDocument(hamza);
+        collection.addDocument(john);
+        assertEquals(List.of(khalid), collection.getAllThatMatches((GsonDocument) khalid.matchId()));
         JsonObject matchCpeObject = new JsonObject();
         matchCpeObject.addProperty("major", "CPE");
         GsonDocument matchCpe = GsonDocument.fromJsonObject(matchCpeObject);
@@ -88,11 +98,11 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
     }
 
     @Test
-    void remove() throws IOException, SchemaViolationException, InterruptedException {
+    void remove() throws IOException, InterruptedException, FieldsDoNotMatchException {
         T collection = create();
-        collection.put(khalid);
-        collection.put(hamza);
-        collection.put(john);
+        collection.addDocument(khalid);
+        collection.addDocument(hamza);
+        collection.addDocument(john);
         JsonObject matchCpeStudents = new JsonObject();
         matchCpeStudents.addProperty("major", "CPE");
         collection.deleteAllThatMatches(GsonDocument.fromJsonObject(matchCpeStudents));
@@ -102,11 +112,11 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
     }
 
     @Test
-    void getAll() throws IOException, SchemaViolationException {
+    void getAll() throws IOException {
         T collection = create();
-        collection.put(khalid);
-        collection.put(hamza);
-        collection.put(john);
+        collection.addDocument(khalid);
+        collection.addDocument(hamza);
+        collection.addDocument(john);
         assertTrue(List.of(khalid, hamza, john).containsAll(collection.getAll()));
     }
 }

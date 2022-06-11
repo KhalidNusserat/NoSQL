@@ -1,6 +1,6 @@
 package com.atypon.nosql.cache;
 
-import com.atypon.nosql.collection.ItemNotFoundException;
+import com.atypon.nosql.collection.NoSuchDocumentException;
 import org.junit.jupiter.api.Test;
 
 import java.util.NoSuchElementException;
@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class LRUCacheTest {
 
     @Test
-    void putAndGet() throws ItemNotFoundException {
+    void putAndGet() throws NoSuchDocumentException {
         Cache<String, String> cache = new LRUCache<>(3);
         cache.put("1", "Cat");
         cache.put("2", "Dog");

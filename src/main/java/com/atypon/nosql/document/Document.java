@@ -1,35 +1,23 @@
 package com.atypon.nosql.document;
 
-import java.util.Map;
-import java.util.Set;
+import com.atypon.nosql.gsondocument.FieldsDoNotMatchException;
 
-public interface Document<DocumentElement> {
+public interface Document<E> {
     String id();
 
-    DocumentElement get(String field);
+    E get(String field);
 
-    Set<DocumentElement> getAll();
+    Document<E> withField(String field, E element);
 
-    DocumentElement get(DocumentField field);
+    Document<E> withoutField(String field);
 
-    Set<DocumentElement> getAll(Set<DocumentField> fields);
+    boolean subsetOf(Document<?> matchDocument);
 
-    Set<DocumentField> getFields();
+    boolean fieldsSubsetOf(Document<?> matchDocument);
 
-    Document<DocumentElement> withField(String field, DocumentElement element);
+    Document<E> getValuesToMatch(Document<?> otherDocument) throws FieldsDoNotMatchException;
 
-    Document<DocumentElement> withoutField(String field);
+    Document<E> matchId();
 
-    default boolean matches(Document<DocumentElement> matchDocument) {
-        Set<DocumentField> matchFields = matchDocument.getFields();
-        matchFields.remove(DocumentField.of("_id"));
-        Set<DocumentElement> matchValues = matchDocument.getAll(matchFields);
-        if (matchFields.contains(DocumentField.of("_matchID"))) {
-            matchFields.remove(DocumentField.of("_matchID"));
-            matchFields.add(DocumentField.of("_id"));
-        }
-        return matchValues.equals(getAll(matchFields));
-    }
-
-    Document<DocumentElement> matchID();
+    Document<E> getFields();
 }

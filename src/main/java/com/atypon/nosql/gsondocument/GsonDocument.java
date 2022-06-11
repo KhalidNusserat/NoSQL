@@ -1,35 +1,29 @@
 package com.atypon.nosql.gsondocument;
 
 import com.atypon.nosql.document.Document;
-import com.atypon.nosql.document.DocumentField;
-import com.atypon.nosql.document.ObjectIDGenerator;
-import com.atypon.nosql.document.RandomObjectIDGenerator;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.atypon.nosql.document.ObjectIdGenerator;
+import com.atypon.nosql.document.RandomObjectIdGenerator;
+import com.google.gson.*;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 public class GsonDocument implements Document<JsonElement> {
-    final JsonObject object;
+    private final static Gson gson = new Gson();
 
-    private final ObjectIDGenerator objectIDGenerator = new RandomObjectIDGenerator();
+    final JsonObject object;
 
     private GsonDocument(GsonDocument other) {
         object = other.object.deepCopy();
+        ObjectIdGenerator objectIDGenerator = new RandomObjectIdGenerator();
         object.addProperty("_id", objectIDGenerator.getNewId());
     }
 
     public GsonDocument() {
         object = new JsonObject();
-        object.addProperty("_id", objectIDGenerator.getNewId());
     }
 
     public GsonDocument(JsonObject object) {
         this.object = object.deepCopy();
-        this.object.addProperty("_id", objectIDGenerator.getNewId());
     }
 
     public static GsonDocumentBuilder builder() {
@@ -40,34 +34,8 @@ public class GsonDocument implements Document<JsonElement> {
         return new GsonDocument(object);
     }
 
-    public static GsonDocument fromObject(Object object) {
-        Gson gson = new Gson();
-        return GsonDocument.fromJsonObject(gson.toJsonTree(object).getAsJsonObject());
-    }
-
-    private Set<DocumentField> getFields(JsonObject object, DocumentField field) {
-        Set<DocumentField> result = new HashSet<>();
-        for (var entry : object.entrySet()) {
-            DocumentField currentField = field.with(entry.getKey());
-            if (entry.getValue().isJsonPrimitive() || entry.getValue().isJsonNull() || entry.getValue().isJsonArray()) {
-                result.add(currentField);
-            } else {
-                result.addAll(getFields(entry.getValue().getAsJsonObject(), currentField));
-            }
-        }
-        return result;
-    }
-
-    private Set<JsonElement> get(JsonObject object) {
-        Set<JsonElement> result = new HashSet<>();
-        for (var entry : object.entrySet()) {
-            if (entry.getValue().isJsonPrimitive() || entry.getValue().isJsonNull() || entry.getValue().isJsonArray()) {
-                result.add(entry.getValue());
-            } else {
-                result.addAll(get(entry.getValue().getAsJsonObject()));
-            }
-        }
-        return result;
+    public static GsonDocument fromString(String src) {
+        return GsonDocument.fromJsonObject(gson.fromJson(src, JsonObject.class));
     }
 
     public JsonObject getAsJsonObject() {
@@ -98,43 +66,115 @@ public class GsonDocument implements Document<JsonElement> {
         return document;
     }
 
-    @Override
-    public Document<JsonElement> matchID() {
-        return new GsonDocument().withField("_matchID", new JsonPrimitive(id()));
-    }
-
-    @Override
-    public Set<DocumentField> getFields() {
-        return getFields(object, DocumentField.of());
-    }
-
-    @Override
-    public Set<JsonElement> getAll() {
-        return get(object);
-    }
-
-    @Override
-    public JsonElement get(DocumentField field) {
-        JsonObject currentObject = object;
-        for (Iterator<String> iterator = field.iterator(); iterator.hasNext(); ) {
-            JsonElement element = currentObject.get(iterator.next());
-            if (element == null) {
-                throw new IllegalArgumentException("Invalid field: " + field + " for the document: " + this);
-            }
-            if (iterator.hasNext()) {
-                currentObject = element.getAsJsonObject();
-            } else {
-                return element;
+    private boolean firstSubsetOfSecond(JsonElement first, JsonElement second) {
+        if (first.getClass() != second.getClass()) {
+            return false;
+        }
+        if (first.isJsonArray() || first.isJsonPrimitive() || first.isJsonNull()) {
+            return first.equals(second);
+        } else {
+            for (var entry : first.getAsJsonObject().entrySet()) {
+                String field = entry.getKey();
+                JsonElement element = entry.getValue();
+                if (!second.getAsJsonObject().has(field)) {
+                    return false;
+                }
+                if (!firstSubsetOfSecond(element, second.getAsJsonObject().get(field))) {
+                    return false;
+                }
             }
         }
-        return null;
+        return true;
     }
 
     @Override
-    public Set<JsonElement> getAll(Set<DocumentField> fields) {
-        return fields.stream()
-                .map(this::get)
-                .collect(Collectors.toSet());
+    public boolean subsetOf(Document<?> matchDocument) {
+        return firstSubsetOfSecond(object, ((GsonDocument) matchDocument).object);
+    }
+
+    private boolean firstFieldsSubsetOfSecond(JsonElement first, JsonElement second) {
+        if (first.getClass() != second.getClass()) {
+            return false;
+        }
+        if (first.isJsonArray() || first.isJsonPrimitive() || first.isJsonNull()) {
+            return true;
+        } else {
+            for (var entry : first.getAsJsonObject().entrySet()) {
+                String field = entry.getKey();
+                JsonElement element = entry.getValue();
+                if (!second.getAsJsonObject().has(field)) {
+                    return false;
+                } else if (!firstFieldsSubsetOfSecond(element, second.getAsJsonObject().get(field))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean fieldsSubsetOf(Document<?> matchDocument) {
+        return firstFieldsSubsetOfSecond(object, ((GsonDocument) matchDocument).object);
+    }
+
+    private JsonElement valuesToMatch(JsonElement fieldsSource, JsonElement valuesSource)
+            throws FieldsDoNotMatchException {
+        if (fieldsSource.isJsonArray() || fieldsSource.isJsonPrimitive() || fieldsSource.isJsonNull()) {
+            return valuesSource;
+        } else {
+            if (!valuesSource.isJsonObject()) {
+                throw new FieldsDoNotMatchException();
+            }
+            JsonObject result = new JsonObject();
+            for (var entry : fieldsSource.getAsJsonObject().entrySet()) {
+                String field = entry.getKey();
+                JsonElement element = entry.getValue();
+                if (!valuesSource.getAsJsonObject().has(field)) {
+                    throw new FieldsDoNotMatchException();
+                }
+                JsonElement matchedFields = valuesToMatch(element, valuesSource.getAsJsonObject().get(field));
+                result.add(field, matchedFields);
+                return result;
+            }
+        }
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public Document<JsonElement> getValuesToMatch(Document<?> otherDocument) throws FieldsDoNotMatchException {
+        try {
+            JsonObject otherDocumentObject = ((GsonDocument) otherDocument).object;
+            JsonObject matchedObject = valuesToMatch(otherDocumentObject, object).getAsJsonObject();
+            return new GsonDocument(matchedObject);
+        } catch (FieldsDoNotMatchException e) {
+            throw new FieldsDoNotMatchException(this, otherDocument);
+        }
+    }
+
+    @Override
+    public Document<JsonElement> matchId() {
+        JsonObject matchIdObject = new JsonObject();
+        matchIdObject.addProperty("_id", id());
+        return GsonDocument.fromJsonObject(matchIdObject);
+    }
+
+    private JsonObject getCriteriaObject(JsonObject object) {
+        JsonObject result = new JsonObject();
+        for (var entry : object.entrySet()) {
+            String field = entry.getKey();
+            JsonElement element = entry.getValue();
+            if (element.isJsonNull() || element.isJsonPrimitive() || element.isJsonArray()) {
+                result.add(field, JsonNull.INSTANCE);
+            } else {
+                result.add(field, getCriteriaObject(element.getAsJsonObject()));
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public Document<JsonElement> getFields() {
+        return GsonDocument.fromJsonObject(getCriteriaObject(object));
     }
 
     @Override

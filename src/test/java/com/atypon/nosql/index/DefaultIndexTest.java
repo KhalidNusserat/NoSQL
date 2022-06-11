@@ -1,7 +1,15 @@
 package com.atypon.nosql.index;
 
-import com.atypon.nosql.document.DocumentField;
+import com.atypon.nosql.document.DocumentGenerator;
+import com.atypon.nosql.document.ObjectIdGenerator;
+import com.atypon.nosql.document.RandomObjectIdGenerator;
+import com.atypon.nosql.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.gsondocument.GsonDocument;
+import com.atypon.nosql.gsondocument.GsonDocumentGenerator;
+import com.atypon.nosql.io.GsonIOEngine;
+import com.atypon.nosql.io.IOEngine;
+import com.google.gson.Gson;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,12 +18,21 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class GsonDocumentFieldIndexTest {
+class DefaultIndexTest {
     private final Path testDirectory = Path.of("./test");
+
+    private final Gson gson = new Gson();
+
+    private final IOEngine ioEngine = new GsonIOEngine(gson);
+
+    private final ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
+
+    private final DocumentGenerator<GsonDocument> documentGenerator = new GsonDocumentGenerator(idGenerator);
 
     @BeforeEach
     void setUp() throws IOException {
@@ -35,13 +52,18 @@ class GsonDocumentFieldIndexTest {
     }
 
     @Test
-    public void putAndGet() {
-        GsonDocumentFieldIndex fieldIndex = new GsonDocumentFieldIndex(
-                Set.of(
-                        DocumentField.of("name"),
-                        DocumentField.of("university", "name")
-                ),
-                Path.of("."));
+    public void putAndGet() throws FieldsDoNotMatchException {
+        JsonObject matchUniversity = new JsonObject();
+        matchUniversity.add("name", JsonNull.INSTANCE);
+        GsonDocument matchNameAndUniversity = GsonDocument.fromString(
+                "{name: null, university: {name: null}}"
+        );
+        DefaultIndex<GsonDocument> fieldIndex = new DefaultIndex<>(
+                matchNameAndUniversity,
+                Path.of("."),
+                ioEngine,
+                documentGenerator
+        );
         JsonObject khalidObject = new JsonObject();
         khalidObject.addProperty("name", "Khalid");
         JsonObject yarmouk = new JsonObject();
@@ -70,7 +92,7 @@ class GsonDocumentFieldIndexTest {
         fieldIndex.add(hamza, hamzaPath);
         fieldIndex.add(ahmad, ahmadPath);
         fieldIndex.add(otherKhalid, otherKhalidPath);
-        assertEquals(Set.of(khalidPath.toString(), otherKhalidPath.toString()), fieldIndex.get(khalid));
-        assertEquals(Set.of(hamzaPath.toString()), fieldIndex.get(hamza));
+        assertEquals(Set.of(khalidPath, otherKhalidPath), fieldIndex.get(khalid));
+        assertEquals(Set.of(hamzaPath), fieldIndex.get(hamza));
     }
 }
