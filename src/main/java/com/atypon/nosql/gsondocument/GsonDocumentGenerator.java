@@ -16,6 +16,7 @@ public class GsonDocumentGenerator implements DocumentGenerator<GsonDocument> {
         return GsonDocument.fromString(src);
     }
 
+    @Override
     public GsonDocument appendId(GsonDocument document) {
         JsonPrimitive idElement = new JsonPrimitive(idGenerator.getNewId());
         return (GsonDocument) document.withField("_id", idElement);
