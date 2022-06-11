@@ -16,6 +16,11 @@ public class Keyword {
         this.args = List.copyOf(args);
     }
 
+    public Keyword(String name, String[] args) {
+        this.name = name;
+        this.args = List.of(args);
+    }
+
     public static Keyword fromString(String name) {
         return new Keyword(name, List.of());
     }
@@ -29,7 +34,10 @@ public class Keyword {
     }
 
     public String getArgAsString() {
-        Preconditions.checkState(args.size() > 0, "There are no arguments to the keyword " + name);
+        Preconditions.checkState(
+                args.size() > 0,
+                "There are no arguments to the keyword " + name
+        );
         return args.get(0);
     }
 
