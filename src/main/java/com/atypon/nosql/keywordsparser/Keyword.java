@@ -29,24 +29,12 @@ public class Keyword {
         return name;
     }
 
-    public List<String> getArgs() {
-        return args;
+    public int getArgsCount() {
+        return args.size();
     }
 
-    public String getArgAsString() {
-        Preconditions.checkState(
-                args.size() > 0,
-                "There are no arguments to the keyword " + name
-        );
-        return args.get(0);
-    }
-
-    public Number getArgAsNumber() {
-        return Integer.parseInt(getArgAsString());
-    }
-
-    public Boolean getArgAsBoolean() {
-        return Boolean.parseBoolean(getArgAsString());
+    public String getArg(int index) {
+        return args.get(index);
     }
 
     @Override
