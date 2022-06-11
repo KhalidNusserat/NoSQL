@@ -4,6 +4,7 @@ import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentField;
 import com.atypon.nosql.document.ObjectIDGenerator;
 import com.atypon.nosql.document.RandomObjectIDGenerator;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -35,8 +36,13 @@ public class GsonDocument implements Document<JsonElement> {
         return new GsonDocumentBuilder();
     }
 
-    public static GsonDocument of(JsonObject object) {
+    public static GsonDocument fromJsonObject(JsonObject object) {
         return new GsonDocument(object);
+    }
+
+    public static GsonDocument fromObject(Object object) {
+        Gson gson = new Gson();
+        return GsonDocument.fromJsonObject(gson.toJsonTree(object).getAsJsonObject());
     }
 
     private Set<DocumentField> getFields(JsonObject object, DocumentField field) {

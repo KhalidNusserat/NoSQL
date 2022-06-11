@@ -47,7 +47,6 @@ public class CachedDocumentsIO<T extends Document<?>> implements DocumentsIO<T> 
     @Override
     public void delete(Path documentPath) {
         lock.writeLock().lock();
-        cache.remove(documentPath);
         documentsIO.delete(documentPath);
         lock.writeLock().unlock();
     }
@@ -70,7 +69,7 @@ public class CachedDocumentsIO<T extends Document<?>> implements DocumentsIO<T> 
                     .map(path -> cache.get(path).orElse(documentsIO.read(path).orElseThrow()))
                     .toList();
         } catch (IOException e) {
-            throw new RuntimeException("Interrupted while reading all documents in the directory: " + directoryPath);
+            throw new RuntimeException(e);
         } finally {
             lock.readLock().unlock();
         }

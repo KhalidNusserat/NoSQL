@@ -20,11 +20,11 @@ public class DefaultGsonDocumentsCollection implements DocumentsCollection<GsonD
     public DefaultGsonDocumentsCollection(DocumentsIO<GsonDocument> documentsIO, Path directoryPath) {
         this.documentsIO = documentsIO;
         this.directoryPath = directoryPath;
-    }
-
-    public static DefaultGsonDocumentsCollection from(
-            DocumentsIO<GsonDocument> documentsIO, Path directoryPath) {
-        return new DefaultGsonDocumentsCollection(documentsIO, directoryPath);
+        try {
+            Files.createDirectories(directoryPath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -36,7 +36,7 @@ public class DefaultGsonDocumentsCollection implements DocumentsCollection<GsonD
                     .filter(Optional::isPresent)
                     .anyMatch(document -> document.get().matches(matchDocument));
         } catch (IOException e) {
-            throw new RuntimeException("Couldn't access the directory: " + directoryPath);
+            throw new RuntimeException(e);
         }
     }
 
@@ -51,7 +51,7 @@ public class DefaultGsonDocumentsCollection implements DocumentsCollection<GsonD
                     .filter(document -> document.matches(matchDocument))
                     .toList();
         } catch (IOException e) {
-            throw new RuntimeException("Couldn't access the directory: " + directoryPath);
+            throw new RuntimeException(e);
         }
     }
 
@@ -73,7 +73,7 @@ public class DefaultGsonDocumentsCollection implements DocumentsCollection<GsonD
     }
 
     @Override
-    public void remove(GsonDocument matchDocument) throws IOException {
+    public void deleteAllThatMatches(GsonDocument matchDocument) throws IOException {
         List<Path> paths = getPathsThatMatch(matchDocument);
         for (Path path : paths) {
             documentsIO.delete(path);
@@ -89,7 +89,7 @@ public class DefaultGsonDocumentsCollection implements DocumentsCollection<GsonD
                             .orElse(false))
                     .toList();
         } catch (IOException e) {
-            throw new RuntimeException("Couldn't access the directory: " + directoryPath);
+            throw new RuntimeException(e);
         }
     }
 }

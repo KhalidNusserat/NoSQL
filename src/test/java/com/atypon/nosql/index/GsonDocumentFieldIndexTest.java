@@ -2,8 +2,6 @@ package com.atypon.nosql.index;
 
 import com.atypon.nosql.document.DocumentField;
 import com.atypon.nosql.gsondocument.GsonDocument;
-import com.atypon.nosql.gsondocument.GsonDocumentsIO;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,8 +40,8 @@ class GsonDocumentFieldIndexTest {
                 Set.of(
                         DocumentField.of("name"),
                         DocumentField.of("university", "name")
-                )
-        );
+                ),
+                Path.of("."));
         JsonObject khalidObject = new JsonObject();
         khalidObject.addProperty("name", "Khalid");
         JsonObject yarmouk = new JsonObject();
@@ -60,10 +58,10 @@ class GsonDocumentFieldIndexTest {
         JsonObject otherKhalidObject = new JsonObject();
         otherKhalidObject.addProperty("name", "Khalid");
         otherKhalidObject.add("university", yarmouk);
-        GsonDocument khalid = GsonDocument.of(khalidObject);
-        GsonDocument hamza = GsonDocument.of(hamzaObject);
-        GsonDocument ahmad = GsonDocument.of(ahmadObject);
-        GsonDocument otherKhalid = GsonDocument.of(otherKhalidObject);
+        GsonDocument khalid = GsonDocument.fromJsonObject(khalidObject);
+        GsonDocument hamza = GsonDocument.fromJsonObject(hamzaObject);
+        GsonDocument ahmad = GsonDocument.fromJsonObject(ahmadObject);
+        GsonDocument otherKhalid = GsonDocument.fromJsonObject(otherKhalidObject);
         Path khalidPath = Path.of("./khalid");
         Path hamzaPath = Path.of("./hamza");
         Path otherKhalidPath = Path.of("./otherKhalid");

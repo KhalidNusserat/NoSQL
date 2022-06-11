@@ -15,7 +15,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class IndexedGsonDocumentsCollection implements DocumentsCollection<GsonDocument> {
+public class IndexedGsonDocumentsCollection implements IndexedDocumentsCollection<GsonDocument> {
     private final DefaultGsonDocumentsCollection documentsCollection;
 
     private final DocumentsIO<GsonDocument> documentsIO;
@@ -29,6 +29,16 @@ public class IndexedGsonDocumentsCollection implements DocumentsCollection<GsonD
 
     private final Path indexesPath;
 
+    private void loadAllFieldIndexes(
+            Path collectionsPath,
+            FieldIndexManager<JsonElement, GsonDocument> fieldIndexManager
+    ) throws IOException {
+        Files.walk(indexesPath)
+                .filter(ExtraFileUtils::isJsonFile)
+                .map(path -> fieldIndexManager.loadFieldIndex(path, collectionsPath))
+                .forEach(fieldIndex -> fieldIndexes.put(fieldIndex.getDocumentFields(), fieldIndex));
+    }
+
     public IndexedGsonDocumentsCollection(
             DocumentsIO<GsonDocument> documentsIO,
             Path collectionsPath,
@@ -36,32 +46,39 @@ public class IndexedGsonDocumentsCollection implements DocumentsCollection<GsonD
     ) {
         this.documentsIO = documentsIO;
         this.documentsPath = collectionsPath;
-        this.documentsCollection = DefaultGsonDocumentsCollection.from(documentsIO, collectionsPath);
+        this.documentsCollection = new DefaultGsonDocumentsCollection(documentsIO, collectionsPath);
         this.fieldIndexManager = fieldIndexManager;
         indexesPath = collectionsPath.resolve("indexes/");
         try {
             Files.createDirectories(indexesPath);
-            Files.walk(indexesPath)
-                    .filter(ExtraFileUtils::isIndexFile)
-                    .map(path -> fieldIndexManager.createFromStoredFieldIndex(path, collectionsPath))
-                    .forEach(fieldIndex -> fieldIndexes.put(fieldIndex.getDocumentFields(), fieldIndex));
+            loadAllFieldIndexes(collectionsPath, fieldIndexManager);
             Set<DocumentField> idField = Set.of(DocumentField.of("_matchID"));
             if (!fieldIndexes.containsKey(idField)) {
-                fieldIndexes.put(
-                        idField,
-                        fieldIndexManager.createNewFieldIndex(idField, collectionsPath, indexesPath)
-                );
+                createIndex(idField);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Could not access the indexes folder at: " + indexesPath);
+            throw new RuntimeException(e);
         }
     }
 
+    @Override
     public void createIndex(Set<DocumentField> documentFields) {
+        Path indexPath = fieldIndexManager.writeFieldIndex(documentFields, indexesPath);
         fieldIndexes.put(
                 documentFields,
-                fieldIndexManager.createNewFieldIndex(documentFields, documentsPath, indexesPath)
+                fieldIndexManager.createNewFieldIndex(documentFields, documentsPath, indexPath)
         );
+    }
+
+    @Override
+    public void deleteIndex(Set<DocumentField> documentFields) {
+        documentsIO.delete(fieldIndexes.get(documentFields).getPath());
+        fieldIndexes.remove(documentFields);
+    }
+
+    @Override
+    public Collection<Set<DocumentField>> getIndexes() {
+        return fieldIndexes.keySet();
     }
 
     @NotNull
@@ -117,14 +134,14 @@ public class IndexedGsonDocumentsCollection implements DocumentsCollection<GsonD
     }
 
     @Override
-    public void remove(GsonDocument matchDocument) throws IOException {
+    public void deleteAllThatMatches(GsonDocument matchDocument) throws IOException {
         Set<DocumentField> documentFields = getDocumentFields(matchDocument);
         if (fieldIndexes.containsKey(documentFields)) {
             fieldIndexes.get(documentFields).get(matchDocument)
                     .forEach(pathString -> documentsIO.delete(Path.of(pathString)));
             fieldIndexes.forEach(((fields, fieldIndex) -> fieldIndex.remove(matchDocument)));
         } else {
-            documentsCollection.remove(matchDocument);
+            documentsCollection.deleteAllThatMatches(matchDocument);
         }
     }
 

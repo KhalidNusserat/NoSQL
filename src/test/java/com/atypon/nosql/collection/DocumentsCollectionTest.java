@@ -69,10 +69,10 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
         Files.createDirectories(testDirectory);
     }
 
-//    @AfterEach
-//    void tearDown() {
-//        deleteDirectory(testDirectory);
-//    }
+    @AfterEach
+    void tearDown() {
+        deleteDirectory(testDirectory);
+    }
 
     @Test
     void putAndGet() throws IOException, SchemaViolationException {
@@ -83,7 +83,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
         assertEquals(List.of(khalid), collection.getAllThatMatches((GsonDocument) khalid.matchID()));
         JsonObject matchCpeObject = new JsonObject();
         matchCpeObject.addProperty("major", "CPE");
-        GsonDocument matchCpe = GsonDocument.of(matchCpeObject);
+        GsonDocument matchCpe = GsonDocument.fromJsonObject(matchCpeObject);
         assertEquals(Set.of(khalid, hamza), Set.copyOf(collection.getAllThatMatches(matchCpe)));
     }
 
@@ -95,7 +95,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
         collection.put(john);
         JsonObject matchCpeStudents = new JsonObject();
         matchCpeStudents.addProperty("major", "CPE");
-        collection.remove(GsonDocument.of(matchCpeStudents));
+        collection.deleteAllThatMatches(GsonDocument.fromJsonObject(matchCpeStudents));
         Thread.sleep(100);
         assertEquals(Set.of(john), Set.copyOf(collection.getAll()));
         assertEquals(1, ExtraFileUtils.countFiles(testDirectory, 1));

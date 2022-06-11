@@ -16,7 +16,7 @@ public class GsonDocumentSchema implements DocumentSchema<GsonDocument> {
     }
 
     @Override
-    public GsonDocument validate(GsonDocument document) throws SchemaViolationException {
+    public GsonDocument makeDocumentValid(GsonDocument document) throws SchemaViolationException {
         GsonDocument validatedDocument = new GsonDocument(objectSchema.validate(document.object).getAsJsonObject());
         validatedDocument.object.addProperty("_id", document.id());
         return validatedDocument;

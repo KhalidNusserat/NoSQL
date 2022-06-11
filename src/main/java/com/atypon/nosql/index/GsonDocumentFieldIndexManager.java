@@ -13,7 +13,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
@@ -29,17 +28,18 @@ public class GsonDocumentFieldIndexManager implements FieldIndexManager<JsonElem
         this.gson = gson;
     }
 
+    private void indexAllDocuments(Path documentsPath, GsonDocumentFieldIndex fieldIndex) throws IOException {
+        Files.walk(documentsPath, 1)
+                .filter(ExtraFileUtils::isJsonFile)
+                .forEach(path -> documentsIO.read(path).ifPresent(document -> fieldIndex.add(document, path)));
+    }
+
     @Override
-    public GsonDocumentFieldIndex createFromStoredFieldIndex(Path indexPath, Path documentsPath) {
+    public GsonDocumentFieldIndex loadFieldIndex(Path indexPath, Path documentsPath) {
         try (BufferedReader reader = Files.newBufferedReader(indexPath)) {
             Set<DocumentField> documentFields = gson.fromJson(reader, new TypeToken<Set<DocumentField>>(){}.getType());
-            GsonDocumentFieldIndex fieldIndex = new GsonDocumentFieldIndex(documentFields);
-            Files.walk(documentsPath, 1)
-                    .filter(ExtraFileUtils::isJsonFile)
-                    .forEach(path -> {
-                        Optional<GsonDocument> document = documentsIO.read(path);
-                        document.ifPresent(gsonDocument -> fieldIndex.add(gsonDocument, path));
-                    });
+            GsonDocumentFieldIndex fieldIndex = new GsonDocumentFieldIndex(documentFields, indexPath);
+            indexAllDocuments(documentsPath, fieldIndex);
             return fieldIndex;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -48,17 +48,29 @@ public class GsonDocumentFieldIndexManager implements FieldIndexManager<JsonElem
 
     @Override
     public GsonDocumentFieldIndex createNewFieldIndex(
-            Set<DocumentField> documentFields, Path collectionsPath, Path indexesPath) {
-        GsonDocumentFieldIndex gsonFieldIndex = new GsonDocumentFieldIndex(documentFields);
-        Path indexPath = indexesPath.resolve(random.nextLong() + ".index");
-        try (BufferedWriter writer = Files.newBufferedWriter(indexPath)) {
-            gson.toJson(documentFields, writer);
-            Files.walk(collectionsPath, 1)
-                    .filter(ExtraFileUtils::isJsonFile)
-                    .forEach(path -> documentsIO.read(path).ifPresent(document -> gsonFieldIndex.add(document, path)));
-            return gsonFieldIndex;
+            Set<DocumentField> documentFields, Path documentsPath, Path indexPath) {
+        GsonDocumentFieldIndex fieldIndex = new GsonDocumentFieldIndex(documentFields, indexPath);
+        try {
+            indexAllDocuments(documentsPath, fieldIndex);
+            return fieldIndex;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public Path writeFieldIndex(Set<DocumentField> documentFields, Path indexesPath) {
+        Path indexPath = indexesPath.resolve(random.nextLong() + ".json");
+        try (BufferedWriter writer = Files.newBufferedWriter(indexPath)) {
+            gson.toJson(documentFields, writer);
+            return indexPath;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void removeFieldIndex(Path indexPath) {
+        documentsIO.delete(indexPath);
     }
 }

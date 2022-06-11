@@ -49,7 +49,7 @@ public class GsonObjectSchema extends DocumentElementSchema<JsonElement> impleme
         for (Map.Entry<String, ElementSchema<JsonElement>> field : fields.entrySet()) {
             if (!builder.containsKey(field.getKey())) {
                 if (field.getValue().isRequired()) {
-                    throw new IllegalArgumentException("Missing required field: " + field.getKey());
+                    throw new SchemaViolationException("Missing required field: " + field.getKey());
                 } else {
                     builder.add(field.getKey(), field.getValue().getDefault());
                 }

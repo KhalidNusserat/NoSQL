@@ -48,7 +48,14 @@ public class DocumentField implements Iterable<String> {
 
     @Override
     public String toString() {
-        return "DocumentField{" + fieldComponents + '}';
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < fieldComponents.size(); i++) {
+            stringBuilder.append(fieldComponents.get(i));
+            if (i < fieldComponents.size() - 1) {
+                stringBuilder.append(".");
+            }
+        }
+        return stringBuilder.toString();
     }
 
     @NotNull

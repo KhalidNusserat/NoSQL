@@ -7,7 +7,11 @@ import java.nio.file.Path;
 import java.util.Set;
 
 public interface FieldIndexManager<E, T extends Document<E>> {
-    GsonDocumentFieldIndex createFromStoredFieldIndex(Path indexPath, Path documentsPath);
+    FieldIndex<E, T> loadFieldIndex(Path indexPath, Path documentsPath);
 
     FieldIndex<E, T> createNewFieldIndex(Set<DocumentField> documentFields, Path collectionsPath, Path indexesPath);
+
+    Path writeFieldIndex(Set<DocumentField> documentFields, Path indexesPath);
+
+    void removeFieldIndex(Path indexPath);
 }

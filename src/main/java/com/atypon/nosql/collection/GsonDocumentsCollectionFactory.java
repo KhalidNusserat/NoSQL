@@ -17,12 +17,12 @@ public class GsonDocumentsCollectionFactory implements DocumentsCollectionFactor
     }
 
     @Override
-    public DocumentsCollection<GsonDocument> createCollection(
-            DocumentCollectionType documentCollectionType, Path collectionPath) {
-        if (documentCollectionType == DocumentCollectionType.INDEXED) {
-            return new IndexedGsonDocumentsCollection(documentsIO, collectionPath, fieldIndexManager);
-        } else {
-            return new DefaultGsonDocumentsCollection(documentsIO, collectionPath);
-        }
+    public DocumentsCollection<GsonDocument> createDefaultDocumentsCollection(Path collectionPath) {
+        return new DefaultGsonDocumentsCollection(documentsIO, collectionPath);
+    }
+
+    @Override
+    public IndexedDocumentsCollection<GsonDocument> createIndexedDocumentsCollection(Path collectionPath) {
+        return new IndexedGsonDocumentsCollection(documentsIO, collectionPath, fieldIndexManager);
     }
 }

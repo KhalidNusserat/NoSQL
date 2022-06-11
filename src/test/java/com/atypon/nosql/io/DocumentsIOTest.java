@@ -23,11 +23,11 @@ public abstract class DocumentsIOTest {
         JsonObject khalidObject = new JsonObject();
         khalidObject.addProperty("name", "Khalid");
         khalidObject.addProperty("content", "Kh".repeat(1000000));
-        khalid = GsonDocument.of(khalidObject);
+        khalid = GsonDocument.fromJsonObject(khalidObject);
         JsonObject johnObject = new JsonObject();
         johnObject.addProperty("name", "John");
         johnObject.addProperty("content", "Jo".repeat(1000000));
-        john = GsonDocument.of(johnObject);
+        john = GsonDocument.fromJsonObject(johnObject);
     }
 
     public abstract DocumentsIO<GsonDocument> create();

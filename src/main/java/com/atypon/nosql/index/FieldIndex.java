@@ -17,4 +17,6 @@ public interface FieldIndex<E, T extends Document<E>> {
     Set<DocumentField> getDocumentFields();
 
     boolean contains(T matchDocument);
+
+    Path getPath();
 }

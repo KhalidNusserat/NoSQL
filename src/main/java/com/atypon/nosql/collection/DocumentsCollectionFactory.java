@@ -5,5 +5,7 @@ import com.atypon.nosql.document.Document;
 import java.nio.file.Path;
 
 public interface DocumentsCollectionFactory<T extends Document<?>> {
-    DocumentsCollection<T> createCollection(DocumentCollectionType documentCollectionType, Path collectionPath);
+    DocumentsCollection<T> createDefaultDocumentsCollection(Path collectionPath);
+
+    IndexedDocumentsCollection<T> createIndexedDocumentsCollection(Path collectionPath);
 }
