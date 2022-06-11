@@ -1,7 +1,6 @@
 package com.atypon.nosql.keywordsparser;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,7 +18,8 @@ public class SimpleKeywordsParser implements KeywordsParser {
         return keywords;
     }
 
-    private Keyword parseKeyword(String keywordString) throws InvalidKeywordException {
+    @Override
+    public Keyword parseKeyword(String keywordString) throws InvalidKeywordException {
         Matcher keywordMatcher = keywordPattern.matcher(keywordString);
         if (keywordMatcher.find()) {
             String keywordName = keywordMatcher.group(1);
