@@ -1,24 +1,17 @@
 package com.atypon.nosql.gsondocument;
 
-import com.atypon.nosql.keywordsparser.InvalidKeywordException;
-import com.atypon.nosql.keywordsparser.SimpleKeywordsParser;
-import com.atypon.nosql.schema.DocumentSchema;
-import com.google.gson.JsonObject;
-
-import javax.naming.directory.SchemaViolationException;
+import com.atypon.nosql.document.DocumentSchema;
+import com.atypon.nosql.gsondocument.constraints.AllMatchConstraint;
 
 public class GsonDocumentSchema implements DocumentSchema<GsonDocument> {
-    private final GsonObjectSchema objectSchema;
+    private final AllMatchConstraint constraints;
 
-    public GsonDocumentSchema(JsonObject schemaDocumentObject) throws InvalidKeywordException {
-        GsonElementSchemaParser parser = new GsonElementSchemaParser(new SimpleKeywordsParser());
-        objectSchema = parser.parseObject(schemaDocumentObject);
+    public GsonDocumentSchema(AllMatchConstraint constraints) {
+        this.constraints = constraints;
     }
 
     @Override
-    public GsonDocument makeDocumentValid(GsonDocument document) throws SchemaViolationException {
-        GsonDocument validatedDocument = new GsonDocument(objectSchema.validate(document.object).getAsJsonObject());
-        validatedDocument.object.addProperty("_id", document.id());
-        return validatedDocument;
+    public boolean validate(GsonDocument document) {
+        return constraints.validate(document.object);
     }
 }
