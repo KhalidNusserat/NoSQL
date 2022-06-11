@@ -10,7 +10,10 @@ import com.atypon.nosql.io.IOEngine;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GenericIndexedDocumentsCollection<T extends Document<?>> implements IndexedDocumentsCollection<T> {
@@ -26,18 +29,6 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
 
     private final IndexGenerator<T> indexGenerator;
 
-    private void createIdIndex() throws IOException {
-        String idCriteriaFields = "{\"_id\": null}";
-        T idCriteria = documentGenerator.createFromString(idCriteriaFields);
-        if (!indexes.containsKey(idCriteria)) {
-            Path indexPath = indexesCollection.addDocument(idCriteria);
-            indexes.put(
-                    idCriteria,
-                    indexGenerator.createNewIndex(idCriteria, indexPath, ioEngine, documentGenerator)
-            );
-        }
-    }
-
     public GenericIndexedDocumentsCollection(
             Path collectionPath,
             DocumentGenerator<T> documentGenerator,
@@ -48,7 +39,7 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
         this.documentGenerator = documentGenerator;
         this.indexGenerator = indexGenerator;
         this.documentsCollection = new GenericDefaultDocumentsCollection<>(ioEngine, collectionPath, documentGenerator);
-        indexesCollection =  new GenericDefaultDocumentsCollection<>(
+        indexesCollection = new GenericDefaultDocumentsCollection<>(
                 ioEngine,
                 collectionPath.resolve("indexes/"),
                 documentGenerator
@@ -58,6 +49,18 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
             createIdIndex();
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void createIdIndex() throws IOException {
+        String idCriteriaFields = "{\"_id\": null}";
+        T idCriteria = documentGenerator.createFromString(idCriteriaFields);
+        if (!indexes.containsKey(idCriteria)) {
+            Path indexPath = indexesCollection.addDocument(idCriteria);
+            indexes.put(
+                    idCriteria,
+                    indexGenerator.createNewIndex(idCriteria, indexPath, ioEngine, documentGenerator)
+            );
         }
     }
 
@@ -156,8 +159,7 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
             throw new MultipleFilesMatchedException(matchingDocumentsPath.size());
         } else if (matchingDocumentsPath.size() == 0) {
             throw new NoSuchDocumentException(oldDocument);
-        }
-        else {
+        } else {
             Path updatedDocumentPath = documentsCollection.updateDocument(oldDocument, updatedDocument);
             updateAllIndexes(updatedDocument, updatedDocumentPath);
             return updatedDocumentPath;
@@ -175,7 +177,8 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
                     fieldIndex.remove(documentCriteria);
                 } catch (FieldsDoNotMatchException e) {
                     e.printStackTrace();
-                }});
+                }
+            });
         } else {
             documentsCollection.deleteAllThatMatches(documentCriteria);
         }

@@ -4,7 +4,6 @@ import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentGenerator;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -21,15 +20,12 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class GsonIOEngine implements IOEngine {
+    private final static Type mapType = new TypeToken<Map<String, Object>>() {
+    }.getType();
     private final ExecutorService deleteService = Executors.newCachedThreadPool();
-
     private final Random random = new Random();
-
     private final int ATTEMPTS = 5;
-
     private final int RETRY_DELAY = 10;
-
-    private final static Type mapType = new TypeToken<Map<String, Object>>(){}.getType();
 
     public GsonIOEngine(Gson gson) {
     }

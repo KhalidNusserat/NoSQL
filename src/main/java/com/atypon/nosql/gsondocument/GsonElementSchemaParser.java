@@ -3,7 +3,10 @@ package com.atypon.nosql.gsondocument;
 import com.atypon.nosql.keywordsparser.InvalidKeywordException;
 import com.atypon.nosql.keywordsparser.Keyword;
 import com.atypon.nosql.keywordsparser.KeywordsParser;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import java.util.List;
 import java.util.Map;

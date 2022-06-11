@@ -4,8 +4,6 @@ import com.atypon.nosql.document.DocumentGenerator;
 import com.atypon.nosql.document.ObjectIdGenerator;
 import com.google.gson.JsonPrimitive;
 
-import java.util.Map;
-
 public class GsonDocumentGenerator implements DocumentGenerator<GsonDocument> {
     private final ObjectIdGenerator idGenerator;
 
