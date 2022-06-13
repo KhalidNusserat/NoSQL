@@ -1,9 +1,6 @@
 package com.atypon.nosql;
 
-import com.atypon.nosql.collection.GenericIndexedDocumentsCollection;
-import com.atypon.nosql.collection.IndexedDocumentsCollection;
-import com.atypon.nosql.collection.MultipleFilesMatchedException;
-import com.atypon.nosql.collection.NoSuchDocumentException;
+import com.atypon.nosql.collection.*;
 import com.atypon.nosql.document.*;
 import com.atypon.nosql.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.index.GenericIndexGenerator;
@@ -21,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class DefaultDatabase<T extends Document<?>> implements Database {
+public class GenericDatabase<T extends Document<?>> implements Database {
     private final Map<String, IndexedDocumentsCollection<T>> collections = new ConcurrentHashMap<>();
 
     private final Map<String, DocumentSchema<T>> schemas = new ConcurrentHashMap<>();
@@ -38,7 +35,7 @@ public class DefaultDatabase<T extends Document<?>> implements Database {
 
     private final ExecutorService directoriesDeletingService = Executors.newCachedThreadPool();
 
-    public DefaultDatabase(
+    public GenericDatabase(
             IOEngine ioEngine,
             Path collectionsDirectory,
             DocumentGenerator<T> documentGenerator,
@@ -84,15 +81,18 @@ public class DefaultDatabase<T extends Document<?>> implements Database {
         collections.put(collectionName, documentsCollection);
     }
 
-    private DocumentSchema<T> loadSchema(Path schemaDirectory) throws InvalidKeywordException, InvalidDocumentSchema {
-        Optional<T> schemaDocument = ioEngine.read(schemaDirectory, documentGenerator);
-        return schemaGenerator.createSchema(schemaDocument.orElseThrow());
+    private void checkCollectionExists(String collectionName) throws CollectionNotFoundException {
+        if (!collections.containsKey(collectionName)) {
+            throw new CollectionNotFoundException(collectionName);
+        }
     }
 
     @Override
     public void createCollection(String collectionName, String schemaString)
-            throws InvalidKeywordException, InvalidDocumentSchema
-    {
+            throws InvalidKeywordException, InvalidDocumentSchema, CollectionAlreadyExists {
+        if (collections.containsKey(collectionName)) {
+            throw new CollectionAlreadyExists(collectionName);
+        }
         Path collectionDirectory = collectionsDirectory.resolve(collectionName + "/");
         Path documentsDirectory = collectionDirectory.resolve("documents/");
         Path schemaDirectory = collectionDirectory.resolve("schema/");
@@ -122,16 +122,22 @@ public class DefaultDatabase<T extends Document<?>> implements Database {
     }
 
     @Override
-    public void removeCollection(String collectionName) {
+    public void removeCollection(String collectionName) throws CollectionNotFoundException {
+        checkCollectionExists(collectionName);
         Path collectionDirectory = collectionsDirectory.resolve(collectionName + "/");
         collections.remove(collectionName);
         directoriesDeletingService.submit(() -> ExtraFileUtils.deleteDirectory(collectionDirectory));
     }
 
+    private DocumentSchema<T> loadSchema(Path schemaDirectory) throws InvalidKeywordException, InvalidDocumentSchema {
+        Optional<T> schemaDocument = ioEngine.read(schemaDirectory, documentGenerator);
+        return schemaGenerator.createSchema(schemaDocument.orElseThrow());
+    }
+
     @Override
     public void addDocument(String collectionName, String documentString)
-            throws IOException, DocumentSchemaViolationException
-    {
+            throws IOException, DocumentSchemaViolationException, CollectionNotFoundException {
+        checkCollectionExists(collectionName);
         T document = documentGenerator.createFromString(documentString);
         if (schemas.get(collectionName).validate(document)) {
             collections.get(collectionName).addDocument(documentGenerator.appendId(document));
@@ -142,7 +148,8 @@ public class DefaultDatabase<T extends Document<?>> implements Database {
 
     @Override
     public Collection<String> readDocuments(String collectionName, String matchDocumentString)
-            throws FieldsDoNotMatchException, IOException {
+            throws FieldsDoNotMatchException, IOException, CollectionNotFoundException {
+        checkCollectionExists(collectionName);
         T matchDocument = documentGenerator.createFromString(matchDocumentString);
         return collections.get(collectionName).getAllThatMatches(matchDocument).stream()
                 .map(Document::toString)
@@ -151,8 +158,9 @@ public class DefaultDatabase<T extends Document<?>> implements Database {
 
     @Override
     public void updateDocument(String collectionName, String documentID, String updatedDocumentString)
-            throws MultipleFilesMatchedException, IOException, NoSuchDocumentException, DocumentSchemaViolationException
-    {
+            throws MultipleFilesMatchedException, IOException, NoSuchDocumentException,
+            DocumentSchemaViolationException, CollectionNotFoundException {
+        checkCollectionExists(collectionName);
         T matchId = documentGenerator.createFromString(String.format("{_id: %s}", documentID));
         T updatedDocument = documentGenerator.createFromString(updatedDocumentString);
         if (schemas.get(collectionName).validate(updatedDocument)) {
@@ -164,14 +172,25 @@ public class DefaultDatabase<T extends Document<?>> implements Database {
 
     @Override
     public void deleteDocuments(String collectionName, String matchDocumentString)
-            throws FieldsDoNotMatchException, IOException {
+            throws FieldsDoNotMatchException, IOException, CollectionNotFoundException {
+        checkCollectionExists(collectionName);
         T matchDocument = documentGenerator.createFromString(matchDocumentString);
         collections.get(collectionName).deleteAllThatMatches(matchDocument);
     }
 
     @Override
-    public void createIndex(String collectionName, String indexDocumentString) throws IOException {
+    public void createIndex(String collectionName, String indexDocumentString)
+            throws IOException, CollectionNotFoundException {
+        checkCollectionExists(collectionName);
         T indexDocument = documentGenerator.createFromString(indexDocumentString);
         collections.get(collectionName).createIndex(indexDocument);
+    }
+
+    @Override
+    public void deleteIndex(String collectionName, String indexDocumentString)
+            throws CollectionNotFoundException, NoSuchIndexException {
+        checkCollectionExists(collectionName);
+        T indexDocument = documentGenerator.createFromString(indexDocumentString);
+        collections.get(collectionName).deleteIndex(indexDocument);
     }
 }
