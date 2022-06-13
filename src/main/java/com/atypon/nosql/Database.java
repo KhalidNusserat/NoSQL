@@ -32,5 +32,8 @@ public interface Database {
     void createIndex(String collectionName, String indexDocumentString)
             throws IOException, CollectionNotFoundException;
 
-    void deleteIndex(String collectionName, String indexDocumentString) throws CollectionNotFoundException, NoSuchIndexException;
+    void deleteIndex(String collectionName, String indexDocumentString)
+            throws CollectionNotFoundException, NoSuchIndexException;
+
+    Collection<String> getCollectionsNames();
 }

@@ -193,4 +193,9 @@ public class GenericDatabase<T extends Document<?>> implements Database {
         T indexDocument = documentGenerator.createFromString(indexDocumentString);
         collections.get(collectionName).deleteIndex(indexDocument);
     }
+
+    @Override
+    public Collection<String> getCollectionsNames() {
+        return collections.keySet();
+    }
 }
