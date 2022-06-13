@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class GenericIndexedDocumentsCollection<T extends Document<?>> implements IndexedDocumentsCollection<T> {
     private final Path documentsPath;
@@ -206,5 +207,50 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
     @Override
     public Collection<T> getAll() {
         return documentsCollection.getAll();
+    }
+
+    public static <T extends Document<?>> GenericIndexedDocumentsCollectionBuilder<T> builder() {
+        return new GenericIndexedDocumentsCollectionBuilder<>();
+    }
+
+    public static class GenericIndexedDocumentsCollectionBuilder<T extends Document<?>> {
+        private Path documentsPath;
+
+        private DocumentGenerator<T> documentGenerator;
+
+        private IndexGenerator<T> indexGenerator;
+
+        private IOEngine ioEngine;
+
+        public GenericIndexedDocumentsCollectionBuilder<T> setDocumentsPath(Path documentsPath) {
+            this.documentsPath = documentsPath;
+            return this;
+        }
+
+        public GenericIndexedDocumentsCollectionBuilder<T> setDocumentGenerator(
+                DocumentGenerator<T> documentGenerator)
+        {
+            this.documentGenerator = documentGenerator;
+            return this;
+        }
+
+        public GenericIndexedDocumentsCollectionBuilder<T> setIndexGenerator(IndexGenerator<T> indexGenerator) {
+            this.indexGenerator = indexGenerator;
+            return this;
+        }
+
+        public GenericIndexedDocumentsCollectionBuilder<T> setIOEngine(IOEngine ioEngine) {
+            this.ioEngine = ioEngine;
+            return this;
+        }
+
+        public GenericIndexedDocumentsCollection<T> create() {
+            return new GenericIndexedDocumentsCollection<>(
+                    documentsPath,
+                    documentGenerator,
+                    indexGenerator,
+                    ioEngine
+            );
+        }
     }
 }
