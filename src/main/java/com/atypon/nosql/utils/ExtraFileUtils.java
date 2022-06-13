@@ -19,8 +19,24 @@ public class ExtraFileUtils {
         return jsonMatcher.matches(path);
     }
 
-    public static boolean isIndexFile(Path path) {
-        return indexMatcher.matches(path);
+    public static void deleteDirectory(Path directory) {
+        try {
+            Files.walk(directory)
+                    .forEach(path -> {
+                        if (!path.equals(directory) && Files.isDirectory(path)) {
+                            deleteDirectory(path);
+                        } else if (Files.isRegularFile(path)) {
+                            try {
+                                Files.delete(path);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    });
+            Files.delete(directory);
+        } catch (IOException e) {
+            throw new RuntimeException();
+        }
     }
 
     public static Set<Path> getDirectoryContent(Path directoryPath) throws IOException {

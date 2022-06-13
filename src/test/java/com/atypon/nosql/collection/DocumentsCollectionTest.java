@@ -50,26 +50,6 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
 
     public abstract T create();
 
-    private void deleteDirectory(Path directory) {
-        try {
-            Files.walk(directory)
-                    .forEach(path -> {
-                        if (!path.equals(directory) && Files.isDirectory(path)) {
-                            deleteDirectory(path);
-                        } else if (Files.isRegularFile(path)) {
-                            try {
-                                Files.delete(path);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-            Files.delete(directory);
-        } catch (IOException e) {
-            throw new RuntimeException();
-        }
-    }
-
     @BeforeEach
     void setUp() throws IOException {
         Files.createDirectories(testDirectory);
@@ -77,7 +57,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
 
     @AfterEach
     void tearDown() {
-        deleteDirectory(testDirectory);
+        ExtraFileUtils.deleteDirectory(testDirectory);
     }
 
     @Test
