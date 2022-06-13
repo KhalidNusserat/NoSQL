@@ -8,7 +8,6 @@ import com.atypon.nosql.gsondocument.GsonDocument;
 import com.atypon.nosql.gsondocument.GsonDocumentGenerator;
 import com.atypon.nosql.io.DefaultIOEngine;
 import com.atypon.nosql.utils.ExtraFileUtils;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -87,7 +86,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
         collection.addDocument(khalid);
         collection.addDocument(hamza);
         collection.addDocument(john);
-        assertEquals(List.of(khalid), collection.getAllThatMatches((GsonDocument) khalid.matchId()));
+        assertEquals(List.of(khalid), collection.getAllThatMatches(GsonDocument.fromString("{name: \"Khalid\"}")));
         JsonObject matchCpeObject = new JsonObject();
         matchCpeObject.addProperty("major", "CPE");
         GsonDocument matchCpe = GsonDocument.fromJsonObject(matchCpeObject);

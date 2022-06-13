@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -66,23 +68,23 @@ public class DefaultIndex<T extends Document<?>> implements Index<T> {
 
     @Override
     public void populateIndex(Path collectionPath) {
-        indexPopulatingService.submit(() -> {
-            try {
-                Files.walk(collectionPath, 1)
-                        .filter(ExtraFileUtils::isJsonFile)
-                        .forEach(path -> ioEngine.read(path, documentGenerator)
-                                .ifPresent(document -> {
-                                    try {
-                                        add(document, path);
-                                    } catch (FieldsDoNotMatchException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                })
-                        );
-            } catch (IOException e) {
-                e.printStackTrace();
+        try {
+            List<Path> paths = Files.walk(collectionPath, 1)
+                    .filter(ExtraFileUtils::isJsonFile)
+                    .toList();
+            for (Path path : paths) {
+                Optional<T> document = ioEngine.read(path, documentGenerator);
+                if (document.isPresent()) {
+                    try {
+                        add(document.get(), path);
+                    } catch (FieldsDoNotMatchException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
             }
-        });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

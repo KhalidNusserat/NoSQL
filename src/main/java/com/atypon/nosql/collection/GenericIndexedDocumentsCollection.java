@@ -6,6 +6,7 @@ import com.atypon.nosql.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.index.Index;
 import com.atypon.nosql.index.IndexGenerator;
 import com.atypon.nosql.io.IOEngine;
+import com.atypon.nosql.utils.ExtraFileUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,6 +18,10 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GenericIndexedDocumentsCollection<T extends Document<?>> implements IndexedDocumentsCollection<T> {
+    private final Path documentsPath;
+
+    private final Path indexesPath;
+
     private final GenericDefaultDocumentsCollection<T> documentsCollection;
 
     private final IOEngine ioEngine;
@@ -30,7 +35,7 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
     private final IndexGenerator<T> indexGenerator;
 
     public GenericIndexedDocumentsCollection(
-            Path collectionPath,
+            Path documentsPath,
             DocumentGenerator<T> documentGenerator,
             IndexGenerator<T> indexGenerator,
             IOEngine ioEngine
@@ -38,18 +43,32 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
         this.ioEngine = ioEngine;
         this.documentGenerator = documentGenerator;
         this.indexGenerator = indexGenerator;
-        this.documentsCollection = new GenericDefaultDocumentsCollection<>(ioEngine, collectionPath, documentGenerator);
+        this.documentsCollection = new GenericDefaultDocumentsCollection<>(ioEngine, documentsPath, documentGenerator);
+        this.documentsPath = documentsPath;
+        indexesPath = documentsPath.resolve("indexes/");
         indexesCollection = new GenericDefaultDocumentsCollection<>(
                 ioEngine,
-                collectionPath.resolve("indexes/"),
+                indexesPath,
                 documentGenerator
         );
         try {
-            Files.createDirectories(collectionPath.resolve("indexes/"));
+            Files.createDirectories(documentsPath.resolve("indexes/"));
+            loadIndexes();
             createIdIndex();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void loadIndexes() throws IOException {
+        Files.walk(indexesPath)
+                .filter(ExtraFileUtils::isJsonFile)
+                .forEach(indexPath -> {
+                    T indexFields = ioEngine.read(indexPath, documentGenerator).orElseThrow();
+                    Index<T> index = indexGenerator.createNewIndex(indexFields, indexPath, ioEngine, documentGenerator);
+                    index.populateIndex(documentsPath);
+                    indexes.put(indexFields, index);
+                });
     }
 
     private void createIdIndex() throws IOException {
