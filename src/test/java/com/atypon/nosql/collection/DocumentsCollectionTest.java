@@ -6,7 +6,7 @@ import com.atypon.nosql.document.RandomObjectIdGenerator;
 import com.atypon.nosql.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.gsondocument.GsonDocument;
 import com.atypon.nosql.gsondocument.GsonDocumentGenerator;
-import com.atypon.nosql.io.GsonIOEngine;
+import com.atypon.nosql.io.DefaultIOEngine;
 import com.atypon.nosql.utils.ExtraFileUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -43,9 +43,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
 
     protected final GsonDocument john = Person.newPerson("John", 42, "CIS");
 
-    protected final Gson gson = new Gson();
-
-    protected final GsonIOEngine ioEngine = new GsonIOEngine(gson);
+    protected final DefaultIOEngine ioEngine = new DefaultIOEngine();
 
     protected final ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
 

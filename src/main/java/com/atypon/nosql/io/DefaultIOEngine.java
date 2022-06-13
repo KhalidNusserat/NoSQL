@@ -2,24 +2,20 @@ package com.atypon.nosql.io;
 
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentGenerator;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class GsonIOEngine implements IOEngine {
+public class DefaultIOEngine implements IOEngine {
     private final ExecutorService deleteService = Executors.newCachedThreadPool();
 
     private final Random random = new Random();

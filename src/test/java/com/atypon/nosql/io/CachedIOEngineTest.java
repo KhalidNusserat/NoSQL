@@ -8,7 +8,7 @@ class CachedIOEngineTest extends IOEngineTest {
     @Override
     public IOEngine create() {
         return CachedIOEngine.from(
-                new GsonIOEngine(new Gson()),
+                new DefaultIOEngine(),
                 new LRUCache<>(100)
         );
     }

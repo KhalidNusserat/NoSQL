@@ -6,7 +6,7 @@ import com.atypon.nosql.document.RandomObjectIdGenerator;
 import com.atypon.nosql.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.gsondocument.GsonDocument;
 import com.atypon.nosql.gsondocument.GsonDocumentGenerator;
-import com.atypon.nosql.io.GsonIOEngine;
+import com.atypon.nosql.io.DefaultIOEngine;
 import com.atypon.nosql.io.IOEngine;
 import com.google.gson.Gson;
 import com.google.gson.JsonNull;
@@ -25,9 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class DefaultIndexTest {
     private final Path testDirectory = Path.of("./test");
 
-    private final Gson gson = new Gson();
-
-    private final IOEngine ioEngine = new GsonIOEngine(gson);
+    private final IOEngine ioEngine = new DefaultIOEngine();
 
     private final ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
 
