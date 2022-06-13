@@ -15,7 +15,7 @@ import java.util.Optional;
 public class GenericDefaultDocumentsCollection<T extends Document<?>> implements DocumentsCollection<T> {
     private final IOEngine ioEngine;
 
-    private final Path collectionPath;
+    private final Path documentsPath;
 
     private final DocumentGenerator<T> documentGenerator;
 
@@ -25,10 +25,10 @@ public class GenericDefaultDocumentsCollection<T extends Document<?>> implements
             DocumentGenerator<T> documentGenerator
     ) {
         this.ioEngine = ioEngine;
-        this.collectionPath = collectionPath;
         this.documentGenerator = documentGenerator;
+        documentsPath = collectionPath.resolve("documents/");
         try {
-            Files.createDirectories(collectionPath);
+            Files.createDirectories(documentsPath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -37,7 +37,7 @@ public class GenericDefaultDocumentsCollection<T extends Document<?>> implements
     @Override
     public boolean contains(T documentCriteria) {
         try {
-            return Files.walk(collectionPath, 1)
+            return Files.walk(documentsPath, 1)
                     .filter(ExtraFileUtils::isJsonFile)
                     .map(documentPath -> ioEngine.read(documentPath, documentGenerator))
                     .filter(Optional::isPresent)
@@ -51,7 +51,7 @@ public class GenericDefaultDocumentsCollection<T extends Document<?>> implements
     @Override
     public Collection<T> getAllThatMatches(T documentCriteria) {
         try {
-            return Files.walk(collectionPath, 1)
+            return Files.walk(documentsPath, 1)
                     .filter(ExtraFileUtils::isJsonFile)
                     .map(documentPath -> ioEngine.read(documentPath, documentGenerator))
                     .filter(Optional::isPresent)
@@ -65,17 +65,17 @@ public class GenericDefaultDocumentsCollection<T extends Document<?>> implements
 
     @Override
     public Collection<T> getAll() {
-        return ioEngine.readDirectory(collectionPath, documentGenerator);
+        return ioEngine.readDirectory(documentsPath, documentGenerator);
     }
 
     @Override
     public Path addDocument(T addedDocument) throws IOException {
-        return ioEngine.write(addedDocument, collectionPath);
+        return ioEngine.write(addedDocument, documentsPath);
     }
 
     private List<Path> getPathsThatMatch(T documentCriteria) {
         try {
-            return Files.walk(collectionPath, 1)
+            return Files.walk(documentsPath, 1)
                     .filter(ExtraFileUtils::isJsonFile)
                     .filter(path -> ioEngine.read(path, documentGenerator)
                             .map(documentCriteria::subsetOf)
@@ -88,7 +88,8 @@ public class GenericDefaultDocumentsCollection<T extends Document<?>> implements
 
     @Override
     public Path updateDocument(T oldDocument, T updatedDocument)
-            throws NoSuchDocumentException, MultipleFilesMatchedException, IOException {
+            throws NoSuchDocumentException, MultipleFilesMatchedException, IOException
+    {
         List<Path> matchingDocumentsPaths = getPathsThatMatch(oldDocument);
         if (matchingDocumentsPaths.size() > 1) {
             throw new MultipleFilesMatchedException(matchingDocumentsPaths.size());
