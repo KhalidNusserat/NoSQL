@@ -5,6 +5,7 @@ import com.atypon.nosql.document.ObjectIdGenerator;
 import com.atypon.nosql.document.RandomObjectIdGenerator;
 import com.atypon.nosql.gsondocument.GsonDocument;
 import com.atypon.nosql.gsondocument.GsonDocumentGenerator;
+import com.atypon.nosql.utils.ExtraFileUtils;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,11 +31,11 @@ public abstract class IOEngineTest {
     protected IOEngineTest() {
         JsonObject khalidObject = new JsonObject();
         khalidObject.addProperty("name", "Khalid");
-        khalidObject.addProperty("content", "Kh".repeat(1000000));
+        khalidObject.addProperty("content", "Kh".repeat(10000000));
         khalid = GsonDocument.fromJsonObject(khalidObject);
         JsonObject johnObject = new JsonObject();
         johnObject.addProperty("name", "John");
-        johnObject.addProperty("content", "Jo".repeat(1000000));
+        johnObject.addProperty("content", "Jo".repeat(10000000));
         john = GsonDocument.fromJsonObject(johnObject);
     }
 
@@ -80,6 +81,6 @@ public abstract class IOEngineTest {
         filepath = io.update(khalid, filepath);
         Thread.sleep(200);
         assertEquals(khalid, io.read(filepath, documentGenerator).orElseThrow());
-        assertEquals(2, Files.walk(testDirectory).toList().size());
+        assertEquals(1, ExtraFileUtils.countFiles(testDirectory, 1));
     }
 }
