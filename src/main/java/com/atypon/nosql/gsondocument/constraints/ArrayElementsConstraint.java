@@ -10,7 +10,7 @@ public class ArrayElementsConstraint implements Constraint {
         this.constraint = constraint;
     }
 
-    public static ArrayElementsConstraint match(Constraint constraint) {
+    public static ArrayElementsConstraint mustMatch(Constraint constraint) {
         return new ArrayElementsConstraint(constraint);
     }
 
