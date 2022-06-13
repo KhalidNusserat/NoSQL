@@ -22,6 +22,11 @@ public class Keyword implements Iterable<String> {
         this.args = List.of(args);
     }
 
+    public Keyword(String name) {
+        this.name = name;
+        args = List.of();
+    }
+
     public static Keyword fromString(String name) {
         return new Keyword(name, List.of());
     }

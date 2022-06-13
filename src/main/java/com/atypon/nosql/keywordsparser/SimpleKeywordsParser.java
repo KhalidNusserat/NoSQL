@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SimpleKeywordsParser implements KeywordsParser {
-    private static final Pattern keywordPattern = Pattern.compile("^(\\w+) *(\\(([\\w\\d, ]+)\\))?$");
+    private static final Pattern keywordPattern = Pattern.compile("^(\\w+) *(\\(([\\w\\d, ;()]+)\\))?$");
 
     @Override
     public List<Keyword> parseKeywords(String keywordsString) throws InvalidKeywordException {
@@ -24,10 +24,11 @@ public class SimpleKeywordsParser implements KeywordsParser {
         if (keywordMatcher.find()) {
             String keywordName = keywordMatcher.group(1);
             String keywordArgs = keywordMatcher.group(3);
-            return new Keyword(
-                    keywordName,
-                    keywordArgs == null ? new String[0] : keywordArgs.split(",")
-            );
+            if (keywordArgs != null) {
+                return new Keyword(keywordName, keywordArgs.split(","));
+            } else {
+                return new Keyword(keywordName);
+            }
         } else {
             throw new InvalidKeywordException("Invalid keyword syntax: " + keywordString);
         }

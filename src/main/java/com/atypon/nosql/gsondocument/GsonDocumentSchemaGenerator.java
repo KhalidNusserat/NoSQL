@@ -4,8 +4,6 @@ import com.atypon.nosql.document.DocumentSchemaGenerator;
 import com.atypon.nosql.document.InvalidDocumentSchema;
 import com.atypon.nosql.gsondocument.constraints.*;
 import com.atypon.nosql.keywordsparser.InvalidKeywordException;
-import com.atypon.nosql.keywordsparser.KeywordsParser;
-import com.atypon.nosql.keywordsparser.SimpleKeywordsParser;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -13,97 +11,62 @@ import com.google.gson.JsonObject;
 import java.util.regex.Pattern;
 
 public class GsonDocumentSchemaGenerator implements DocumentSchemaGenerator<GsonDocument> {
-    private static final Pattern notNullPattern = Pattern.compile("^.+!\\??$");
+    private final Pattern optionalPattern = Pattern.compile("^\\w+(!?\\?|\\?!?)$");
 
-    private static final Pattern optionalPattern = Pattern.compile("^.*\\?!?$");
+    private final Pattern notnullPattern = Pattern.compile("^\\w+(\\??!|!\\??)$");
 
-    private static final Pattern validFieldPattern = Pattern.compile("^[^ .?!]+(\\??!?|!?\\??)$");
-
-    private static final ConstraintKeywordTranslator keywordTranslator = new SimpleConstraintKeywordTranslator();
+    private final StringConstraintsParser stringConstraintsParser = new StringConstraintsParser();
 
     @Override
     public GsonDocumentSchema createSchema(GsonDocument schemaDocument)
             throws InvalidDocumentSchema, InvalidKeywordException
     {
-        return new GsonDocumentSchema(getElementConstraints(schemaDocument.object));
+        JsonObject schemaObject = schemaDocument.object;
+        return GsonDocumentSchema.from(extractConstraintsFromObject(schemaObject));
     }
 
-    private Constraint getConstraints(String field, JsonElement element)
-            throws InvalidDocumentSchema, InvalidKeywordException
+    private Constraints extractConstraintsFromObject(JsonObject object)
+            throws InvalidKeywordException, InvalidDocumentSchema
     {
-        if (!isFieldValid(field)) {
-            throw new InvalidDocumentSchema("Field contains illegal characters");
+        Constraints constraints = Constraints.empty();
+        for (var entry : object.entrySet()) {
+            String field = entry.getKey();
+            JsonElement element = entry.getValue();
+            FieldConstraint fieldConstraint = FieldConstraint
+                    .from(cleanupField(field))
+                    .mustMatch(extractConstraints(element));
+            if (notnullPattern.matcher(field).matches()) {
+                fieldConstraint = fieldConstraint.isNotNull();
+            }
+            if (optionalPattern.matcher(field).matches()) {
+                fieldConstraint = fieldConstraint.isOptional();
+            }
+            constraints.add(fieldConstraint);
         }
-        AllMatchConstraint constraints = AllMatchConstraint.empty();
-        constraints = getFieldConstraints(field, constraints);
-        constraints.add(getElementConstraints(element));
         return constraints;
     }
 
-    private boolean isFieldValid(String field) {
-        return validFieldPattern.matcher(field).matches();
+    private String cleanupField(String field) {
+        return field.replace("!", "").replace("?", "");
     }
 
-    private AllMatchConstraint getFieldConstraints(String field, AllMatchConstraint constraints) {
-        constraints = createOptionalConstraint(constraints, field);
-        constraints = createNotNullConstraint(constraints, field);
-        return constraints;
-    }
-
-    private AllMatchConstraint createOptionalConstraint(AllMatchConstraint constraints, String field) {
-        if (optionalPattern.matcher(field).matches()) {
-            AllMatchConstraint newCurrentConstraints = AllMatchConstraint.empty();
-            constraints.add(
-                    FieldExistsConstraint.contains(field).implies(newCurrentConstraints)
-            );
-            return newCurrentConstraints;
-        }
-        constraints.add(FieldExistsConstraint.contains(field));
-        return constraints;
-    }
-
-    private AllMatchConstraint createNotNullConstraint(AllMatchConstraint constraints, String field) {
-        if (!notNullPattern.matcher(field).matches()) {
-            AllMatchConstraint newCurrentConstraints = AllMatchConstraint.empty();
-            constraints.add(
-                    NotNullConstraint.create().implies(newCurrentConstraints)
-            );
-            return newCurrentConstraints;
-        }
-        constraints.add(NotNullConstraint.create());
-        return constraints;
-    }
-
-    private AllMatchConstraint parseConstraintsString(String constraintString)
-            throws InvalidKeywordException, InvalidDocumentSchema {
-        return AllMatchConstraint.of(keywordTranslator.translate(constraintString));
-    }
-
-    private AllMatchConstraint getElementConstraints(JsonElement element)
-            throws InvalidDocumentSchema, InvalidKeywordException {
-        if (element.isJsonPrimitive()) {
-            return parseConstraintsString(element.getAsString());
+    private Constraint extractConstraints(JsonElement element) throws InvalidDocumentSchema, InvalidKeywordException {
+        if (element.isJsonNull()) {
+            throw new InvalidDocumentSchema("Null not expected in a schema definition");
+        } else if (element.isJsonPrimitive()) {
+            return stringConstraintsParser.extractConstraints(element.getAsString());
         } else if (element.isJsonArray()) {
-            AllMatchConstraint constraint = AllMatchConstraint.of(TypeConstraint.match(JsonArray.class));
-            JsonArray array = element.getAsJsonArray();
-            if (array.isEmpty()) {
-                throw new InvalidDocumentSchema("Expected a constraint inside the array");
-            }
-            constraint.add(
-                    ArrayElementsConstraint.match(getElementConstraints(array.get(0)))
+            return Constraints.of(
+                    TypeConstraint.match(JsonArray.class),
+                    ArrayElementsConstraint.mustMatch(
+                            extractConstraints(element.getAsJsonArray().get(0))
+                    )
             );
-            return constraint;
-        } else if (element.isJsonObject()) {
-            JsonObject object = element.getAsJsonObject();
-            AllMatchConstraint constraint = AllMatchConstraint.empty();
-            for (var entry : object.entrySet()) {
-                constraint.add(
-                        getConstraints(entry.getKey(), entry.getValue())
-                );
-            }
-            return constraint;
         } else {
-            throw new InvalidDocumentSchema("Null is not expected in a schema document");
+            return Constraints.of(
+                    TypeConstraint.match(JsonObject.class),
+                    extractConstraintsFromObject(element.getAsJsonObject())
+            );
         }
     }
 }

@@ -1,13 +1,17 @@
 package com.atypon.nosql.gsondocument;
 
 import com.atypon.nosql.document.DocumentSchema;
-import com.atypon.nosql.gsondocument.constraints.AllMatchConstraint;
+import com.atypon.nosql.gsondocument.constraints.Constraints;
 
 public class GsonDocumentSchema implements DocumentSchema<GsonDocument> {
-    private final AllMatchConstraint constraints;
+    private final Constraints constraints;
 
-    public GsonDocumentSchema(AllMatchConstraint constraints) {
+    public GsonDocumentSchema(Constraints constraints) {
         this.constraints = constraints;
+    }
+
+    public static GsonDocumentSchema from(Constraints constraints) {
+        return new GsonDocumentSchema(constraints);
     }
 
     @Override
