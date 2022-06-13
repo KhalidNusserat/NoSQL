@@ -104,7 +104,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
         collection.deleteAllThatMatches(GsonDocument.fromJsonObject(matchCpeStudents));
         Thread.sleep(100);
         assertEquals(Set.of(john), Set.copyOf(collection.getAll()));
-        assertEquals(1, ExtraFileUtils.countFiles(testDirectory, 1));
+        assertEquals(0, ExtraFileUtils.countFiles(testDirectory, 1));
     }
 
     @Test
