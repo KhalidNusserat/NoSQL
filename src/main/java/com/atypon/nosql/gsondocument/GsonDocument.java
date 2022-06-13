@@ -51,11 +51,6 @@ public class GsonDocument implements Document<JsonElement> {
     }
 
     @Override
-    public String id() {
-        return get("_id").getAsString();
-    }
-
-    @Override
     public JsonElement get(String field) {
         return object.get(field);
     }
@@ -72,6 +67,11 @@ public class GsonDocument implements Document<JsonElement> {
         GsonDocument document = new GsonDocument(this);
         document.object.remove(field);
         return document;
+    }
+
+    @Override
+    public boolean subsetOf(Document<?> matchDocument) {
+        return firstSubsetOfSecond(object, ((GsonDocument) matchDocument).object);
     }
 
     private boolean firstSubsetOfSecond(JsonElement first, JsonElement second) {
@@ -93,36 +93,6 @@ public class GsonDocument implements Document<JsonElement> {
             }
         }
         return true;
-    }
-
-    @Override
-    public boolean subsetOf(Document<?> matchDocument) {
-        return firstSubsetOfSecond(object, ((GsonDocument) matchDocument).object);
-    }
-
-    private boolean firstFieldsSubsetOfSecond(JsonElement first, JsonElement second) {
-        if (first.getClass() != second.getClass()) {
-            return false;
-        }
-        if (first.isJsonArray() || first.isJsonPrimitive() || first.isJsonNull()) {
-            return true;
-        } else {
-            for (var entry : first.getAsJsonObject().entrySet()) {
-                String field = entry.getKey();
-                JsonElement element = entry.getValue();
-                if (!second.getAsJsonObject().has(field)) {
-                    return false;
-                } else if (!firstFieldsSubsetOfSecond(element, second.getAsJsonObject().get(field))) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public boolean fieldsSubsetOf(Document<?> matchDocument) {
-        return firstFieldsSubsetOfSecond(object, ((GsonDocument) matchDocument).object);
     }
 
     private JsonElement valuesToMatch(JsonElement fieldsSource, JsonElement valuesSource)
@@ -157,13 +127,6 @@ public class GsonDocument implements Document<JsonElement> {
         } catch (FieldsDoNotMatchException e) {
             throw new FieldsDoNotMatchException(this, otherDocument);
         }
-    }
-
-    @Override
-    public Document<JsonElement> matchId() {
-        JsonObject matchIdObject = new JsonObject();
-        matchIdObject.addProperty("_id", id());
-        return GsonDocument.fromJsonObject(matchIdObject);
     }
 
     private JsonObject getCriteriaObject(JsonObject object) {

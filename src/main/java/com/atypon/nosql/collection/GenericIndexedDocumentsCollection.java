@@ -16,27 +16,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 public class GenericIndexedDocumentsCollection<T extends Document<?>> implements IndexedDocumentsCollection<T> {
-    private final Path documentsPath;
+    private final IOEngine ioEngine;
 
-    private final Path indexesPath;
+    private final Path documentsPath;
 
     private final GenericDefaultDocumentsCollection<T> documentsCollection;
 
-    private final IOEngine ioEngine;
+    private final DocumentGenerator<T> documentGenerator;
 
     private final GenericDefaultDocumentsCollection<T> indexesCollection;
-
-    private final DocumentGenerator<T> documentGenerator;
 
     private final Map<T, Index<T>> indexes = new ConcurrentHashMap<>();
 
     private final IndexGenerator<T> indexGenerator;
 
+    private final Path indexesPath;
+
     public GenericIndexedDocumentsCollection(
-            Path documentsPath,
+            Path collectionPath,
             DocumentGenerator<T> documentGenerator,
             IndexGenerator<T> indexGenerator,
             IOEngine ioEngine
@@ -44,16 +43,16 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
         this.ioEngine = ioEngine;
         this.documentGenerator = documentGenerator;
         this.indexGenerator = indexGenerator;
-        this.documentsCollection = new GenericDefaultDocumentsCollection<>(ioEngine, documentsPath, documentGenerator);
-        this.documentsPath = documentsPath;
-        indexesPath = documentsPath.resolve("indexes/");
+        documentsPath = collectionPath.resolve("documents/");
+        documentsCollection = new GenericDefaultDocumentsCollection<>(ioEngine, documentsPath, documentGenerator);
+        indexesPath = collectionPath.resolve("indexes/");
         indexesCollection = new GenericDefaultDocumentsCollection<>(
                 ioEngine,
                 indexesPath,
                 documentGenerator
         );
         try {
-            Files.createDirectories(documentsPath.resolve("indexes/"));
+            Files.createDirectories(indexesPath);
             loadIndexes();
             createIdIndex();
         } catch (IOException e) {

@@ -5,8 +5,6 @@ import com.atypon.nosql.gsondocument.FieldsDoNotMatchException;
 import java.util.Map;
 
 public interface Document<E> {
-    String id();
-
     E get(String field);
 
     Document<E> withField(String field, E element);
@@ -15,11 +13,7 @@ public interface Document<E> {
 
     boolean subsetOf(Document<?> matchDocument);
 
-    boolean fieldsSubsetOf(Document<?> matchDocument);
-
     Document<E> getValuesToMatch(Document<?> otherDocument) throws FieldsDoNotMatchException;
-
-    Document<E> matchId();
 
     Document<E> getFields();
 

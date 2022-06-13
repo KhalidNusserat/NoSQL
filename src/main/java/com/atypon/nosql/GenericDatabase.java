@@ -7,13 +7,14 @@ import com.atypon.nosql.index.GenericIndexGenerator;
 import com.atypon.nosql.io.IOEngine;
 import com.atypon.nosql.keywordsparser.InvalidKeywordException;
 import com.atypon.nosql.utils.ExtraFileUtils;
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,7 +26,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
 
     private final IOEngine ioEngine;
 
-    private final Path collectionsDirectory;
+    private final Path databaseDirectory;
 
     private final GenericIndexGenerator<T> indexGenerator = new GenericIndexGenerator<>();
 
@@ -37,18 +38,18 @@ public class GenericDatabase<T extends Document<?>> implements Database {
 
     public GenericDatabase(
             IOEngine ioEngine,
-            Path collectionsDirectory,
+            Path databaseDirectory,
             DocumentGenerator<T> documentGenerator,
             DocumentSchemaGenerator<T> schemaGenerator
     ) {
         this.ioEngine = ioEngine;
-        this.collectionsDirectory = collectionsDirectory;
+        this.databaseDirectory = databaseDirectory;
         this.documentGenerator = documentGenerator;
         this.schemaGenerator = schemaGenerator;
-        createDirectories(collectionsDirectory);
+        createDirectories(databaseDirectory);
         try {
-            Files.walk(collectionsDirectory, 1)
-                    .filter(path -> !path.equals(collectionsDirectory))
+            Files.walk(databaseDirectory, 1)
+                    .filter(path -> !path.equals(databaseDirectory))
                     .forEach(this::loadCollection);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -65,16 +66,26 @@ public class GenericDatabase<T extends Document<?>> implements Database {
         }
     }
 
+    private Path getDocumentsPath(Path collectionDirectory) {
+        return collectionDirectory.resolve("documents/");
+    }
+
+    private Path getIndexesPath(Path collectionDirectory) {
+        return collectionDirectory.resolve("indexes/");
+    }
+
+    private Path getSchemaPath(Path collectionDirectory) {
+        return collectionDirectory.resolve("schema/");
+    }
+
     private void loadCollection(Path collectionDirectory) {
         String collectionName = collectionDirectory.getFileName().toString();
-        Path documentsDirectory = collectionDirectory.resolve("documents/");
-        Path schemaDirectory = collectionDirectory.resolve("schema/");
         try {
-            Optional<DocumentSchema<T>> schema = loadSchema(schemaDirectory);
+            Optional<DocumentSchema<T>> schema = loadSchema(getSchemaPath(collectionDirectory));
             if (schema.isPresent()) {
                 schemas.put(collectionName, schema.get());
                 IndexedDocumentsCollection<T> documentsCollection = GenericIndexedDocumentsCollection.<T>builder()
-                        .setDocumentsPath(documentsDirectory)
+                        .setDocumentsPath(collectionDirectory)
                         .setDocumentGenerator(documentGenerator)
                         .setIndexGenerator(indexGenerator)
                         .setIOEngine(ioEngine)
@@ -98,18 +109,16 @@ public class GenericDatabase<T extends Document<?>> implements Database {
         if (collections.containsKey(collectionName)) {
             throw new CollectionAlreadyExists(collectionName);
         }
-        Path collectionDirectory = collectionsDirectory.resolve(collectionName + "/");
-        Path documentsDirectory = collectionDirectory.resolve("documents/");
-        Path schemaDirectory = collectionDirectory.resolve("schema/");
-        createDirectories(documentsDirectory, schemaDirectory);
+        Path collectionDirectory = databaseDirectory.resolve(collectionName + "/");
+        createDirectories(collectionDirectory, getSchemaPath(collectionDirectory));
         IndexedDocumentsCollection<T> documentsCollection = GenericIndexedDocumentsCollection.<T>builder()
-                .setDocumentsPath(documentsDirectory)
+                .setDocumentsPath(collectionDirectory)
                 .setDocumentGenerator(documentGenerator)
                 .setIndexGenerator(indexGenerator)
                 .setIOEngine(ioEngine)
                 .create();
         collections.put(collectionName, documentsCollection);
-        DocumentSchema<T> documentSchema = createNewSchema(schemaString, schemaDirectory);
+        DocumentSchema<T> documentSchema = createNewSchema(schemaString, getSchemaPath(collectionDirectory));
         schemas.put(collectionName, documentSchema);
     }
 
@@ -129,7 +138,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
     @Override
     public void deleteCollection(String collectionName) throws CollectionNotFoundException {
         checkCollectionExists(collectionName);
-        Path collectionDirectory = collectionsDirectory.resolve(collectionName + "/");
+        Path collectionDirectory = databaseDirectory.resolve(collectionName + "/");
         collections.remove(collectionName);
         directoriesDeletingService.submit(() -> ExtraFileUtils.deleteDirectory(collectionDirectory));
     }
@@ -171,7 +180,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
             throws MultipleFilesMatchedException, IOException, NoSuchDocumentException,
             DocumentSchemaViolationException, CollectionNotFoundException {
         checkCollectionExists(collectionName);
-        T matchId = documentGenerator.createFromString(String.format("{_id: %s}", documentID));
+        T matchId = documentGenerator.createFromString(String.format("{_id: \"%s\"}", documentID));
         T updatedDocument = documentGenerator.createFromString(updatedDocumentString);
         if (schemas.get(collectionName).validate(updatedDocument)) {
             collections.get(collectionName).updateDocument(matchId, updatedDocument);

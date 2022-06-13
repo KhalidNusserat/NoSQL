@@ -26,7 +26,7 @@ public class GenericDefaultDocumentsCollection<T extends Document<?>> implements
     ) {
         this.ioEngine = ioEngine;
         this.documentGenerator = documentGenerator;
-        documentsPath = collectionPath.resolve("documents/");
+        documentsPath = collectionPath;
         try {
             Files.createDirectories(documentsPath);
         } catch (IOException e) {
