@@ -6,6 +6,7 @@ import com.atypon.nosql.document.DocumentGenerator;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -54,9 +55,9 @@ public class SynchronisedIOEngine implements IOEngine {
     }
 
     @Override
-    public <T extends Document<?>> Collection<T> readDirectory(Path directoryPath, DocumentGenerator<T> documentGenerator) {
+    public <T extends Document<?>> List<T> readDirectory(Path directoryPath, DocumentGenerator<T> documentGenerator) {
         lock.readLock().lock();
-        Collection<T> result = ioEngine.readDirectory(directoryPath, documentGenerator);
+        List<T> result = ioEngine.readDirectory(directoryPath, documentGenerator);
         lock.readLock().unlock();
         return result;
     }

@@ -2,6 +2,7 @@ package com.atypon.nosql.io;
 
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentGenerator;
+import com.atypon.nosql.utils.ExtraFileUtils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -94,12 +95,13 @@ public class DefaultIOEngine implements IOEngine {
     }
 
     @Override
-    public <T extends Document<?>> Collection<T> readDirectory(
+    public <T extends Document<?>> List<T> readDirectory(
             Path directoryPath,
             DocumentGenerator<T> documentGenerator
     ) {
         try {
             return Files.walk(directoryPath, 1)
+                    .filter(ExtraFileUtils::isJsonFile)
                     .map(documentPath -> read(documentPath, documentGenerator))
                     .filter(Optional::isPresent)
                     .map(Optional::get)

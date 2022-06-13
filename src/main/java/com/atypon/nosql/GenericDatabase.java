@@ -11,10 +11,7 @@ import com.atypon.nosql.utils.ExtraFileUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -48,7 +45,9 @@ public class GenericDatabase<T extends Document<?>> implements Database {
         this.schemaGenerator = schemaGenerator;
         createDirectories(collectionsDirectory);
         try {
-            Files.walk(collectionsDirectory, 1).forEach(this::loadCollection);
+            Files.walk(collectionsDirectory, 1)
+                    .filter(path -> !path.equals(collectionsDirectory))
+                    .forEach(this::loadCollection);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -69,17 +68,20 @@ public class GenericDatabase<T extends Document<?>> implements Database {
         Path documentsDirectory = collectionDirectory.resolve("documents/");
         Path schemaDirectory = collectionDirectory.resolve("schema/");
         try {
-            schemas.put(collectionName, loadSchema(schemaDirectory));
+            Optional<DocumentSchema<T>> schema = loadSchema(schemaDirectory);
+            if (schema.isPresent()) {
+                schemas.put(collectionName, schema.get());
+                IndexedDocumentsCollection<T> documentsCollection = GenericIndexedDocumentsCollection.<T>builder()
+                        .setDocumentsPath(documentsDirectory)
+                        .setDocumentGenerator(documentGenerator)
+                        .setIndexGenerator(indexGenerator)
+                        .setIOEngine(ioEngine)
+                        .create();
+                collections.put(collectionName, documentsCollection);
+            }
         } catch (InvalidKeywordException | InvalidDocumentSchema e) {
             throw new RuntimeException(e);
         }
-        IndexedDocumentsCollection<T> documentsCollection = GenericIndexedDocumentsCollection.<T>builder()
-                .setDocumentsPath(documentsDirectory)
-                .setDocumentGenerator(documentGenerator)
-                .setIndexGenerator(indexGenerator)
-                .setIOEngine(ioEngine)
-                .create();
-        collections.put(collectionName, documentsCollection);
     }
 
     private void checkCollectionExists(String collectionName) throws CollectionNotFoundException {
@@ -130,9 +132,14 @@ public class GenericDatabase<T extends Document<?>> implements Database {
         directoriesDeletingService.submit(() -> ExtraFileUtils.deleteDirectory(collectionDirectory));
     }
 
-    private DocumentSchema<T> loadSchema(Path schemaDirectory) throws InvalidKeywordException, InvalidDocumentSchema {
-        Optional<T> schemaDocument = ioEngine.read(schemaDirectory, documentGenerator);
-        return schemaGenerator.createSchema(schemaDocument.orElseThrow());
+    private Optional<DocumentSchema<T>> loadSchema(Path schemaDirectory)
+            throws InvalidKeywordException, InvalidDocumentSchema {
+        List<T> directoryContents = ioEngine.readDirectory(schemaDirectory, documentGenerator);
+        if (directoryContents.size() == 1) {
+            return Optional.of(schemaGenerator.createSchema(directoryContents.get(0)));
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -60,7 +61,7 @@ public class CachedIOEngine implements IOEngine {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends Document<?>> Collection<T> readDirectory(
+    public <T extends Document<?>> List<T> readDirectory(
             Path directoryPath,
             DocumentGenerator<T> documentGenerator
     ) {

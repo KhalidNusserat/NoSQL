@@ -6,6 +6,7 @@ import com.atypon.nosql.document.DocumentGenerator;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public interface IOEngine {
@@ -17,5 +18,5 @@ public interface IOEngine {
 
     Path update(Document<?> updatedDocument, Path documentPath) throws IOException;
 
-    <T extends Document<?>> Collection<T> readDirectory(Path directoryPath, DocumentGenerator<T> documentGenerator);
+    <T extends Document<?>> List<T> readDirectory(Path directoryPath, DocumentGenerator<T> documentGenerator);
 }
