@@ -60,7 +60,6 @@ public class CachedIOEngine implements IOEngine {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T extends Document<?>> List<T> readDirectory(
             Path directoryPath,
             DocumentGenerator<T> documentGenerator
@@ -68,7 +67,7 @@ public class CachedIOEngine implements IOEngine {
         try {
             return Files.walk(directoryPath, 1)
                     .filter(ExtraFileUtils::isJsonFile)
-                    .map(path -> (Optional<T>) cache.get(path))
+                    .map(path -> read(path, documentGenerator))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .toList();
