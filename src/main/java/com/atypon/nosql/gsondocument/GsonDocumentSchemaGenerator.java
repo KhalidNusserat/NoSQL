@@ -22,7 +22,7 @@ public class GsonDocumentSchemaGenerator implements DocumentSchemaGenerator<Gson
             throws InvalidDocumentSchema, InvalidKeywordException
     {
         JsonObject schemaObject = schemaDocument.object;
-        return GsonDocumentSchema.from(extractConstraintsFromObject(schemaObject));
+        return new GsonDocumentSchema(extractConstraintsFromObject(schemaObject), schemaDocument);
     }
 
     private Constraints extractConstraintsFromObject(JsonObject object)
