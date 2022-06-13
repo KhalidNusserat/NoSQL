@@ -70,8 +70,8 @@ public abstract class IOEngineTest {
         IOEngine io = create();
         Path filepath = io.write(khalid, testDirectory);
         io.delete(filepath);
-        Thread.sleep(200);
-        assertEquals(1, Files.walk(testDirectory).toList().size());
+        Thread.sleep(50);
+        assertEquals(0, ExtraFileUtils.countFiles(testDirectory, 1));
     }
 
     @Test
@@ -79,8 +79,8 @@ public abstract class IOEngineTest {
         IOEngine io = create();
         Path filepath = io.write(john, testDirectory);
         filepath = io.update(khalid, filepath);
-        Thread.sleep(200);
         assertEquals(khalid, io.read(filepath, documentGenerator).orElseThrow());
+        Thread.sleep(50);
         assertEquals(1, ExtraFileUtils.countFiles(testDirectory, 1));
     }
 }

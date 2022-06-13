@@ -8,15 +8,15 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class DefaultIOEngine implements IOEngine {
     private final ExecutorService deleteService = Executors.newCachedThreadPool();
+
+    private final Set<Path> uncommittedFiles = new HashSet<>();
 
     private final Random random = new Random();
 
@@ -26,11 +26,19 @@ public class DefaultIOEngine implements IOEngine {
 
     @Override
     public Path write(Document<?> document, Path directoryPath) throws IOException {
-        Path filepath = directoryPath.resolve(random.nextLong() + ".json");
-        try (BufferedWriter writer = Files.newBufferedWriter(filepath)) {
+        Path documentPath = getNewDocumentPath(directoryPath);
+        writeAtPath(document, documentPath);
+        return documentPath;
+    }
+
+    private Path getNewDocumentPath(Path directoryPath) {
+        return directoryPath.resolve(random.nextLong() + ".json");
+    }
+
+    private void writeAtPath(Document<?> document, Path documentPath) throws IOException {
+        try (BufferedWriter writer = Files.newBufferedWriter(documentPath)) {
             writer.write(document.toString());
         }
-        return filepath;
     }
 
     @Override
@@ -39,10 +47,21 @@ public class DefaultIOEngine implements IOEngine {
     }
 
     @Override
-    public Path update(Document<?> newDocument, Path documentPath) throws IOException {
-        Path newFilepath = write(newDocument, documentPath.getParent());
+    public Path update(Document<?> updatedDocument, Path documentPath) throws IOException {
+        Path updatedDocumentPath = getNewDocumentPath(documentPath.getParent());
+        add(updatedDocumentPath);
+        writeAtPath(updatedDocument, updatedDocumentPath);
+        commit(updatedDocumentPath);
         delete(documentPath);
-        return newFilepath;
+        return updatedDocumentPath;
+    }
+
+    private void add(Path path) {
+        uncommittedFiles.add(path);
+    }
+
+    private void commit(Path path) {
+        uncommittedFiles.remove(path);
     }
 
     private <T extends Document<?>> Optional<T> read(
@@ -68,6 +87,9 @@ public class DefaultIOEngine implements IOEngine {
 
     @Override
     public <T extends Document<?>> Optional<T> read(Path documentPath, DocumentGenerator<T> documentGenerator) {
+        if (uncommittedFiles.contains(documentPath)) {
+            return Optional.empty();
+        }
         return read(documentPath, documentGenerator, ATTEMPTS);
     }
 
