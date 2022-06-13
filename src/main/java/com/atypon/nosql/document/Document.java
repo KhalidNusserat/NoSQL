@@ -20,4 +20,6 @@ public interface Document<E> {
     Document<E> matchId();
 
     Document<E> getFields();
+
+    String toString();
 }
