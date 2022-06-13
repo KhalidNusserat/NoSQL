@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -176,6 +177,13 @@ public class GenericDatabase<T extends Document<?>> implements Database {
         checkCollectionExists(collectionName);
         T matchDocument = documentGenerator.createFromString(matchDocumentString);
         collections.get(collectionName).deleteAllThatMatches(matchDocument);
+    }
+
+    @Override
+    public Collection<String> getCollectionIndexes(String collectionName)
+            throws CollectionNotFoundException {
+        checkCollectionExists(collectionName);
+        return collections.get(collectionName).getIndexes().stream().map(Objects::toString).toList();
     }
 
     @Override

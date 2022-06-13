@@ -29,6 +29,8 @@ public interface Database {
     void deleteDocuments(String collectionName, String matchDocumentString)
             throws FieldsDoNotMatchException, IOException, CollectionNotFoundException;
 
+    Collection<String> getCollectionIndexes(String collectionName) throws CollectionNotFoundException, IOException;
+
     void createIndex(String collectionName, String indexDocumentString)
             throws IOException, CollectionNotFoundException;
 
