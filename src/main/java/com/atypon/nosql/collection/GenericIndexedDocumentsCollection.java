@@ -172,15 +172,15 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
     }
 
     @Override
-    public Path updateDocument(T oldDocument, T updatedDocument)
+    public Path updateDocument(T documentCriteria, T updatedDocument)
             throws NoSuchDocumentException, MultipleFilesMatchedException, IOException {
-        List<Path> matchingDocumentsPath = getMatchingDocumentPath(oldDocument);
+        List<Path> matchingDocumentsPath = getMatchingDocumentPath(documentCriteria);
         if (matchingDocumentsPath.size() > 1) {
             throw new MultipleFilesMatchedException(matchingDocumentsPath.size());
         } else if (matchingDocumentsPath.size() == 0) {
-            throw new NoSuchDocumentException(oldDocument);
+            throw new NoSuchDocumentException(documentCriteria);
         } else {
-            Path updatedDocumentPath = documentsCollection.updateDocument(oldDocument, updatedDocument);
+            Path updatedDocumentPath = documentsCollection.updateDocument(documentCriteria, updatedDocument);
             updateAllIndexes(updatedDocument, updatedDocumentPath);
             return updatedDocumentPath;
         }

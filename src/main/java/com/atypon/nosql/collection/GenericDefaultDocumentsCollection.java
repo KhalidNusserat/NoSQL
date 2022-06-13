@@ -87,16 +87,16 @@ public class GenericDefaultDocumentsCollection<T extends Document<?>> implements
     }
 
     @Override
-    public Path updateDocument(T oldDocument, T updatedDocument)
+    public Path updateDocument(T documentCriteria, T updatedDocument)
             throws NoSuchDocumentException, MultipleFilesMatchedException, IOException
     {
-        List<Path> matchingDocumentsPaths = getPathsThatMatch(oldDocument);
+        List<Path> matchingDocumentsPaths = getPathsThatMatch(documentCriteria);
         if (matchingDocumentsPaths.size() > 1) {
             throw new MultipleFilesMatchedException(matchingDocumentsPaths.size());
         } else if (matchingDocumentsPaths.size() == 0) {
-            throw new NoSuchDocumentException(oldDocument);
+            throw new NoSuchDocumentException(documentCriteria);
         } else {
-            return ioEngine.update(oldDocument, matchingDocumentsPaths.get(0));
+            return ioEngine.update(documentCriteria, matchingDocumentsPaths.get(0));
         }
     }
 

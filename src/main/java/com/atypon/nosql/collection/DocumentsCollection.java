@@ -14,7 +14,8 @@ public interface DocumentsCollection<T extends Document<?>> {
 
     Path addDocument(T document) throws IOException;
 
-    Path updateDocument(T oldDocument, T updatedDocument) throws NoSuchDocumentException, MultipleFilesMatchedException, IOException;
+    Path updateDocument(T documentCriteria, T updatedDocument)
+            throws NoSuchDocumentException, MultipleFilesMatchedException, IOException;
 
     void deleteAllThatMatches(T matchDocument) throws IOException, FieldsDoNotMatchException;
 
