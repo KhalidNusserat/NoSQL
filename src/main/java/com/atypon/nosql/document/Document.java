@@ -2,6 +2,8 @@ package com.atypon.nosql.document;
 
 import com.atypon.nosql.gsondocument.FieldsDoNotMatchException;
 
+import java.util.Map;
+
 public interface Document<E> {
     String id();
 
@@ -22,4 +24,6 @@ public interface Document<E> {
     Document<E> getFields();
 
     String toString();
+
+    Map<String, Object> getAsMap();
 }

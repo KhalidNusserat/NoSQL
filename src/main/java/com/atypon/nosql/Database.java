@@ -9,12 +9,13 @@ import com.atypon.nosql.keywordsparser.InvalidKeywordException;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 
 public interface Database {
     void createCollection(String collectionName, String schemaString)
             throws InvalidKeywordException, InvalidDocumentSchema, CollectionAlreadyExists;
 
-    void removeCollection(String collectionName) throws CollectionNotFoundException;
+    void deleteCollection(String collectionName) throws CollectionNotFoundException;
 
     void addDocument(String collectionName, String documentString)
             throws IOException, DocumentSchemaViolationException, CollectionNotFoundException;
@@ -23,13 +24,14 @@ public interface Database {
             throws MultipleFilesMatchedException, IOException, NoSuchDocumentException,
             DocumentSchemaViolationException, CollectionNotFoundException;
 
-    Collection<String> readDocuments(String collectionName, String matchDocumentString)
+    Collection<Map<String, Object>> readDocuments(String collectionName, String matchDocumentString)
             throws FieldsDoNotMatchException, IOException, CollectionNotFoundException;
 
     void deleteDocuments(String collectionName, String matchDocumentString)
             throws FieldsDoNotMatchException, IOException, CollectionNotFoundException;
 
-    Collection<String> getCollectionIndexes(String collectionName) throws CollectionNotFoundException, IOException;
+    Collection<Map<String, Object>> getCollectionIndexes(String collectionName)
+            throws CollectionNotFoundException, IOException;
 
     void createIndex(String collectionName, String indexDocumentString)
             throws IOException, CollectionNotFoundException;
@@ -38,4 +40,6 @@ public interface Database {
             throws CollectionNotFoundException, NoSuchIndexException;
 
     Collection<String> getCollectionsNames();
+
+    Map<String, Object> getCollectionSchema(String collectionName) throws CollectionNotFoundException;
 }

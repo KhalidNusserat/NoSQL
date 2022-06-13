@@ -3,17 +3,22 @@ package com.atypon.nosql.gsondocument;
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.ObjectIdGenerator;
 import com.atypon.nosql.document.RandomObjectIdGenerator;
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
+import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.Objects;
 
 public class GsonDocument implements Document<JsonElement> {
+    final JsonObject object;
+
     private final static Gson gson = new Gson();
 
-    final JsonObject object;
+    private final static Type mapType = new TypeToken<Map<String, Object>>(){}.getType();
 
     private GsonDocument(GsonDocument other) {
         object = other.object.deepCopy();
@@ -196,6 +201,11 @@ public class GsonDocument implements Document<JsonElement> {
     @Override
     public String toString() {
         return object.toString();
+    }
+
+    @Override
+    public Map<String, Object> getAsMap() {
+        return gson.fromJson(object, mapType);
     }
 
     public static class GsonDocumentBuilder {

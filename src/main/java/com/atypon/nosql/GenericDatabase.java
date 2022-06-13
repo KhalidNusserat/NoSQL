@@ -7,6 +7,8 @@ import com.atypon.nosql.index.GenericIndexGenerator;
 import com.atypon.nosql.io.IOEngine;
 import com.atypon.nosql.keywordsparser.InvalidKeywordException;
 import com.atypon.nosql.utils.ExtraFileUtils;
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -125,7 +127,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
     }
 
     @Override
-    public void removeCollection(String collectionName) throws CollectionNotFoundException {
+    public void deleteCollection(String collectionName) throws CollectionNotFoundException {
         checkCollectionExists(collectionName);
         Path collectionDirectory = collectionsDirectory.resolve(collectionName + "/");
         collections.remove(collectionName);
@@ -155,12 +157,12 @@ public class GenericDatabase<T extends Document<?>> implements Database {
     }
 
     @Override
-    public Collection<String> readDocuments(String collectionName, String matchDocumentString)
+    public Collection<Map<String, Object>> readDocuments(String collectionName, String matchDocumentString)
             throws FieldsDoNotMatchException, IOException, CollectionNotFoundException {
         checkCollectionExists(collectionName);
         T matchDocument = documentGenerator.createFromString(matchDocumentString);
         return collections.get(collectionName).getAllThatMatches(matchDocument).stream()
-                .map(Document::toString)
+                .map(Document::getAsMap)
                 .toList();
     }
 
@@ -187,10 +189,12 @@ public class GenericDatabase<T extends Document<?>> implements Database {
     }
 
     @Override
-    public Collection<String> getCollectionIndexes(String collectionName)
+    public Collection<Map<String, Object>> getCollectionIndexes(String collectionName)
             throws CollectionNotFoundException {
         checkCollectionExists(collectionName);
-        return collections.get(collectionName).getIndexes().stream().map(Objects::toString).toList();
+        return collections.get(collectionName).getIndexes().stream()
+                .map(Document::getAsMap).
+                toList();
     }
 
     @Override
@@ -212,5 +216,11 @@ public class GenericDatabase<T extends Document<?>> implements Database {
     @Override
     public Collection<String> getCollectionsNames() {
         return collections.keySet();
+    }
+
+    @Override
+    public Map<String, Object> getCollectionSchema(String collectionName) throws CollectionNotFoundException {
+        checkCollectionExists(collectionName);
+        return schemas.get(collectionName).getAsDocument().getAsMap();
     }
 }
