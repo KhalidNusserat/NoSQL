@@ -44,3 +44,26 @@ secondary nodes and then balancing the requests between these replicas.
 
 - We are also required to create a demo application to demonstrate our
 final product.
+
+## Overview of the design
+
+The documents in the database are stored following this hierarchy:
+
+![](C:\Users\Khalid\IdeaProjects\NoSQL\report\diagrams\documentsHierarchy.svg)
+
+The database is composed of a number of *collections*, each of which contains a
+varying, non-limited number of *documents*, which are JSON files that contain the
+user stored data.
+
+Each collection is only allowed to store documents that adhere to the same *scehma*,
+which defines the structure of the document.
+
+In my design, I opted to abstract away as much as possible the implementation of the
+document from the rest of the system, to avoid making the implementation of document
+and the rest of the system tightly coupled. This was done by introducing the interface
+``Document``, which defines the functionalities that any document class must have,
+such as the ability to access a specific field and such.
+
+The rest of the implementation depends on this interface rather than on a concrete
+implementation, therefore any future changes would not require us to change other
+parts of the implementation.
