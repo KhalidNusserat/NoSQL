@@ -3,7 +3,6 @@ package com.atypon.nosql.database.gsondocument;
 import com.atypon.nosql.database.document.DocumentSchemaGenerator;
 import com.atypon.nosql.database.document.InvalidDocumentSchema;
 import com.atypon.nosql.database.gsondocument.constraints.*;
-import com.atypon.nosql.database.keywordsparser.InvalidKeywordException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -18,16 +17,13 @@ public class GsonDocumentSchemaGenerator implements DocumentSchemaGenerator<Gson
     private final StringConstraintsParser stringConstraintsParser = new StringConstraintsParser();
 
     @Override
-    public GsonDocumentSchema createSchema(GsonDocument schemaDocument)
-            throws InvalidDocumentSchema, InvalidKeywordException
+    public GsonDocumentSchema createSchema(GsonDocument schemaDocument) throws InvalidDocumentSchema
     {
         JsonObject schemaObject = schemaDocument.object;
         return new GsonDocumentSchema(extractConstraintsFromObject(schemaObject), schemaDocument);
     }
 
-    private Constraints extractConstraintsFromObject(JsonObject object)
-            throws InvalidKeywordException, InvalidDocumentSchema
-    {
+    private Constraints extractConstraintsFromObject(JsonObject object) throws InvalidDocumentSchema {
         Constraints constraints = Constraints.empty();
         for (var entry : object.entrySet()) {
             String field = entry.getKey();
@@ -50,7 +46,7 @@ public class GsonDocumentSchemaGenerator implements DocumentSchemaGenerator<Gson
         return field.replace("!", "").replace("?", "");
     }
 
-    private Constraint extractConstraints(JsonElement element) throws InvalidDocumentSchema, InvalidKeywordException {
+    private Constraint extractConstraints(JsonElement element) throws InvalidDocumentSchema {
         if (element.isJsonNull()) {
             throw new InvalidDocumentSchema("Null not expected in a schema definition");
         } else if (element.isJsonPrimitive()) {

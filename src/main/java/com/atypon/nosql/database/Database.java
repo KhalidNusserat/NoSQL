@@ -5,7 +5,6 @@ import com.atypon.nosql.database.collection.NoSuchDocumentException;
 import com.atypon.nosql.database.collection.NoSuchIndexException;
 import com.atypon.nosql.database.document.InvalidDocumentSchema;
 import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
-import com.atypon.nosql.database.keywordsparser.InvalidKeywordException;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -13,7 +12,7 @@ import java.util.Map;
 
 public interface Database {
     void createCollection(String collectionName, String schemaString)
-            throws InvalidKeywordException, InvalidDocumentSchema, CollectionAlreadyExists;
+            throws InvalidDocumentSchema, CollectionAlreadyExists;
 
     void deleteCollection(String collectionName) throws CollectionNotFoundException;
 

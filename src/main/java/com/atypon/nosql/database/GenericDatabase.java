@@ -5,7 +5,6 @@ import com.atypon.nosql.database.document.*;
 import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.database.index.GenericIndexGenerator;
 import com.atypon.nosql.database.io.IOEngine;
-import com.atypon.nosql.database.keywordsparser.InvalidKeywordException;
 import com.atypon.nosql.database.utils.ExtraFileUtils;
 
 import java.io.IOException;
@@ -92,7 +91,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
                         .create();
                 collections.put(collectionName, documentsCollection);
             }
-        } catch (InvalidKeywordException | InvalidDocumentSchema e) {
+        } catch (InvalidDocumentSchema e) {
             throw new RuntimeException(e);
         }
     }
@@ -105,7 +104,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
 
     @Override
     public void createCollection(String collectionName, String schemaString)
-            throws InvalidKeywordException, InvalidDocumentSchema, CollectionAlreadyExists {
+            throws InvalidDocumentSchema, CollectionAlreadyExists {
         if (collections.containsKey(collectionName)) {
             throw new CollectionAlreadyExists(collectionName);
         }
@@ -123,8 +122,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
     }
 
     private DocumentSchema<T> createNewSchema(String schemaDocumentString, Path schemaDirectory)
-            throws InvalidKeywordException, InvalidDocumentSchema
-    {
+            throws InvalidDocumentSchema {
         T schemaDocument = documentGenerator.createFromString(schemaDocumentString);
         DocumentSchema<T> documentSchema = schemaGenerator.createSchema(schemaDocument);
         try {
@@ -144,7 +142,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
     }
 
     private Optional<DocumentSchema<T>> loadSchema(Path schemaDirectory)
-            throws InvalidKeywordException, InvalidDocumentSchema {
+            throws InvalidDocumentSchema {
         List<T> directoryContents = ioEngine.readDirectory(schemaDirectory, documentGenerator);
         if (directoryContents.size() == 1) {
             return Optional.of(schemaGenerator.createSchema(directoryContents.get(0)));

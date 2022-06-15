@@ -10,7 +10,6 @@ import com.atypon.nosql.database.collection.NoSuchIndexException;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.InvalidDocumentSchema;
 import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
-import com.atypon.nosql.database.keywordsparser.InvalidKeywordException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,7 +38,7 @@ public class DatabaseRestController<T extends Document<?>> {
         try {
             database.createCollection(collectionName, schemaString);
             return ResponseEntity.ok().body("Created collection successfully: " + collectionName);
-        } catch (InvalidKeywordException | InvalidDocumentSchema | CollectionAlreadyExists e) {
+        } catch (InvalidDocumentSchema | CollectionAlreadyExists e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
