@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class DefaultIOEngine<T extends Document<?>> implements IOEngine<T> {
+public class DefaultIOEngine<T extends Document> implements IOEngine<T> {
     private final ExecutorService deleteService = Executors.newCachedThreadPool();
 
     private final Set<Path> uncommittedFiles = new HashSet<>();

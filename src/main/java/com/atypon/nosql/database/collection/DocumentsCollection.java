@@ -1,13 +1,11 @@
 package com.atypon.nosql.database.collection;
 
 import com.atypon.nosql.database.document.Document;
-import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 
-public interface DocumentsCollection<T extends Document<?>> {
+public interface DocumentsCollection<T extends Document> {
     boolean contains(T matchDocument);
 
     Collection<T> getAllThatMatches(T matchDocument);

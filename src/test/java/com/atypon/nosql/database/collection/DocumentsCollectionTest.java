@@ -42,7 +42,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
 
     protected final GsonDocument john = Person.newPerson("John", 42, "CIS");
 
-    protected final DefaultIOEngine ioEngine = new DefaultIOEngine();
+    protected final DefaultIOEngine<GsonDocument> ioEngine = new DefaultIOEngine<>();
 
     protected final ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
 
@@ -61,7 +61,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
     }
 
     @Test
-    void putAndGet() throws IOException, FieldsDoNotMatchException {
+    void putAndGet() throws FieldsDoNotMatchException {
         T collection = create();
         collection.addDocument(khalid);
         collection.addDocument(hamza);
@@ -74,7 +74,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
     }
 
     @Test
-    void remove() throws IOException, InterruptedException, FieldsDoNotMatchException {
+    void remove() throws InterruptedException, FieldsDoNotMatchException {
         T collection = create();
         collection.addDocument(khalid);
         collection.addDocument(hamza);
@@ -87,7 +87,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
     }
 
     @Test
-    void getAll() throws IOException {
+    void getAll() {
         T collection = create();
         collection.addDocument(khalid);
         collection.addDocument(hamza);

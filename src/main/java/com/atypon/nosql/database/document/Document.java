@@ -2,18 +2,12 @@ package com.atypon.nosql.database.document;
 
 import java.util.Map;
 
-public interface Document<E> {
-    E get(String field);
+public interface Document {
+    boolean subsetOf(Document matchDocument);
 
-    Document<E> withField(String field, E element);
+    Document getValuesToMatch(Document otherDocument);
 
-    Document<E> withoutField(String field);
-
-    boolean subsetOf(Document<?> matchDocument);
-
-    Document<E> getValuesToMatch(Document<?> otherDocument);
-
-    Document<E> getFields();
+    Document getFields();
 
     String toString();
 

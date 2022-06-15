@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class GenericIndexedDocumentsCollection<T extends Document<?>> implements IndexedDocumentsCollection<T> {
+public class GenericIndexedDocumentsCollection<T extends Document> implements IndexedDocumentsCollection<T> {
     private final IOEngine<T> ioEngine;
 
     private final Path documentsPath;
@@ -34,7 +34,7 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
 
     private final Path indexesPath;
 
-    public GenericIndexedDocumentsCollection(
+    private GenericIndexedDocumentsCollection(
             Path collectionPath,
             DocumentGenerator<T> documentGenerator,
             IndexGenerator<T> indexGenerator,
@@ -64,7 +64,7 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
         }
     }
 
-    public static <T extends Document<?>> GenericIndexedDocumentsCollectionBuilder<T> builder() {
+    public static <T extends Document> GenericIndexedDocumentsCollectionBuilder<T> builder() {
         return new GenericIndexedDocumentsCollectionBuilder<>();
     }
 
@@ -220,7 +220,7 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
         return documentsCollection.getAll();
     }
 
-    public static class GenericIndexedDocumentsCollectionBuilder<T extends Document<?>> {
+    public static class GenericIndexedDocumentsCollectionBuilder<T extends Document> {
         private Path documentsPath;
 
         private DocumentGenerator<T> documentGenerator;
@@ -250,7 +250,7 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
             return this;
         }
 
-        public GenericIndexedDocumentsCollection<T> create() {
+        public GenericIndexedDocumentsCollection<T> build() {
             return new GenericIndexedDocumentsCollection<>(
                     documentsPath,
                     documentGenerator,

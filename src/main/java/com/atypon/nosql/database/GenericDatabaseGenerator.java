@@ -7,7 +7,7 @@ import com.atypon.nosql.database.io.IOEngine;
 
 import java.nio.file.Path;
 
-public class GenericDatabaseGenerator<T extends Document<?>> implements DatabaseGenerator {
+public class GenericDatabaseGenerator<T extends Document> implements DatabaseGenerator {
     private final IOEngine<T> ioEngine;
 
     private final DocumentGenerator<T> documentGenerator;
@@ -23,7 +23,7 @@ public class GenericDatabaseGenerator<T extends Document<?>> implements Database
         this.schemaGenerator = schemaGenerator;
     }
 
-    public static <T extends Document<?>> GenericDatabaseGeneratorBuilder<T> builder() {
+    public static <T extends Document> GenericDatabaseGeneratorBuilder<T> builder() {
         return new GenericDatabaseGeneratorBuilder<>();
     }
 
@@ -37,14 +37,12 @@ public class GenericDatabaseGenerator<T extends Document<?>> implements Database
                 .build();
     }
 
-    public static class GenericDatabaseGeneratorBuilder<T extends Document<?>> {
+    public static class GenericDatabaseGeneratorBuilder<T extends Document> {
         private IOEngine<T> ioEngine;
 
         private DocumentGenerator<T> documentGenerator;
 
         private DocumentSchemaGenerator<T> schemaGenerator;
-
-        private Path databasesDirectory;
 
         public GenericDatabaseGeneratorBuilder<T> setIoEngine(IOEngine<T> ioEngine) {
             this.ioEngine = ioEngine;

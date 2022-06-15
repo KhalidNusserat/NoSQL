@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public class GenericBasicDocumentsCollection<T extends Document<?>> implements DocumentsCollection<T> {
+public class GenericBasicDocumentsCollection<T extends Document> implements DocumentsCollection<T> {
     private final IOEngine<T> ioEngine;
 
     private final Path documentsPath;
@@ -36,7 +36,7 @@ public class GenericBasicDocumentsCollection<T extends Document<?>> implements D
         }
     }
 
-    public static <T extends Document<?>> GenericBasicDocumentsCollectionBuilder<T> builder() {
+    public static <T extends Document> GenericBasicDocumentsCollectionBuilder<T> builder() {
         return new GenericBasicDocumentsCollectionBuilder<>();
     }
 
@@ -99,7 +99,7 @@ public class GenericBasicDocumentsCollection<T extends Document<?>> implements D
         return paths.size();
     }
 
-    public static class GenericBasicDocumentsCollectionBuilder<T extends Document<?>> {
+    public static class GenericBasicDocumentsCollectionBuilder<T extends Document> {
         private IOEngine<T> ioEngine = new DefaultIOEngine<>();
 
         private Path documentsPath;

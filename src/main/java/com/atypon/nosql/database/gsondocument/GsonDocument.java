@@ -1,8 +1,6 @@
 package com.atypon.nosql.database.gsondocument;
 
 import com.atypon.nosql.database.document.Document;
-import com.atypon.nosql.database.document.ObjectIdGenerator;
-import com.atypon.nosql.database.document.RandomObjectIdGenerator;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -13,7 +11,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Objects;
 
-public class GsonDocument implements Document<JsonElement> {
+public class GsonDocument implements Document {
     private final static Gson gson = new Gson();
 
     private final static Type mapType = new TypeToken<Map<String, Object>>() {
@@ -21,13 +19,7 @@ public class GsonDocument implements Document<JsonElement> {
 
     final JsonObject object;
 
-    private GsonDocument(GsonDocument other) {
-        object = other.object.deepCopy();
-        ObjectIdGenerator objectIDGenerator = new RandomObjectIdGenerator();
-        object.addProperty("_id", objectIDGenerator.getNewId());
-    }
-
-    public GsonDocument(JsonObject object) {
+    private GsonDocument(JsonObject object) {
         this.object = object.deepCopy();
     }
 
@@ -40,26 +32,7 @@ public class GsonDocument implements Document<JsonElement> {
     }
 
     @Override
-    public JsonElement get(String field) {
-        return object.get(field);
-    }
-
-    @Override
-    public Document<JsonElement> withField(String field, JsonElement element) {
-        GsonDocument document = new GsonDocument(this);
-        document.object.add(field, element);
-        return document;
-    }
-
-    @Override
-    public Document<JsonElement> withoutField(String field) {
-        GsonDocument document = new GsonDocument(this);
-        document.object.remove(field);
-        return document;
-    }
-
-    @Override
-    public boolean subsetOf(Document<?> matchDocument) {
+    public boolean subsetOf(Document matchDocument) {
         return firstSubsetOfSecond(object, ((GsonDocument) matchDocument).object);
     }
 
@@ -69,16 +42,15 @@ public class GsonDocument implements Document<JsonElement> {
         }
         if (first.isJsonArray() || first.isJsonPrimitive() || first.isJsonNull()) {
             return first.equals(second);
-        } else {
-            for (var entry : first.getAsJsonObject().entrySet()) {
-                String field = entry.getKey();
-                JsonElement element = entry.getValue();
-                if (!second.getAsJsonObject().has(field)) {
-                    return false;
-                }
-                if (!firstSubsetOfSecond(element, second.getAsJsonObject().get(field))) {
-                    return false;
-                }
+        }
+        for (var entry : first.getAsJsonObject().entrySet()) {
+            String field = entry.getKey();
+            JsonElement element = entry.getValue();
+            if (!second.getAsJsonObject().has(field)) {
+                return false;
+            }
+            if (!firstSubsetOfSecond(element, second.getAsJsonObject().get(field))) {
+                return false;
             }
         }
         return true;
@@ -87,27 +59,26 @@ public class GsonDocument implements Document<JsonElement> {
     private JsonElement valuesToMatch(JsonElement fieldsSource, JsonElement valuesSource) {
         if (fieldsSource.isJsonArray() || fieldsSource.isJsonPrimitive() || fieldsSource.isJsonNull()) {
             return valuesSource;
-        } else {
-            if (!valuesSource.isJsonObject()) {
+        }
+        if (!valuesSource.isJsonObject()) {
+            throw new FieldsDoNotMatchException();
+        }
+        JsonObject result = new JsonObject();
+        for (var entry : fieldsSource.getAsJsonObject().entrySet()) {
+            String field = entry.getKey();
+            JsonElement element = entry.getValue();
+            if (!valuesSource.getAsJsonObject().has(field)) {
                 throw new FieldsDoNotMatchException();
             }
-            JsonObject result = new JsonObject();
-            for (var entry : fieldsSource.getAsJsonObject().entrySet()) {
-                String field = entry.getKey();
-                JsonElement element = entry.getValue();
-                if (!valuesSource.getAsJsonObject().has(field)) {
-                    throw new FieldsDoNotMatchException();
-                }
-                JsonElement matchedFields = valuesToMatch(element, valuesSource.getAsJsonObject().get(field));
-                result.add(field, matchedFields);
-                return result;
-            }
+            JsonElement matchedFields = valuesToMatch(element, valuesSource.getAsJsonObject().get(field));
+            result.add(field, matchedFields);
+            return result;
         }
         throw new IllegalStateException();
     }
 
     @Override
-    public Document<JsonElement> getValuesToMatch(Document<?> otherDocument) {
+    public Document getValuesToMatch(Document otherDocument) {
         try {
             JsonObject otherDocumentObject = ((GsonDocument) otherDocument).object;
             JsonObject matchedObject = valuesToMatch(otherDocumentObject, object).getAsJsonObject();
@@ -132,7 +103,7 @@ public class GsonDocument implements Document<JsonElement> {
     }
 
     @Override
-    public Document<JsonElement> getFields() {
+    public Document getFields() {
         return GsonDocument.fromJsonObject(getCriteriaObject(object));
     }
 

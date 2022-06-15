@@ -8,21 +8,18 @@ import com.atypon.nosql.database.utils.ExtraFileUtils;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class CachedIOEngine<T extends Document<?>> implements IOEngine<T> {
+public class CachedIOEngine<T extends Document> implements IOEngine<T> {
     private final IOEngine<T> ioEngine;
 
     private final Cache<Path, T> cache;
-
-    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     private CachedIOEngine(IOEngine<T> ioEngine, Cache<Path, T> cache) {
         this.ioEngine = ioEngine;
         this.cache = cache;
     }
 
-    public static <T extends Document<?>> CachedIOEngine<T> from(IOEngine<T> IOEngine, Cache<Path, T> cache) {
+    public static <T extends Document> CachedIOEngine<T> from(IOEngine<T> IOEngine, Cache<Path, T> cache) {
         return new CachedIOEngine<>(IOEngine, cache);
     }
 

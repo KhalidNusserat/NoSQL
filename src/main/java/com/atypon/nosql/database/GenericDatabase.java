@@ -1,8 +1,8 @@
 package com.atypon.nosql.database;
 
-import com.atypon.nosql.database.collection.*;
+import com.atypon.nosql.database.collection.GenericIndexedDocumentsCollection;
+import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
 import com.atypon.nosql.database.document.*;
-import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.database.index.GenericIndexGenerator;
 import com.atypon.nosql.database.io.IOEngine;
 import com.atypon.nosql.database.utils.ExtraFileUtils;
@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class GenericDatabase<T extends Document<?>> implements Database {
+public class GenericDatabase<T extends Document> implements Database {
     private final Map<String, IndexedDocumentsCollection<T>> collections = new ConcurrentHashMap<>();
 
     private final Map<String, DocumentSchema<T>> schemas = new ConcurrentHashMap<>();
@@ -52,7 +52,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
                 .forEach(this::loadCollection);
     }
 
-    public static <T extends Document<?>> GenericDatabaseBuilder<T> builder() {
+    public static <T extends Document> GenericDatabaseBuilder<T> builder() {
         return new GenericDatabaseBuilder<>();
     }
 
@@ -81,7 +81,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
                         .setDocumentGenerator(documentGenerator)
                         .setIndexGenerator(indexGenerator)
                         .setIOEngine(ioEngine)
-                        .create();
+                        .build();
                 collections.put(collectionName, documentsCollection);
             }
         } catch (InvalidDocumentSchema e) {
@@ -107,7 +107,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
                 .setDocumentGenerator(documentGenerator)
                 .setIndexGenerator(indexGenerator)
                 .setIOEngine(ioEngine)
-                .create();
+                .build();
         collections.put(collectionName, documentsCollection);
         DocumentSchema<T> documentSchema = createNewSchema(schemaString, getSchemaPath(collectionDirectory));
         schemas.put(collectionName, documentSchema);
@@ -218,7 +218,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
         }
     }
 
-    public static class GenericDatabaseBuilder<T extends Document<?>> {
+    public static class GenericDatabaseBuilder<T extends Document> {
         private Path databaseDirectory;
 
         private IOEngine<T> ioEngine;

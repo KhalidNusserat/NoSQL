@@ -6,11 +6,11 @@ import com.atypon.nosql.database.io.IOEngine;
 
 import java.nio.file.Path;
 
-public interface IndexGenerator<T extends Document<?>> {
+public interface IndexGenerator<T extends Document> {
     Index<T> createNewIndex(
             T fieldsDocument,
             Path indexPath,
-            IOEngine ioEngine,
+            IOEngine<T> ioEngine,
             DocumentGenerator<T> documentGenerator
     );
 }

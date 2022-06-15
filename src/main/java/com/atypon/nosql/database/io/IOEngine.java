@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-public interface IOEngine<T extends Document<?>> {
+public interface IOEngine<T extends Document> {
     Path write(T document, Path directory);
 
     Optional<T> read(Path documentPath, DocumentGenerator<T> documentGenerator);

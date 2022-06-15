@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class SynchronisedIOEngine<T extends Document<?>> implements IOEngine<T> {
+public class SynchronisedIOEngine<T extends Document> implements IOEngine<T> {
     private final IOEngine<T> ioEngine;
 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
@@ -17,7 +17,7 @@ public class SynchronisedIOEngine<T extends Document<?>> implements IOEngine<T> 
         this.ioEngine = ioEngine;
     }
 
-    public static <T extends Document<?>> SynchronisedIOEngine<T> from(IOEngine<T> ioEngine) {
+    public static <T extends Document> SynchronisedIOEngine<T> from(IOEngine<T> ioEngine) {
         return new SynchronisedIOEngine<>(ioEngine);
     }
 
@@ -32,7 +32,7 @@ public class SynchronisedIOEngine<T extends Document<?>> implements IOEngine<T> 
     @Override
     public Optional<T> read(Path documentPath, DocumentGenerator<T> documentGenerator) {
         lock.readLock().lock();
-        Optional<T> result = ioEngine.read(documentPath, documentGenerator);
+        ioEngine.read(documentPath, documentGenerator);
         lock.readLock().unlock();
         return Optional.empty();
     }

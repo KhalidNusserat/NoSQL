@@ -9,11 +9,11 @@ class GenericIndexedDocumentsCollectionTest extends
 
     @Override
     public GenericIndexedDocumentsCollection<GsonDocument> create() {
-        return new GenericIndexedDocumentsCollection<>(
-                testDirectory,
-                documentGenerator,
-                indexGenerator,
-                ioEngine
-        );
+        return GenericIndexedDocumentsCollection.<GsonDocument>builder()
+                .setDocumentGenerator(documentGenerator)
+                .setDocumentsPath(testDirectory)
+                .setIndexGenerator(indexGenerator)
+                .setIOEngine(ioEngine)
+                .build();
     }
 }

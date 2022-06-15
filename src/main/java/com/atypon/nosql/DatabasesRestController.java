@@ -1,15 +1,13 @@
 package com.atypon.nosql;
 
-import com.atypon.nosql.database.*;
-import com.atypon.nosql.database.document.Document;
+import com.atypon.nosql.database.DatabasesManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.Path;
 import java.util.Collection;
 
 @RestController
-public class DatabasesRestController<T extends Document<?>> {
+public class DatabasesRestController {
     private final DatabasesManager databasesManager;
 
     public DatabasesRestController(DatabasesManager databasesManager) {

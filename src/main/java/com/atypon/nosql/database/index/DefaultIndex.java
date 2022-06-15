@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public class DefaultIndex<T extends Document<?>> implements Index<T> {
+public class DefaultIndex<T extends Document> implements Index<T> {
     private final T fieldsDocument;
 
     private final ReversedHashMap<Path, T> pathToValues;
