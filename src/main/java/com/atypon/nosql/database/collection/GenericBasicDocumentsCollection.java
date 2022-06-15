@@ -68,6 +68,9 @@ public class GenericBasicDocumentsCollection<T extends Document<?>> implements D
 
     @Override
     public Path addDocument(T addedDocument) {
+        if (contains(addedDocument)) {
+            throw new DocumentAlreadyExistsException();
+        }
         return ioEngine.write(addedDocument, documentsPath);
     }
 

@@ -157,6 +157,9 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
 
     @Override
     public Path addDocument(T addedDocument) {
+        if (contains(addedDocument)) {
+            throw new DocumentAlreadyExistsException();
+        }
         Path addedDocumentPath = documentsCollection.addDocument(addedDocument);
         updateAllIndexes(addedDocument, addedDocumentPath);
         return addedDocumentPath;
