@@ -93,6 +93,9 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
 
     @Override
     public void createIndex(T indexFields) {
+        if (indexes.containsKey(indexFields)) {
+            throw new IndexAlreadyExistsException(indexFields);
+        }
         Path indexPath = indexesCollection.addDocument(indexFields);
         indexes.put(
                 indexFields,
