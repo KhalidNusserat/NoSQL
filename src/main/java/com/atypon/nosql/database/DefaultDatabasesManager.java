@@ -1,6 +1,5 @@
 package com.atypon.nosql.database;
 
-import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.utils.ExtraFileUtils;
 
 import java.nio.file.Files;
@@ -9,7 +8,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultDatabasesManager<T extends Document<?>> implements DatabasesManager {
+public class DefaultDatabasesManager implements DatabasesManager {
     private final Map<String, Database> databases = new ConcurrentHashMap<>();
 
     private final Path databasesDirectory;
