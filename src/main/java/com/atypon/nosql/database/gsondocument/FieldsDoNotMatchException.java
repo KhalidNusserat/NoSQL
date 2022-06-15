@@ -1,8 +1,11 @@
 package com.atypon.nosql.database.gsondocument;
 
 import com.atypon.nosql.database.document.Document;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-public class FieldsDoNotMatchException extends Exception {
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class FieldsDoNotMatchException extends RuntimeException {
     public FieldsDoNotMatchException() {
     }
 

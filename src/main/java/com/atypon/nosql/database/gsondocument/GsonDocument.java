@@ -15,8 +15,10 @@ import java.util.Objects;
 
 public class GsonDocument implements Document<JsonElement> {
     private final static Gson gson = new Gson();
+
     private final static Type mapType = new TypeToken<Map<String, Object>>() {
     }.getType();
+
     final JsonObject object;
 
     private GsonDocument(GsonDocument other) {
@@ -25,16 +27,8 @@ public class GsonDocument implements Document<JsonElement> {
         object.addProperty("_id", objectIDGenerator.getNewId());
     }
 
-    public GsonDocument() {
-        object = new JsonObject();
-    }
-
     public GsonDocument(JsonObject object) {
         this.object = object.deepCopy();
-    }
-
-    public static GsonDocumentBuilder builder() {
-        return new GsonDocumentBuilder();
     }
 
     public static GsonDocument fromJsonObject(JsonObject object) {
@@ -43,10 +37,6 @@ public class GsonDocument implements Document<JsonElement> {
 
     public static GsonDocument fromString(String src) {
         return GsonDocument.fromJsonObject(gson.fromJson(src, JsonObject.class));
-    }
-
-    public JsonObject getAsJsonObject() {
-        return object;
     }
 
     @Override
@@ -94,8 +84,7 @@ public class GsonDocument implements Document<JsonElement> {
         return true;
     }
 
-    private JsonElement valuesToMatch(JsonElement fieldsSource, JsonElement valuesSource)
-            throws FieldsDoNotMatchException {
+    private JsonElement valuesToMatch(JsonElement fieldsSource, JsonElement valuesSource) {
         if (fieldsSource.isJsonArray() || fieldsSource.isJsonPrimitive() || fieldsSource.isJsonNull()) {
             return valuesSource;
         } else {
@@ -118,7 +107,7 @@ public class GsonDocument implements Document<JsonElement> {
     }
 
     @Override
-    public Document<JsonElement> getValuesToMatch(Document<?> otherDocument) throws FieldsDoNotMatchException {
+    public Document<JsonElement> getValuesToMatch(Document<?> otherDocument) {
         try {
             JsonObject otherDocumentObject = ((GsonDocument) otherDocument).object;
             JsonObject matchedObject = valuesToMatch(otherDocumentObject, object).getAsJsonObject();
@@ -168,27 +157,5 @@ public class GsonDocument implements Document<JsonElement> {
     @Override
     public Map<String, Object> getAsMap() {
         return gson.fromJson(object, mapType);
-    }
-
-    public static class GsonDocumentBuilder {
-        private final GsonDocument gsonDocument = new GsonDocument();
-
-        public GsonDocumentBuilder add(String field, JsonElement element) {
-            gsonDocument.object.add(field, element);
-            return this;
-        }
-
-        public GsonDocumentBuilder remove(String field) {
-            gsonDocument.object.remove(field);
-            return this;
-        }
-
-        public boolean containsKey(String field) {
-            return gsonDocument.getAsJsonObject().has(field);
-        }
-
-        public GsonDocument create() {
-            return gsonDocument;
-        }
     }
 }

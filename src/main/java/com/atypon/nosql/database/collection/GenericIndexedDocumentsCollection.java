@@ -101,7 +101,7 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
     }
 
     @Override
-    public void deleteIndex(T indexFields) throws NoSuchIndexException {
+    public void deleteIndex(T indexFields) {
         if (!indexes.containsKey(indexFields)) {
             throw new NoSuchIndexException(indexFields);
         }
@@ -179,8 +179,7 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
     }
 
     @Override
-    public Path updateDocument(T documentCriteria, T updatedDocument)
-            throws NoSuchDocumentException, MultipleFilesMatchedException {
+    public Path updateDocument(T documentCriteria, T updatedDocument) {
         List<Path> matchingDocumentsPath = getMatchingDocumentPath(documentCriteria);
         if (matchingDocumentsPath.size() > 1) {
             throw new MultipleFilesMatchedException(matchingDocumentsPath.size());

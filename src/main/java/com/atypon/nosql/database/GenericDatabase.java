@@ -89,15 +89,14 @@ public class GenericDatabase<T extends Document<?>> implements Database {
         }
     }
 
-    private void checkCollectionExists(String collectionName) throws CollectionNotFoundException {
+    private void checkCollectionExists(String collectionName) {
         if (!collections.containsKey(collectionName)) {
             throw new CollectionNotFoundException(collectionName);
         }
     }
 
     @Override
-    public void createCollection(String collectionName, String schemaString)
-            throws InvalidDocumentSchema, CollectionAlreadyExists {
+    public void createCollection(String collectionName, String schemaString) {
         if (collections.containsKey(collectionName)) {
             throw new CollectionAlreadyExists(collectionName);
         }
@@ -114,8 +113,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
         schemas.put(collectionName, documentSchema);
     }
 
-    private DocumentSchema<T> createNewSchema(String schemaDocumentString, Path schemaDirectory)
-            throws InvalidDocumentSchema {
+    private DocumentSchema<T> createNewSchema(String schemaDocumentString, Path schemaDirectory) {
         T schemaDocument = documentGenerator.createFromString(schemaDocumentString);
         DocumentSchema<T> documentSchema = schemaGenerator.createSchema(schemaDocument);
         ioEngine.write(documentSchema.getAsDocument(), schemaDirectory);
@@ -123,7 +121,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
     }
 
     @Override
-    public void deleteCollection(String collectionName) throws CollectionNotFoundException {
+    public void deleteCollection(String collectionName) {
         checkCollectionExists(collectionName);
         Path collectionDirectory = databaseDirectory.resolve(collectionName + "/");
         collections.remove(collectionName);
@@ -141,8 +139,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
     }
 
     @Override
-    public void addDocument(String collectionName, String documentString)
-            throws DocumentSchemaViolationException, CollectionNotFoundException {
+    public void addDocument(String collectionName, String documentString) {
         checkCollectionExists(collectionName);
         T document = documentGenerator.createFromString(documentString);
         if (schemas.get(collectionName).validate(document)) {
@@ -153,8 +150,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
     }
 
     @Override
-    public Collection<Map<String, Object>> readDocuments(String collectionName, String matchDocumentString)
-            throws FieldsDoNotMatchException, CollectionNotFoundException {
+    public Collection<Map<String, Object>> readDocuments(String collectionName, String matchDocumentString) {
         checkCollectionExists(collectionName);
         T matchDocument = documentGenerator.createFromString(matchDocumentString);
         return collections.get(collectionName).getAllThatMatches(matchDocument).stream()
@@ -163,9 +159,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
     }
 
     @Override
-    public void updateDocument(String collectionName, String documentID, String updatedDocumentString)
-            throws MultipleFilesMatchedException, NoSuchDocumentException,
-            DocumentSchemaViolationException, CollectionNotFoundException {
+    public void updateDocument(String collectionName, String documentID, String updatedDocumentString) {
         checkCollectionExists(collectionName);
         T matchId = documentGenerator.createFromString(String.format("{_id: \"%s\"}", documentID));
         T updatedDocument = documentGenerator.createFromString(updatedDocumentString);
@@ -177,8 +171,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
     }
 
     @Override
-    public void deleteDocuments(String collectionName, String matchDocumentString)
-            throws FieldsDoNotMatchException, CollectionNotFoundException {
+    public void deleteDocuments(String collectionName, String matchDocumentString) {
         checkCollectionExists(collectionName);
         T matchDocument = documentGenerator.createFromString(matchDocumentString);
         collections.get(collectionName).deleteAllThatMatches(matchDocument);
@@ -194,15 +187,14 @@ public class GenericDatabase<T extends Document<?>> implements Database {
     }
 
     @Override
-    public void createIndex(String collectionName, String indexDocumentString) throws CollectionNotFoundException {
+    public void createIndex(String collectionName, String indexDocumentString) {
         checkCollectionExists(collectionName);
         T indexDocument = documentGenerator.createFromString(indexDocumentString);
         collections.get(collectionName).createIndex(indexDocument);
     }
 
     @Override
-    public void deleteIndex(String collectionName, String indexDocumentString)
-            throws CollectionNotFoundException, NoSuchIndexException {
+    public void deleteIndex(String collectionName, String indexDocumentString) {
         checkCollectionExists(collectionName);
         T indexDocument = documentGenerator.createFromString(indexDocumentString);
         collections.get(collectionName).deleteIndex(indexDocument);
@@ -214,7 +206,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
     }
 
     @Override
-    public Map<String, Object> getCollectionSchema(String collectionName) throws CollectionNotFoundException {
+    public Map<String, Object> getCollectionSchema(String collectionName) {
         checkCollectionExists(collectionName);
         return schemas.get(collectionName).getAsDocument().getAsMap();
     }

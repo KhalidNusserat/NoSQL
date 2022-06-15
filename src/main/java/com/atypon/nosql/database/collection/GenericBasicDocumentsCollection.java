@@ -7,6 +7,7 @@ import com.atypon.nosql.database.io.IOEngine;
 import com.atypon.nosql.database.utils.ExtraFileUtils;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -31,7 +32,7 @@ public class GenericBasicDocumentsCollection<T extends Document<?>> implements D
         try {
             Files.createDirectories(documentsPath);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -41,16 +42,12 @@ public class GenericBasicDocumentsCollection<T extends Document<?>> implements D
 
     @Override
     public boolean contains(T documentCriteria) {
-        try {
-            return Files.walk(documentsPath, 1)
-                    .filter(ExtraFileUtils::isJsonFile)
-                    .map(documentPath -> ioEngine.read(documentPath, documentGenerator))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .anyMatch(documentCriteria::subsetOf);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return ExtraFileUtils.traverseDirectory(documentsPath)
+                .filter(ExtraFileUtils::isJsonFile)
+                .map(documentPath -> ioEngine.read(documentPath, documentGenerator))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .anyMatch(documentCriteria::subsetOf);
     }
 
     @Override
@@ -75,8 +72,7 @@ public class GenericBasicDocumentsCollection<T extends Document<?>> implements D
     }
 
     @Override
-    public Path updateDocument(T documentCriteria, T updatedDocument)
-            throws NoSuchDocumentException, MultipleFilesMatchedException {
+    public Path updateDocument(T documentCriteria, T updatedDocument) {
         List<Path> matchingDocumentsPaths = getPathsThatMatch(documentCriteria);
         if (matchingDocumentsPaths.size() > 1) {
             throw new MultipleFilesMatchedException(matchingDocumentsPaths.size());

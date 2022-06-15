@@ -1,7 +1,11 @@
 package com.atypon.nosql.database.document;
 
-public class InvalidDocumentSchema extends Exception {
-    public InvalidDocumentSchema(String message) {
-        super("Invalid document schema syntax: " + message);
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class InvalidDocumentSchema extends RuntimeException {
+    public InvalidDocumentSchema(String schema) {
+        super("Invalid document schema syntax: " + schema);
     }
 }

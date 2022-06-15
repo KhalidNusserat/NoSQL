@@ -7,7 +7,7 @@ import java.util.Collection;
 public interface IndexedDocumentsCollection<T extends Document<?>> extends DocumentsCollection<T> {
     void createIndex(T matchDocument);
 
-    void deleteIndex(T matchDocument) throws NoSuchIndexException;
+    void deleteIndex(T matchDocument);
 
     Collection<T> getIndexes();
 }

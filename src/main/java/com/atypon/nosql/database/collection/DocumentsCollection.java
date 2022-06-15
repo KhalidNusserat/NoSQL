@@ -8,16 +8,15 @@ import java.nio.file.Path;
 import java.util.Collection;
 
 public interface DocumentsCollection<T extends Document<?>> {
-    boolean contains(T matchDocument) throws FieldsDoNotMatchException;
+    boolean contains(T matchDocument);
 
-    Collection<T> getAllThatMatches(T matchDocument) throws FieldsDoNotMatchException;
+    Collection<T> getAllThatMatches(T matchDocument);
 
     Path addDocument(T document);
 
-    Path updateDocument(T documentCriteria, T updatedDocument)
-            throws NoSuchDocumentException, MultipleFilesMatchedException;
+    Path updateDocument(T documentCriteria, T updatedDocument);
 
-    int deleteAllThatMatches(T matchDocument) throws FieldsDoNotMatchException;
+    int deleteAllThatMatches(T matchDocument);
 
-    Collection<T> getAll() throws IOException;
+    Collection<T> getAll();
 }

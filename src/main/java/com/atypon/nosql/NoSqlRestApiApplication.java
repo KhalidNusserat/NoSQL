@@ -1,7 +1,8 @@
 package com.atypon.nosql;
 
 import com.atypon.nosql.database.Database;
-import com.atypon.nosql.database.GenericDatabase;
+import com.atypon.nosql.database.DatabaseGenerator;
+import com.atypon.nosql.database.GenericDatabaseGenerator;
 import com.atypon.nosql.database.cache.LRUCache;
 import com.atypon.nosql.database.document.DocumentGenerator;
 import com.atypon.nosql.database.document.DocumentSchemaGenerator;
@@ -17,37 +18,44 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import java.nio.file.Path;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @SpringBootApplication
 public class NoSqlRestApiApplication {
-    private final Path collectionsDirectory = Path.of("./db/");
+    private final Path databasesDirectory = Path.of("./databases");
 
     public static void main(String[] args) {
         SpringApplication.run(NoSqlRestApiApplication.class, args);
     }
 
     @Bean
-    IOEngine<GsonDocument> ioEngine() {
+    public IOEngine<GsonDocument> ioEngine() {
         return CachedIOEngine.from(new DefaultIOEngine<>(), new LRUCache<>(100000));
     }
 
     @Bean
-    DocumentGenerator<GsonDocument> documentGenerator() {
+    public DocumentGenerator<GsonDocument> documentGenerator() {
         return new GsonDocumentGenerator(new RandomObjectIdGenerator());
     }
 
     @Bean
-    DocumentSchemaGenerator<GsonDocument> schemaGenerator() {
+    public DocumentSchemaGenerator<GsonDocument> documentSchemaGenerator() {
         return new GsonDocumentSchemaGenerator();
     }
 
     @Bean
-    Database database() {
-        return new GenericDatabase<>(
-                ioEngine(),
-                collectionsDirectory,
-                documentGenerator(),
-                schemaGenerator()
-        );
+    public DatabaseGenerator databaseGenerator() {
+        return GenericDatabaseGenerator.<GsonDocument>builder()
+                .setDatabasesDirectory(databasesDirectory)
+                .setDocumentGenerator(documentGenerator())
+                .setSchemaGenerator(documentSchemaGenerator())
+                .setIoEngine(ioEngine())
+                .build();
+    }
+
+    @Bean
+    public Map<String, Database> databases() {
+        return new ConcurrentHashMap<>();
     }
 }
