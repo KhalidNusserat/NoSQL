@@ -14,7 +14,7 @@ public class GsonDocumentSchemaGenerator implements DocumentSchemaGenerator<Gson
 
     private final Pattern notnullPattern = Pattern.compile("^\\w+(\\??!|!\\??)$");
 
-    private final StringConstraintsParser stringConstraintsParser = new StringConstraintsParser();
+    private final TypeConstraintParser typeConstraintParser = new TypeConstraintParser();
 
     @Override
     public GsonDocumentSchema createSchema(GsonDocument schemaDocument) throws InvalidDocumentSchema
@@ -50,7 +50,7 @@ public class GsonDocumentSchemaGenerator implements DocumentSchemaGenerator<Gson
         if (element.isJsonNull()) {
             throw new InvalidDocumentSchema("Null not expected in a schema definition");
         } else if (element.isJsonPrimitive()) {
-            return stringConstraintsParser.extractConstraints(element.getAsString());
+            return typeConstraintParser.extractTypeConstraint(element.getAsString());
         } else if (element.isJsonArray()) {
             return Constraints.of(
                     TypeConstraint.match(JsonArray.class),

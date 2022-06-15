@@ -4,8 +4,8 @@ import com.atypon.nosql.database.document.InvalidDocumentSchema;
 import com.atypon.nosql.database.gsondocument.constraints.Constraint;
 import com.atypon.nosql.database.gsondocument.constraints.TypeConstraint;
 
-public class StringConstraintsParser {
-    public Constraint extractConstraints(String type) throws InvalidDocumentSchema {
+public class TypeConstraintParser {
+    public Constraint extractTypeConstraint(String type) throws InvalidDocumentSchema {
         return switch (type) {
             case "number" -> TypeConstraint.match(Number.class);
             case "string" -> TypeConstraint.match(String.class);
