@@ -2,6 +2,7 @@ package com.atypon.nosql.database.collection;
 
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentGenerator;
+import com.atypon.nosql.database.io.DefaultIOEngine;
 import com.atypon.nosql.database.io.IOEngine;
 import com.atypon.nosql.database.utils.ExtraFileUtils;
 
@@ -12,14 +13,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public class GenericDefaultDocumentsCollection<T extends Document<?>> implements DocumentsCollection<T> {
+public class GenericBasicDocumentsCollection<T extends Document<?>> implements DocumentsCollection<T> {
     private final IOEngine ioEngine;
 
     private final Path documentsPath;
 
     private final DocumentGenerator<T> documentGenerator;
 
-    public GenericDefaultDocumentsCollection(
+    private GenericBasicDocumentsCollection(
             IOEngine ioEngine,
             Path collectionPath,
             DocumentGenerator<T> documentGenerator
@@ -32,6 +33,10 @@ public class GenericDefaultDocumentsCollection<T extends Document<?>> implements
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static <T extends Document<?>> GenericBasicDocumentsCollectionBuilder<T> builder() {
+        return new GenericBasicDocumentsCollectionBuilder<>();
     }
 
     @Override
@@ -103,5 +108,33 @@ public class GenericDefaultDocumentsCollection<T extends Document<?>> implements
     @Override
     public void deleteAllThatMatches(T documentCriteria) {
         getPathsThatMatch(documentCriteria).forEach(ioEngine::delete);
+    }
+
+    public static class GenericBasicDocumentsCollectionBuilder<T extends Document<?>> {
+        private IOEngine ioEngine = new DefaultIOEngine();
+
+        private Path documentsPath;
+
+        private DocumentGenerator<T> documentGenerator;
+
+        public GenericBasicDocumentsCollectionBuilder<T> setIoEngine(IOEngine ioEngine) {
+            this.ioEngine = ioEngine;
+            return this;
+        }
+
+        public GenericBasicDocumentsCollectionBuilder<T> setDocumentsPath(Path documentsPath) {
+            this.documentsPath = documentsPath;
+            return this;
+        }
+
+        public GenericBasicDocumentsCollectionBuilder<T> setDocumentsGenerator(
+                DocumentGenerator<T> documentsGenerator) {
+            this.documentGenerator = documentsGenerator;
+            return this;
+        }
+
+        public GenericBasicDocumentsCollection<T> build() {
+            return new GenericBasicDocumentsCollection<>(ioEngine, documentsPath, documentGenerator);
+        }
     }
 }

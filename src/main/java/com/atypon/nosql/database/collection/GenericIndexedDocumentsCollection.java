@@ -22,11 +22,11 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
 
     private final Path documentsPath;
 
-    private final GenericDefaultDocumentsCollection<T> documentsCollection;
+    private final GenericBasicDocumentsCollection<T> documentsCollection;
 
     private final DocumentGenerator<T> documentGenerator;
 
-    private final GenericDefaultDocumentsCollection<T> indexesCollection;
+    private final GenericBasicDocumentsCollection<T> indexesCollection;
 
     private final Map<T, Index<T>> indexes = new ConcurrentHashMap<>();
 
@@ -44,13 +44,17 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
         this.documentGenerator = documentGenerator;
         this.indexGenerator = indexGenerator;
         documentsPath = collectionPath.resolve("documents/");
-        documentsCollection = new GenericDefaultDocumentsCollection<>(ioEngine, documentsPath, documentGenerator);
+        documentsCollection = GenericBasicDocumentsCollection.<T>builder()
+                .setIoEngine(ioEngine)
+                .setDocumentsGenerator(documentGenerator)
+                .setDocumentsPath(documentsPath)
+                .build();
         indexesPath = collectionPath.resolve("indexes/");
-        indexesCollection = new GenericDefaultDocumentsCollection<>(
-                ioEngine,
-                indexesPath,
-                documentGenerator
-        );
+        indexesCollection = GenericBasicDocumentsCollection.<T>builder()
+                .setIoEngine(ioEngine)
+                .setDocumentsGenerator(documentGenerator)
+                .setDocumentsPath(indexesPath)
+                .build();
         try {
             Files.createDirectories(indexesPath);
             loadIndexes();

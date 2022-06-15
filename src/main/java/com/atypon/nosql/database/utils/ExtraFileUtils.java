@@ -7,13 +7,11 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ExtraFileUtils {
     private static final PathMatcher jsonMatcher = FileSystems.getDefault()
             .getPathMatcher("glob:**/*.json");
-
-    private static final PathMatcher indexMatcher = FileSystems.getDefault()
-            .getPathMatcher("glob:**/*.index");
 
     public static boolean isJsonFile(Path path) {
         return jsonMatcher.matches(path);
@@ -39,11 +37,6 @@ public class ExtraFileUtils {
         }
     }
 
-    public static Set<Path> getDirectoryContent(Path directoryPath) throws IOException {
-        return Files.list(directoryPath)
-                .collect(Collectors.toSet());
-    }
-
     public static int countFiles(Path directoryPath, int level) {
         try {
             return Files.walk(directoryPath, level)
@@ -58,6 +51,14 @@ public class ExtraFileUtils {
                     .orElse(0);
         } catch (IOException e) {
             throw new RuntimeException();
+        }
+    }
+
+    public Stream<Path> directoryFiles(Path directory) {
+        try {
+            return Files.walk(directory, 1);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
