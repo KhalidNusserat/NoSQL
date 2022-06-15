@@ -1,6 +1,7 @@
 package com.atypon.nosql.database.utils;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,6 +58,14 @@ public class ExtraFileUtils {
             return Files.walk(directory, 1);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void createDirectories(Path databasesDirectory) {
+        try {
+            Files.createDirectories(databasesDirectory);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 }
