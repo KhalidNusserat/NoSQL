@@ -14,7 +14,7 @@ public interface Database {
 
     Collection<Map<String, Object>> readDocuments(String collectionName, String matchDocumentString);
 
-    void deleteDocuments(String collectionName, String matchDocumentString);
+    int deleteDocuments(String collectionName, String matchDocumentString);
 
     Collection<Map<String, Object>> getCollectionIndexes(String collectionName);
 

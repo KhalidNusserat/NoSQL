@@ -171,10 +171,10 @@ public class GenericDatabase<T extends Document<?>> implements Database {
     }
 
     @Override
-    public void deleteDocuments(String collectionName, String matchDocumentString) {
+    public int deleteDocuments(String collectionName, String matchDocumentString) {
         checkCollectionExists(collectionName);
         T matchDocument = documentGenerator.createFromString(matchDocumentString);
-        collections.get(collectionName).deleteAllThatMatches(matchDocument);
+        return collections.get(collectionName).deleteAllThatMatches(matchDocument);
     }
 
     @Override
