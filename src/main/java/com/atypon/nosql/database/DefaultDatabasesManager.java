@@ -42,6 +42,7 @@ public class DefaultDatabasesManager implements DatabasesManager {
         databases.put(databaseName, databaseGenerator.create(databaseDirectory));
     }
 
+    @Override
     public void remove(String databaseName) {
         databases.get(databaseName).deleteDatabase();
         databases.remove(databaseName);

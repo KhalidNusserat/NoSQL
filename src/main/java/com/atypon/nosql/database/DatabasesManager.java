@@ -7,5 +7,7 @@ public interface DatabasesManager {
 
     void create(String databaseName);
 
+    void remove(String databaseName);
+
     Collection<String> getDatabasesNames();
 }
