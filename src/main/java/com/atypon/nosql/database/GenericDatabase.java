@@ -211,6 +211,13 @@ public class GenericDatabase<T extends Document<?>> implements Database {
         return schemas.get(collectionName).getAsDocument().getAsMap();
     }
 
+    @Override
+    public void deleteDatabase() {
+        for (String collection : collections.keySet()) {
+            deleteCollection(collection);
+        }
+    }
+
     public static class GenericDatabaseBuilder<T extends Document<?>> {
         private Path databaseDirectory;
 
