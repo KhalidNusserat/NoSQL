@@ -43,7 +43,7 @@ public class CollectionsRestController {
             @PathVariable("collection") String collection
     ) {
         checkDatabaseExists(database);
-        databasesManager.remove(database);
+        databasesManager.get(database).deleteCollection(collection);
         return ResponseEntity.ok("Deleted collection: " + collection);
     }
 }
