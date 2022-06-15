@@ -14,11 +14,10 @@ import java.util.Map;
 import java.util.Objects;
 
 public class GsonDocument implements Document<JsonElement> {
-    final JsonObject object;
-
     private final static Gson gson = new Gson();
-
-    private final static Type mapType = new TypeToken<Map<String, Object>>(){}.getType();
+    private final static Type mapType = new TypeToken<Map<String, Object>>() {
+    }.getType();
+    final JsonObject object;
 
     private GsonDocument(GsonDocument other) {
         object = other.object.deepCopy();

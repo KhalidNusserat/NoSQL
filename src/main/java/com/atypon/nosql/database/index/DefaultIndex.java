@@ -13,8 +13,6 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class DefaultIndex<T extends Document<?>> implements Index<T> {
     private final T fieldsDocument;
@@ -23,13 +21,15 @@ public class DefaultIndex<T extends Document<?>> implements Index<T> {
 
     private final Path indexPath;
 
-    private final ExecutorService indexPopulatingService = Executors.newCachedThreadPool();
-
-    private final IOEngine ioEngine;
+    private final IOEngine<T> ioEngine;
 
     private final DocumentGenerator<T> documentGenerator;
 
-    public DefaultIndex(T fieldsDocument, Path indexPath, IOEngine ioEngine, DocumentGenerator<T> documentGenerator) {
+    public DefaultIndex(
+            T fieldsDocument,
+            Path indexPath,
+            IOEngine<T> ioEngine,
+            DocumentGenerator<T> documentGenerator) {
         this.fieldsDocument = fieldsDocument;
         this.indexPath = indexPath;
         this.ioEngine = ioEngine;

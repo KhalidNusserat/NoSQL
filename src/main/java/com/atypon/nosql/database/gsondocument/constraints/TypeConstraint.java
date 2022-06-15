@@ -5,12 +5,12 @@ import com.google.gson.JsonElement;
 public class TypeConstraint implements Constraint {
     private final Class<?> type;
 
-    public static TypeConstraint match(Class<?> type) {
-        return new TypeConstraint(type);
-    }
-
     public TypeConstraint(Class<?> type) {
         this.type = type;
+    }
+
+    public static TypeConstraint match(Class<?> type) {
+        return new TypeConstraint(type);
     }
 
     @Override

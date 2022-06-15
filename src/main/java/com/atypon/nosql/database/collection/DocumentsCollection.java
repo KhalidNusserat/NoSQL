@@ -6,7 +6,6 @@ import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Optional;
 
 public interface DocumentsCollection<T extends Document<?>> {
     boolean contains(T matchDocument) throws FieldsDoNotMatchException;

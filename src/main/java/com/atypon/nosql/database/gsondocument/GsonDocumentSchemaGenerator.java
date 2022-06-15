@@ -17,8 +17,7 @@ public class GsonDocumentSchemaGenerator implements DocumentSchemaGenerator<Gson
     private final TypeConstraintParser typeConstraintParser = new TypeConstraintParser();
 
     @Override
-    public GsonDocumentSchema createSchema(GsonDocument schemaDocument) throws InvalidDocumentSchema
-    {
+    public GsonDocumentSchema createSchema(GsonDocument schemaDocument) throws InvalidDocumentSchema {
         JsonObject schemaObject = schemaDocument.object;
         return new GsonDocumentSchema(extractConstraintsFromObject(schemaObject), schemaDocument);
     }

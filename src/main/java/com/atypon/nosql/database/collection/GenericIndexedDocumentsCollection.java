@@ -64,6 +64,10 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
         }
     }
 
+    public static <T extends Document<?>> GenericIndexedDocumentsCollectionBuilder<T> builder() {
+        return new GenericIndexedDocumentsCollectionBuilder<>();
+    }
+
     private void loadIndexes() throws IOException {
         Files.walk(indexesPath)
                 .filter(ExtraFileUtils::isJsonFile)
@@ -214,10 +218,6 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
         return documentsCollection.getAll();
     }
 
-    public static <T extends Document<?>> GenericIndexedDocumentsCollectionBuilder<T> builder() {
-        return new GenericIndexedDocumentsCollectionBuilder<>();
-    }
-
     public static class GenericIndexedDocumentsCollectionBuilder<T extends Document<?>> {
         private Path documentsPath;
 
@@ -233,8 +233,7 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
         }
 
         public GenericIndexedDocumentsCollectionBuilder<T> setDocumentGenerator(
-                DocumentGenerator<T> documentGenerator)
-        {
+                DocumentGenerator<T> documentGenerator) {
             this.documentGenerator = documentGenerator;
             return this;
         }

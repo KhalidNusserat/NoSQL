@@ -76,8 +76,7 @@ public class GenericBasicDocumentsCollection<T extends Document<?>> implements D
 
     @Override
     public Path updateDocument(T documentCriteria, T updatedDocument)
-            throws NoSuchDocumentException, MultipleFilesMatchedException
-    {
+            throws NoSuchDocumentException, MultipleFilesMatchedException {
         List<Path> matchingDocumentsPaths = getPathsThatMatch(documentCriteria);
         if (matchingDocumentsPaths.size() > 1) {
             throw new MultipleFilesMatchedException(matchingDocumentsPaths.size());
