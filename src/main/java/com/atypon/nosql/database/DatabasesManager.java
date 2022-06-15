@@ -9,5 +9,7 @@ public interface DatabasesManager {
 
     void remove(String databaseName);
 
+    boolean contains(String databaseName);
+
     Collection<String> getDatabasesNames();
 }
