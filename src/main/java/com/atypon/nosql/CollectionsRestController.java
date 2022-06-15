@@ -36,4 +36,14 @@ public class CollectionsRestController {
         databasesManager.get(database).createCollection(collection, schema);
         return ResponseEntity.ok("Created collection: " + database + "/" + collection);
     }
+
+    @DeleteMapping("/databases/{database}/collections/{collection}")
+    public ResponseEntity<String> removeCollection(
+            @PathVariable("database") String database,
+            @PathVariable("collection") String collection
+    ) {
+        checkDatabaseExists(database);
+        databasesManager.remove(database);
+        return ResponseEntity.ok("Deleted collection: " + collection);
+    }
 }
