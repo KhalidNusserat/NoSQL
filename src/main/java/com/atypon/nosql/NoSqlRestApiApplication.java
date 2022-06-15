@@ -1,7 +1,8 @@
 package com.atypon.nosql;
 
-import com.atypon.nosql.database.Database;
 import com.atypon.nosql.database.DatabaseGenerator;
+import com.atypon.nosql.database.DatabasesManager;
+import com.atypon.nosql.database.DefaultDatabasesManager;
 import com.atypon.nosql.database.GenericDatabaseGenerator;
 import com.atypon.nosql.database.cache.LRUCache;
 import com.atypon.nosql.database.document.DocumentGenerator;
@@ -18,8 +19,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @SpringBootApplication
 public class NoSqlRestApiApplication {
@@ -55,7 +54,7 @@ public class NoSqlRestApiApplication {
     }
 
     @Bean
-    public Map<String, Database> databases() {
-        return new ConcurrentHashMap<>();
+    public DatabasesManager databasesManager() {
+        return new DefaultDatabasesManager(databasesDirectory, databaseGenerator());
     }
 }
