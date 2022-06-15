@@ -49,6 +49,11 @@ public class DefaultDatabasesManager implements DatabasesManager {
     }
 
     @Override
+    public boolean contains(String databaseName) {
+        return databases.containsKey(databaseName);
+    }
+
+    @Override
     public Collection<String> getDatabasesNames() {
         return databases.keySet();
     }
