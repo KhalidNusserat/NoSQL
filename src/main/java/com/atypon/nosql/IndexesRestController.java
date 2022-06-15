@@ -30,7 +30,7 @@ public class IndexesRestController {
         return ResponseEntity.ok(databasesManager.get(database).getCollectionIndexes(collection));
     }
 
-    @PostMapping("/databases/{database}/collection/{collection}/indexes")
+    @PostMapping("/databases/{database}/collections/{collection}/indexes")
     public ResponseEntity<String> createIndex(
             @PathVariable("database") String database,
             @PathVariable("collection") String collection,
@@ -41,7 +41,7 @@ public class IndexesRestController {
         return ResponseEntity.ok("Created [1] index");
     }
 
-    @DeleteMapping("/databases/{database}/collection/{collection}/indexes")
+    @DeleteMapping("/databases/{database}/collections/{collection}/indexes")
     public ResponseEntity<String> deleteIndex(
             @PathVariable("database") String database,
             @PathVariable("collection") String collection,
