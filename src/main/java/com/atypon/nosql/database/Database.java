@@ -25,4 +25,6 @@ public interface Database {
     Collection<String> getCollectionsNames();
 
     Map<String, Object> getCollectionSchema(String collectionName);
+
+    void deleteDatabase();
 }
