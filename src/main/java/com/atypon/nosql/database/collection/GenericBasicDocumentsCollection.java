@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.Optional;
 
 public class GenericBasicDocumentsCollection<T extends Document<?>> implements DocumentsCollection<T> {
-    private final IOEngine ioEngine;
+    private final IOEngine<T> ioEngine;
 
     private final Path documentsPath;
 
     private final DocumentGenerator<T> documentGenerator;
 
     private GenericBasicDocumentsCollection(
-            IOEngine ioEngine,
+            IOEngine<T> ioEngine,
             Path collectionPath,
             DocumentGenerator<T> documentGenerator
     ) {
@@ -55,17 +55,13 @@ public class GenericBasicDocumentsCollection<T extends Document<?>> implements D
 
     @Override
     public Collection<T> getAllThatMatches(T documentCriteria) {
-        try {
-            return Files.walk(documentsPath, 1)
-                    .filter(ExtraFileUtils::isJsonFile)
-                    .map(documentPath -> ioEngine.read(documentPath, documentGenerator))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .filter(documentCriteria::subsetOf)
-                    .toList();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return ExtraFileUtils.traverseDirectory(documentsPath)
+                .filter(ExtraFileUtils::isJsonFile)
+                .map(documentPath -> ioEngine.read(documentPath, documentGenerator))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(documentCriteria::subsetOf)
+                .toList();
     }
 
     @Override
@@ -74,26 +70,13 @@ public class GenericBasicDocumentsCollection<T extends Document<?>> implements D
     }
 
     @Override
-    public Path addDocument(T addedDocument) throws IOException {
+    public Path addDocument(T addedDocument) {
         return ioEngine.write(addedDocument, documentsPath);
-    }
-
-    private List<Path> getPathsThatMatch(T documentCriteria) {
-        try {
-            return Files.walk(documentsPath, 1)
-                    .filter(ExtraFileUtils::isJsonFile)
-                    .filter(path -> ioEngine.read(path, documentGenerator)
-                            .map(documentCriteria::subsetOf)
-                            .orElse(false))
-                    .toList();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
     public Path updateDocument(T documentCriteria, T updatedDocument)
-            throws NoSuchDocumentException, MultipleFilesMatchedException, IOException
+            throws NoSuchDocumentException, MultipleFilesMatchedException
     {
         List<Path> matchingDocumentsPaths = getPathsThatMatch(documentCriteria);
         if (matchingDocumentsPaths.size() > 1) {
@@ -105,19 +88,30 @@ public class GenericBasicDocumentsCollection<T extends Document<?>> implements D
         }
     }
 
+    private List<Path> getPathsThatMatch(T documentCriteria) {
+        return ExtraFileUtils.traverseDirectory(documentsPath)
+                .filter(ExtraFileUtils::isJsonFile)
+                .filter(path -> ioEngine.read(path, documentGenerator)
+                        .map(documentCriteria::subsetOf)
+                        .orElse(false))
+                .toList();
+    }
+
     @Override
-    public void deleteAllThatMatches(T documentCriteria) {
-        getPathsThatMatch(documentCriteria).forEach(ioEngine::delete);
+    public int deleteAllThatMatches(T documentCriteria) {
+        List<Path> paths = getPathsThatMatch(documentCriteria);
+        paths.forEach(ioEngine::delete);
+        return paths.size();
     }
 
     public static class GenericBasicDocumentsCollectionBuilder<T extends Document<?>> {
-        private IOEngine ioEngine = new DefaultIOEngine();
+        private IOEngine<T> ioEngine = new DefaultIOEngine<>();
 
         private Path documentsPath;
 
         private DocumentGenerator<T> documentGenerator;
 
-        public GenericBasicDocumentsCollectionBuilder<T> setIoEngine(IOEngine ioEngine) {
+        public GenericBasicDocumentsCollectionBuilder<T> setIoEngine(IOEngine<T> ioEngine) {
             this.ioEngine = ioEngine;
             return this;
         }

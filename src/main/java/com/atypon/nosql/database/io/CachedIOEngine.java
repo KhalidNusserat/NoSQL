@@ -5,42 +5,39 @@ import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentGenerator;
 import com.atypon.nosql.database.utils.ExtraFileUtils;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class CachedIOEngine implements IOEngine {
-    private final IOEngine ioEngine;
+public class CachedIOEngine<T extends Document<?>> implements IOEngine<T> {
+    private final IOEngine<T> ioEngine;
 
-    private final Cache<Path, Document<?>> cache;
+    private final Cache<Path, T> cache;
 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    private CachedIOEngine(IOEngine ioEngine, Cache<Path, Document<?>> cache) {
+    private CachedIOEngine(IOEngine<T> ioEngine, Cache<Path, T> cache) {
         this.ioEngine = ioEngine;
         this.cache = cache;
     }
 
-    public static CachedIOEngine from(IOEngine IOEngine, Cache<Path, Document<?>> cache) {
-        return new CachedIOEngine(IOEngine, cache);
+    public static <T extends Document<?>> CachedIOEngine<T> from(IOEngine<T> IOEngine, Cache<Path, T> cache) {
+        return new CachedIOEngine<>(IOEngine, cache);
     }
 
     @Override
-    public Path write(Document<?> document, Path directory) throws IOException {
+    public Path write(T document, Path directory) {
         Path filepath = ioEngine.write(document, directory);
         cache.put(filepath, document);
         return filepath;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T extends Document<?>> Optional<T> read(Path documentPath, DocumentGenerator<T> documentGenerator) {
-        Optional<?> cacheResult = cache.get(documentPath);
+    public Optional<T> read(Path documentPath, DocumentGenerator<T> documentGenerator) {
+        Optional<T> cacheResult = cache.get(documentPath);
         if (cacheResult.isPresent()) {
-            return (Optional<T>) cacheResult;
+            return cacheResult;
         } else {
             return ioEngine.read(documentPath, documentGenerator);
         }
@@ -52,26 +49,19 @@ public class CachedIOEngine implements IOEngine {
     }
 
     @Override
-    public Path update(Document<?> updatedDocument, Path documentPath) throws IOException {
+    public Path update(T updatedDocument, Path documentPath) {
         Path filepath = ioEngine.update(updatedDocument, documentPath);
         cache.put(filepath, updatedDocument);
         return filepath;
     }
 
     @Override
-    public <T extends Document<?>> List<T> readDirectory(
-            Path directoryPath,
-            DocumentGenerator<T> documentGenerator
-    ) {
-        try {
-            return Files.walk(directoryPath, 1)
-                    .filter(ExtraFileUtils::isJsonFile)
-                    .map(path -> read(path, documentGenerator))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .toList();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public List<T> readDirectory(Path directoryPath, DocumentGenerator<T> documentGenerator) {
+        return ExtraFileUtils.traverseDirectory(directoryPath)
+                .filter(ExtraFileUtils::isJsonFile)
+                .map(path -> read(path, documentGenerator))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
     }
 }

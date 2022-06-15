@@ -9,21 +9,21 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class SynchronisedIOEngine implements IOEngine {
-    private final IOEngine ioEngine;
+public class SynchronisedIOEngine<T extends Document<?>> implements IOEngine<T> {
+    private final IOEngine<T> ioEngine;
 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-    private SynchronisedIOEngine(IOEngine ioEngine) {
+    private SynchronisedIOEngine(IOEngine<T> ioEngine) {
         this.ioEngine = ioEngine;
     }
 
-    public static SynchronisedIOEngine from(IOEngine ioEngine) {
-        return new SynchronisedIOEngine(ioEngine);
+    public static <T extends Document<?>> SynchronisedIOEngine<T> from(IOEngine<T> ioEngine) {
+        return new SynchronisedIOEngine<>(ioEngine);
     }
 
     @Override
-    public Path write(Document<?> document, Path directory) throws IOException {
+    public Path write(T document, Path directory) {
         lock.writeLock().lock();
         Path documentPath = ioEngine.write(document, directory);
         lock.readLock().unlock();
@@ -31,7 +31,7 @@ public class SynchronisedIOEngine implements IOEngine {
     }
 
     @Override
-    public <T extends Document<?>> Optional<T> read(Path documentPath, DocumentGenerator<T> documentGenerator) {
+    public Optional<T> read(Path documentPath, DocumentGenerator<T> documentGenerator) {
         lock.readLock().lock();
         Optional<T> result = ioEngine.read(documentPath, documentGenerator);
         lock.readLock().unlock();
@@ -46,7 +46,7 @@ public class SynchronisedIOEngine implements IOEngine {
     }
 
     @Override
-    public Path update(Document<?> updatedDocument, Path documentPath) throws IOException {
+    public Path update(T updatedDocument, Path documentPath) {
         lock.writeLock().lock();
         Path updatedPath = ioEngine.update(updatedDocument, documentPath);
         lock.writeLock().unlock();
@@ -54,7 +54,7 @@ public class SynchronisedIOEngine implements IOEngine {
     }
 
     @Override
-    public <T extends Document<?>> List<T> readDirectory(Path directoryPath, DocumentGenerator<T> documentGenerator) {
+    public List<T> readDirectory(Path directoryPath, DocumentGenerator<T> documentGenerator) {
         lock.readLock().lock();
         List<T> result = ioEngine.readDirectory(directoryPath, documentGenerator);
         lock.readLock().unlock();

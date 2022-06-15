@@ -6,18 +6,19 @@ import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Optional;
 
 public interface DocumentsCollection<T extends Document<?>> {
-    boolean contains(T matchDocument) throws IOException, FieldsDoNotMatchException;
+    boolean contains(T matchDocument) throws FieldsDoNotMatchException;
 
-    Collection<T> getAllThatMatches(T matchDocument) throws IOException, FieldsDoNotMatchException;
+    Collection<T> getAllThatMatches(T matchDocument) throws FieldsDoNotMatchException;
 
-    Path addDocument(T document) throws IOException;
+    Path addDocument(T document);
 
     Path updateDocument(T documentCriteria, T updatedDocument)
-            throws NoSuchDocumentException, MultipleFilesMatchedException, IOException;
+            throws NoSuchDocumentException, MultipleFilesMatchedException;
 
-    void deleteAllThatMatches(T matchDocument) throws IOException, FieldsDoNotMatchException;
+    int deleteAllThatMatches(T matchDocument) throws FieldsDoNotMatchException;
 
     Collection<T> getAll() throws IOException;
 }

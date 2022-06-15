@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -39,7 +40,7 @@ public abstract class IOEngineTest {
         john = GsonDocument.fromJsonObject(johnObject);
     }
 
-    public abstract IOEngine create();
+    public abstract IOEngine<GsonDocument> create();
 
     @BeforeEach
     void setUp() throws IOException {
@@ -59,15 +60,15 @@ public abstract class IOEngineTest {
     }
 
     @Test
-    void writeAndRead() throws IOException {
-        IOEngine io = create();
+    void writeAndRead() {
+        IOEngine<GsonDocument> io = create();
         Path filepath = io.write(khalid, testDirectory);
         assertEquals(khalid, io.read(filepath, documentGenerator).orElseThrow());
     }
 
     @Test
-    void delete() throws IOException, InterruptedException {
-        IOEngine io = create();
+    void delete() throws InterruptedException {
+        IOEngine<GsonDocument> io = create();
         Path filepath = io.write(khalid, testDirectory);
         io.delete(filepath);
         Thread.sleep(50);
@@ -75,8 +76,8 @@ public abstract class IOEngineTest {
     }
 
     @Test
-    void update() throws IOException, InterruptedException {
-        IOEngine io = create();
+    void update() throws InterruptedException {
+        IOEngine<GsonDocument> io = create();
         Path filepath = io.write(john, testDirectory);
         filepath = io.update(khalid, filepath);
         assertEquals(khalid, io.read(filepath, documentGenerator).orElseThrow());

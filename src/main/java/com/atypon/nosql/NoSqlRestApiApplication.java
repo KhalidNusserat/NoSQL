@@ -27,8 +27,8 @@ public class NoSqlRestApiApplication {
     }
 
     @Bean
-    IOEngine ioEngine() {
-        return CachedIOEngine.from(new DefaultIOEngine(), new LRUCache<>(100000));
+    IOEngine<GsonDocument> ioEngine() {
+        return CachedIOEngine.from(new DefaultIOEngine<>(), new LRUCache<>(100000));
     }
 
     @Bean

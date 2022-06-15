@@ -7,6 +7,7 @@ import com.atypon.nosql.database.utils.ExtraFileUtils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -14,31 +15,29 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class DefaultIOEngine implements IOEngine {
+public class DefaultIOEngine<T extends Document<?>> implements IOEngine<T> {
     private final ExecutorService deleteService = Executors.newCachedThreadPool();
 
     private final Set<Path> uncommittedFiles = new HashSet<>();
 
     private final Random random = new Random();
 
-    private final int ATTEMPTS = 5;
-
-    private final int RETRY_DELAY = 10;
-
     @Override
-    public Path write(Document<?> document, Path directoryPath) throws IOException {
+    public Path write(T document, Path directoryPath) {
         Path documentPath = getNewDocumentPath(directoryPath);
         writeAtPath(document, documentPath);
-        return documentPath;
+        return directoryPath;
     }
 
     private Path getNewDocumentPath(Path directoryPath) {
         return directoryPath.resolve(random.nextLong() + ".json");
     }
 
-    private void writeAtPath(Document<?> document, Path documentPath) throws IOException {
+    private void writeAtPath(T document, Path documentPath) {
         try (BufferedWriter writer = Files.newBufferedWriter(documentPath)) {
             writer.write(document.toString());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -48,7 +47,7 @@ public class DefaultIOEngine implements IOEngine {
     }
 
     @Override
-    public Path update(Document<?> updatedDocument, Path documentPath) throws IOException {
+    public Path update(T updatedDocument, Path documentPath) {
         Path updatedDocumentPath = getNewDocumentPath(documentPath.getParent());
         add(updatedDocumentPath);
         writeAtPath(updatedDocument, updatedDocumentPath);
@@ -65,49 +64,26 @@ public class DefaultIOEngine implements IOEngine {
         uncommittedFiles.remove(path);
     }
 
-    private <T extends Document<?>> Optional<T> read(
-            Path documentPath,
-            DocumentGenerator<T> documentGenerator,
-            int remainingAttempts
-    ) {
-        if (remainingAttempts == 0) {
+    @Override
+    public Optional<T> read(Path documentPath, DocumentGenerator<T> documentGenerator) {
+        if (uncommittedFiles.contains(documentPath)) {
             return Optional.empty();
         }
         try (BufferedReader reader = Files.newBufferedReader(documentPath)) {
             String src = reader.lines().collect(Collectors.joining());
             return Optional.of(documentGenerator.createFromString(src));
         } catch (IOException e) {
-            try {
-                Thread.sleep(RETRY_DELAY);
-            } catch (InterruptedException ex) {
-                throw new RuntimeException("Interrupted while reading a file: " + documentPath);
-            }
-            return read(documentPath, documentGenerator, remainingAttempts - 1);
-        }
-    }
-
-    @Override
-    public <T extends Document<?>> Optional<T> read(Path documentPath, DocumentGenerator<T> documentGenerator) {
-        if (uncommittedFiles.contains(documentPath)) {
             return Optional.empty();
         }
-        return read(documentPath, documentGenerator, ATTEMPTS);
     }
 
     @Override
-    public <T extends Document<?>> List<T> readDirectory(
-            Path directoryPath,
-            DocumentGenerator<T> documentGenerator
-    ) {
-        try {
-            return Files.walk(directoryPath, 1)
-                    .filter(ExtraFileUtils::isJsonFile)
-                    .map(documentPath -> read(documentPath, documentGenerator))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .toList();
-        } catch (IOException e) {
-            throw new RuntimeException("Couldn't access the directory: " + directoryPath);
-        }
+    public List<T> readDirectory(Path directoryPath, DocumentGenerator<T> documentGenerator) {
+        return ExtraFileUtils.traverseDirectory(directoryPath)
+                .filter(ExtraFileUtils::isJsonFile)
+                .map(documentPath -> read(documentPath, documentGenerator))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
     }
 }

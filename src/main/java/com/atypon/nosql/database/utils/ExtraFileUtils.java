@@ -5,8 +5,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ExtraFileUtils {
@@ -54,7 +52,7 @@ public class ExtraFileUtils {
         }
     }
 
-    public Stream<Path> directoryFiles(Path directory) {
+    public static Stream<Path> traverseDirectory(Path directory) {
         try {
             return Files.walk(directory, 1);
         } catch (IOException e) {

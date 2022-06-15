@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GenericIndexedDocumentsCollection<T extends Document<?>> implements IndexedDocumentsCollection<T> {
-    private final IOEngine ioEngine;
+    private final IOEngine<T> ioEngine;
 
     private final Path documentsPath;
 
@@ -38,7 +38,7 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
             Path collectionPath,
             DocumentGenerator<T> documentGenerator,
             IndexGenerator<T> indexGenerator,
-            IOEngine ioEngine
+            IOEngine<T> ioEngine
     ) {
         this.ioEngine = ioEngine;
         this.documentGenerator = documentGenerator;
@@ -75,7 +75,7 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
                 });
     }
 
-    private void createIdIndex() throws IOException {
+    private void createIdIndex() {
         String idCriteriaFields = "{\"_id\": null}";
         T idCriteria = documentGenerator.createFromString(idCriteriaFields);
         if (!indexes.containsKey(idCriteria)) {
@@ -88,7 +88,7 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
     }
 
     @Override
-    public void createIndex(T indexFields) throws IOException {
+    public void createIndex(T indexFields) {
         Path indexPath = indexesCollection.addDocument(indexFields);
         indexes.put(
                 indexFields,
@@ -152,7 +152,7 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
     }
 
     @Override
-    public Path addDocument(T addedDocument) throws IOException {
+    public Path addDocument(T addedDocument) {
         Path addedDocumentPath = documentsCollection.addDocument(addedDocument);
         updateAllIndexes(addedDocument, addedDocumentPath);
         return addedDocumentPath;
@@ -176,7 +176,7 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
 
     @Override
     public Path updateDocument(T documentCriteria, T updatedDocument)
-            throws NoSuchDocumentException, MultipleFilesMatchedException, IOException {
+            throws NoSuchDocumentException, MultipleFilesMatchedException {
         List<Path> matchingDocumentsPath = getMatchingDocumentPath(documentCriteria);
         if (matchingDocumentsPath.size() > 1) {
             throw new MultipleFilesMatchedException(matchingDocumentsPath.size());
@@ -191,10 +191,11 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
 
     @Override
     @SuppressWarnings("unchecked")
-    public void deleteAllThatMatches(T documentCriteria) throws FieldsDoNotMatchException {
+    public int deleteAllThatMatches(T documentCriteria) throws FieldsDoNotMatchException {
         T criteriaFields = (T) documentCriteria.getFields();
         if (indexes.containsKey(criteriaFields)) {
-            indexes.get(criteriaFields).get(documentCriteria).forEach(ioEngine::delete);
+            Collection<Path> paths = indexes.get(criteriaFields).get(documentCriteria);
+            paths.forEach(ioEngine::delete);
             indexes.forEach((fields, fieldIndex) -> {
                 try {
                     fieldIndex.remove(documentCriteria);
@@ -202,8 +203,9 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
                     e.printStackTrace();
                 }
             });
+            return paths.size();
         } else {
-            documentsCollection.deleteAllThatMatches(documentCriteria);
+            return documentsCollection.deleteAllThatMatches(documentCriteria);
         }
     }
 
@@ -223,7 +225,7 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
 
         private IndexGenerator<T> indexGenerator;
 
-        private IOEngine ioEngine;
+        private IOEngine<T> ioEngine;
 
         public GenericIndexedDocumentsCollectionBuilder<T> setDocumentsPath(Path documentsPath) {
             this.documentsPath = documentsPath;
@@ -242,7 +244,7 @@ public class GenericIndexedDocumentsCollection<T extends Document<?>> implements
             return this;
         }
 
-        public GenericIndexedDocumentsCollectionBuilder<T> setIOEngine(IOEngine ioEngine) {
+        public GenericIndexedDocumentsCollectionBuilder<T> setIOEngine(IOEngine<T> ioEngine) {
             this.ioEngine = ioEngine;
             return this;
         }
