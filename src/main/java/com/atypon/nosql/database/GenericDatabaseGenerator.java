@@ -14,16 +14,13 @@ public class GenericDatabaseGenerator<T extends Document<?>> implements Database
 
     private final DocumentSchemaGenerator<T> schemaGenerator;
 
-    private final Path databasesDirectory;
-
     private GenericDatabaseGenerator(
             IOEngine<T> ioEngine,
             DocumentGenerator<T> documentGenerator,
-            DocumentSchemaGenerator<T> schemaGenerator, Path databasesDirectory) {
+            DocumentSchemaGenerator<T> schemaGenerator) {
         this.ioEngine = ioEngine;
         this.documentGenerator = documentGenerator;
         this.schemaGenerator = schemaGenerator;
-        this.databasesDirectory = databasesDirectory;
     }
 
     public static <T extends Document<?>> GenericDatabaseGeneratorBuilder<T> builder() {
@@ -33,7 +30,7 @@ public class GenericDatabaseGenerator<T extends Document<?>> implements Database
     @Override
     public Database create(Path databaseDirectory) {
         return GenericDatabase.<T>builder()
-                .setDatabaseDirectory(databasesDirectory.resolve(databaseDirectory))
+                .setDatabaseDirectory(databaseDirectory)
                 .setDocumentGenerator(documentGenerator)
                 .setDocumentSchemaGenerator(schemaGenerator)
                 .setIoEngine(ioEngine)
@@ -64,13 +61,8 @@ public class GenericDatabaseGenerator<T extends Document<?>> implements Database
             return this;
         }
 
-        public GenericDatabaseGeneratorBuilder<T> setDatabasesDirectory(Path databasesDirectory) {
-            this.databasesDirectory = databasesDirectory;
-            return this;
-        }
-
         public GenericDatabaseGenerator<T> build() {
-            return new GenericDatabaseGenerator<>(ioEngine, documentGenerator, schemaGenerator, databasesDirectory);
+            return new GenericDatabaseGenerator<>(ioEngine, documentGenerator, schemaGenerator);
         }
     }
 }

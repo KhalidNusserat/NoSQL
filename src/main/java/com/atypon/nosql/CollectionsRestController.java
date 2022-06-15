@@ -1,22 +1,21 @@
 package com.atypon.nosql;
 
-import com.atypon.nosql.database.Database;
+import com.atypon.nosql.database.DatabasesManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
-import java.util.Map;
 
 @RestController
 public class CollectionsRestController {
-    private final Map<String, Database> databases;
+    private final DatabasesManager databasesManager;
 
-    public CollectionsRestController(Map<String, Database> databases) {
-        this.databases = databases;
+    public CollectionsRestController(DatabasesManager databasesManager) {
+        this.databasesManager = databasesManager;
     }
 
     private void checkDatabaseExists(String database) {
-        if (!databases.containsKey(database)) {
+        if (!databasesManager.contains(database)) {
             throw new NoSuchDatabaseException(database);
         }
     }
@@ -24,7 +23,7 @@ public class CollectionsRestController {
     @GetMapping("/databases/{database}/collections")
     public ResponseEntity<Collection<String>> getAllCollections(@PathVariable("database") String database) {
         checkDatabaseExists(database);
-        return ResponseEntity.ok(databases.get(database).getCollectionsNames());
+        return ResponseEntity.ok(databasesManager.get(database).getCollectionsNames());
     }
 
     @PostMapping("/databases/{database}/collections/{collection}")
@@ -34,7 +33,7 @@ public class CollectionsRestController {
             @RequestBody String schema
     ) {
         checkDatabaseExists(database);
-        databases.get(database).createCollection(collection, schema);
+        databasesManager.get(database).createCollection(collection, schema);
         return ResponseEntity.ok("Created collection: " + database + "/" + collection);
     }
 }

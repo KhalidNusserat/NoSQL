@@ -46,7 +46,6 @@ public class NoSqlRestApiApplication {
     @Bean
     public DatabaseGenerator databaseGenerator() {
         return GenericDatabaseGenerator.<GsonDocument>builder()
-                .setDatabasesDirectory(databasesDirectory)
                 .setDocumentGenerator(documentGenerator())
                 .setSchemaGenerator(documentSchemaGenerator())
                 .setIoEngine(ioEngine())

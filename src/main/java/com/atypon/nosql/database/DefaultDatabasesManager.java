@@ -18,6 +18,7 @@ public class DefaultDatabasesManager implements DatabasesManager {
     public DefaultDatabasesManager(Path databasesDirectory, DatabaseGenerator databaseGenerator) {
         this.databasesDirectory = databasesDirectory;
         this.databaseGenerator = databaseGenerator;
+        ExtraFileUtils.createDirectories(databasesDirectory);
         loadDatabases();
     }
 
