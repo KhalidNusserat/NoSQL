@@ -8,6 +8,7 @@ import com.atypon.nosql.database.io.IOEngine;
 import com.atypon.nosql.database.utils.ExtraFileUtils;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -35,7 +36,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
 
     private final ExecutorService directoriesDeletingService = Executors.newCachedThreadPool();
 
-    public GenericDatabase(
+    private GenericDatabase(
             IOEngine<T> ioEngine,
             Path databaseDirectory,
             DocumentGenerator<T> documentGenerator,
@@ -46,13 +47,13 @@ public class GenericDatabase<T extends Document<?>> implements Database {
         this.documentGenerator = documentGenerator;
         this.schemaGenerator = schemaGenerator;
         createDirectories(databaseDirectory);
-        try {
-            Files.walk(databaseDirectory, 1)
-                    .filter(path -> !path.equals(databaseDirectory))
-                    .forEach(this::loadCollection);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        ExtraFileUtils.traverseDirectory(databaseDirectory)
+                .filter(path -> !path.equals(databaseDirectory))
+                .forEach(this::loadCollection);
+    }
+
+    public static <T extends Document<?>> GenericDatabaseBuilder<T> builder() {
+        return new GenericDatabaseBuilder<>();
     }
 
     private void createDirectories(Path... directoriesPaths) {
@@ -61,7 +62,7 @@ public class GenericDatabase<T extends Document<?>> implements Database {
                 Files.createDirectories(directoryPath);
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -216,5 +217,39 @@ public class GenericDatabase<T extends Document<?>> implements Database {
     public Map<String, Object> getCollectionSchema(String collectionName) throws CollectionNotFoundException {
         checkCollectionExists(collectionName);
         return schemas.get(collectionName).getAsDocument().getAsMap();
+    }
+
+    public static class GenericDatabaseBuilder<T extends Document<?>> {
+        private Path databaseDirectory;
+
+        private IOEngine<T> ioEngine;
+
+        private DocumentGenerator<T> documentGenerator;
+
+        private DocumentSchemaGenerator<T> schemaGenerator;
+
+        public GenericDatabaseBuilder<T> setDatabaseDirectory(Path databaseDirectory) {
+            this.databaseDirectory = databaseDirectory;
+            return this;
+        }
+
+        public GenericDatabaseBuilder<T> setIoEngine(IOEngine<T> ioEngine) {
+            this.ioEngine = ioEngine;
+            return this;
+        }
+
+        public GenericDatabaseBuilder<T> setDocumentGenerator(DocumentGenerator<T> documentGenerator) {
+            this.documentGenerator = documentGenerator;
+            return this;
+        }
+
+        public GenericDatabaseBuilder<T> setDocumentSchemaGenerator(DocumentSchemaGenerator<T> schemaGenerator) {
+            this.schemaGenerator = schemaGenerator;
+            return this;
+        }
+
+        public GenericDatabase<T> build() {
+            return new GenericDatabase<>(ioEngine, databaseDirectory, documentGenerator, schemaGenerator);
+        }
     }
 }
