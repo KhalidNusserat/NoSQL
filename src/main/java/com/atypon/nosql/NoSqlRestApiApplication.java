@@ -10,12 +10,16 @@ import com.atypon.nosql.database.document.DocumentSchemaFactory;
 import com.atypon.nosql.database.document.RandomObjectIdGenerator;
 import com.atypon.nosql.database.gsondocument.GsonDocumentFactory;
 import com.atypon.nosql.database.gsondocument.GsonDocumentSchemaFactory;
+import com.atypon.nosql.database.index.DefaultIndexFactory;
+import com.atypon.nosql.database.index.IndexFactory;
 import com.atypon.nosql.database.io.CachedIOEngine;
 import com.atypon.nosql.database.io.DefaultIOEngine;
 import com.atypon.nosql.database.io.IOEngine;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.nio.file.Path;
 
@@ -33,26 +37,37 @@ public class NoSqlRestApiApplication {
     }
 
     @Bean
+    public IndexFactory indexFactory() {
+        return new DefaultIndexFactory();
+    }
+
+    @Bean
     public IOEngine ioEngine() {
         return CachedIOEngine.from(new DefaultIOEngine(documentFactory()), new LRUCache<>(100000));
     }
 
     @Bean
-    public DocumentSchemaFactory documentSchemaGenerator() {
+    public DocumentSchemaFactory documentSchemaFactory() {
         return new GsonDocumentSchemaFactory();
     }
 
     @Bean
     public DatabaseFactory databaseGenerator() {
         return GenericDatabaseFactory.builder()
-                .setDocumentGenerator(documentFactory())
-                .setSchemaGenerator(documentSchemaGenerator())
+                .setDocumentFactory(documentFactory())
+                .setSchemaFactory(documentSchemaFactory())
                 .setIoEngine(ioEngine())
+                .setIndexFactory(indexFactory())
                 .build();
     }
 
     @Bean
     public DatabasesManager databasesManager() {
         return new DefaultDatabasesManager(databasesDirectory, databaseGenerator());
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

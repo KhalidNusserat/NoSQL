@@ -3,12 +3,12 @@ package com.atypon.nosql.database.collection;
 import com.atypon.nosql.database.document.Document;
 
 import java.nio.file.Path;
-import java.util.Collection;
+import java.util.List;
 
 public interface DocumentsCollection {
     boolean contains(Document matchDocument);
 
-    Collection<Document> getAllThatMatch(Document matchDocument);
+    List<Document> getAllThatMatch(Document matchDocument);
 
     Path addDocument(Document document);
 
@@ -16,5 +16,5 @@ public interface DocumentsCollection {
 
     int removeAllThatMatch(Document matchDocument);
 
-    Collection<Document> getAll();
+    List<Document> getAll();
 }

@@ -80,24 +80,29 @@ public class BasicIndexedDocumentsCollection implements IndexedDocumentsCollecti
     }
 
     @Override
-    public void createIndex(Document indexFields) {
-        if (indexes.containsKey(indexFields)) {
-            throw new IndexAlreadyExistsException(indexFields);
+    public void createIndex(Document indexDocument) {
+        if (indexes.containsKey(indexDocument)) {
+            throw new IndexAlreadyExistsException(indexDocument);
         }
-        Path indexPath = indexesCollection.addDocument(indexFields);
+        Path indexPath = indexesCollection.addDocument(indexDocument);
         indexes.put(
-                indexFields,
-                indexFactory.createNewIndex(indexFields, indexPath, ioEngine)
+                indexDocument,
+                indexFactory.createNewIndex(indexDocument, indexPath, ioEngine)
         );
     }
 
     @Override
-    public void deleteIndex(Document indexFields) {
-        if (!indexes.containsKey(indexFields)) {
-            throw new NoSuchIndexException(indexFields);
+    public void deleteIndex(Document indexDocument) {
+        if (!indexes.containsKey(indexDocument)) {
+            throw new NoSuchIndexException(indexDocument);
         }
-        ioEngine.delete(indexes.get(indexFields).getIndexPath());
-        indexes.remove(indexFields);
+        ioEngine.delete(indexes.get(indexDocument).getIndexPath());
+        indexes.remove(indexDocument);
+    }
+
+    @Override
+    public boolean containsIndex(Document indexDocument) {
+        return indexesCollection.contains(indexDocument);
     }
 
     @Override
@@ -119,7 +124,7 @@ public class BasicIndexedDocumentsCollection implements IndexedDocumentsCollecti
     }
 
     @Override
-    public Collection<Document> getAllThatMatch(Document documentCriteria) {
+    public List<Document> getAllThatMatch(Document documentCriteria) {
         Document criteriaFields = documentCriteria.getFields();
         if (indexes.containsKey(criteriaFields)) {
             Index index = indexes.get(criteriaFields);
@@ -182,7 +187,7 @@ public class BasicIndexedDocumentsCollection implements IndexedDocumentsCollecti
     }
 
     @Override
-    public Collection<Document> getAll() {
+    public List<Document> getAll() {
         return documentsCollection.getAll();
     }
 
@@ -200,12 +205,12 @@ public class BasicIndexedDocumentsCollection implements IndexedDocumentsCollecti
             return this;
         }
 
-        public GenericIndexedDocumentsCollectionBuilder setDocumentGenerator(DocumentFactory documentFactory) {
+        public GenericIndexedDocumentsCollectionBuilder setDocumentFactory(DocumentFactory documentFactory) {
             this.documentFactory = documentFactory;
             return this;
         }
 
-        public GenericIndexedDocumentsCollectionBuilder setIndexGenerator(IndexFactory indexFactory) {
+        public GenericIndexedDocumentsCollectionBuilder setIndexFactory(IndexFactory indexFactory) {
             this.indexFactory = indexFactory;
             return this;
         }

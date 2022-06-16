@@ -31,7 +31,7 @@ public class BasicDocumentsCollection implements DocumentsCollection {
     }
 
     @Override
-    public Collection<Document> getAllThatMatch(Document documentCriteria) {
+    public List<Document> getAllThatMatch(Document documentCriteria) {
         return FileUtils.traverseDirectory(documentsPath)
                 .filter(FileUtils::isJsonFile)
                 .map(ioEngine::read)
@@ -73,7 +73,7 @@ public class BasicDocumentsCollection implements DocumentsCollection {
     }
 
     @Override
-    public Collection<Document> getAll() {
+    public List<Document> getAll() {
         return FileUtils.traverseDirectory(documentsPath)
                 .filter(FileUtils::isJsonFile)
                 .map(ioEngine::read)
