@@ -4,7 +4,7 @@ import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentGenerator;
 import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.database.io.IOEngine;
-import com.atypon.nosql.database.utils.ExtraFileUtils;
+import com.atypon.nosql.database.utils.FileUtils;
 import com.atypon.nosql.database.utils.ReversedHashMap;
 
 import java.io.IOException;
@@ -70,7 +70,7 @@ public class DefaultIndex<T extends Document> implements Index<T> {
     public void populateIndex(Path collectionPath) {
         try {
             List<Path> paths = Files.walk(collectionPath, 1)
-                    .filter(ExtraFileUtils::isJsonFile)
+                    .filter(FileUtils::isJsonFile)
                     .toList();
             for (Path path : paths) {
                 Optional<T> document = ioEngine.read(path, documentGenerator);

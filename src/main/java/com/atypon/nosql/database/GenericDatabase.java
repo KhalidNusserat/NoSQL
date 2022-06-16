@@ -5,7 +5,7 @@ import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
 import com.atypon.nosql.database.document.*;
 import com.atypon.nosql.database.index.GenericIndexGenerator;
 import com.atypon.nosql.database.io.IOEngine;
-import com.atypon.nosql.database.utils.ExtraFileUtils;
+import com.atypon.nosql.database.utils.FileUtils;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class GenericDatabase<T extends Document> implements Database {
+public class GenericDatabase<T extends Document> implements Database<T> {
     private final Map<String, IndexedDocumentsCollection<T>> collections = new ConcurrentHashMap<>();
 
     private final Map<String, DocumentSchema<T>> schemas = new ConcurrentHashMap<>();
@@ -47,7 +47,7 @@ public class GenericDatabase<T extends Document> implements Database {
         this.documentGenerator = documentGenerator;
         this.schemaGenerator = schemaGenerator;
         createDirectories(databaseDirectory);
-        ExtraFileUtils.traverseDirectory(databaseDirectory)
+        FileUtils.traverseDirectory(databaseDirectory)
                 .filter(path -> !path.equals(databaseDirectory))
                 .forEach(this::loadCollection);
     }
@@ -121,11 +121,11 @@ public class GenericDatabase<T extends Document> implements Database {
     }
 
     @Override
-    public void deleteCollection(String collectionName) {
+    public void removeCollection(String collectionName) {
         checkCollectionExists(collectionName);
         Path collectionDirectory = databaseDirectory.resolve(collectionName + "/");
         collections.remove(collectionName);
-        directoriesDeletingService.submit(() -> ExtraFileUtils.deleteDirectory(collectionDirectory));
+        directoriesDeletingService.submit(() -> FileUtils.deleteDirectory(collectionDirectory));
     }
 
     private Optional<DocumentSchema<T>> loadSchema(Path schemaDirectory)
@@ -139,65 +139,8 @@ public class GenericDatabase<T extends Document> implements Database {
     }
 
     @Override
-    public void addDocument(String collectionName, String documentString) {
-        checkCollectionExists(collectionName);
-        T document = documentGenerator.createFromString(documentString);
-        if (schemas.get(collectionName).validate(document)) {
-            collections.get(collectionName).addDocument(documentGenerator.appendId(document));
-        } else {
-            throw new DocumentSchemaViolationException();
-        }
-    }
-
-    @Override
-    public Collection<Map<String, Object>> readDocuments(String collectionName, String matchDocumentString) {
-        checkCollectionExists(collectionName);
-        T matchDocument = documentGenerator.createFromString(matchDocumentString);
-        return collections.get(collectionName).getAllThatMatches(matchDocument).stream()
-                .map(Document::getAsMap)
-                .toList();
-    }
-
-    @Override
-    public void updateDocument(String collectionName, String documentID, String updatedDocumentString) {
-        checkCollectionExists(collectionName);
-        T matchId = documentGenerator.createFromString(String.format("{_id: \"%s\"}", documentID));
-        T updatedDocument = documentGenerator.createFromString(updatedDocumentString);
-        if (schemas.get(collectionName).validate(updatedDocument)) {
-            collections.get(collectionName).updateDocument(matchId, updatedDocument);
-        } else {
-            throw new DocumentSchemaViolationException();
-        }
-    }
-
-    @Override
-    public int deleteDocuments(String collectionName, String matchDocumentString) {
-        checkCollectionExists(collectionName);
-        T matchDocument = documentGenerator.createFromString(matchDocumentString);
-        return collections.get(collectionName).deleteAllThatMatches(matchDocument);
-    }
-
-    @Override
-    public Collection<Map<String, Object>> getCollectionIndexes(String collectionName)
-            throws CollectionNotFoundException {
-        checkCollectionExists(collectionName);
-        return collections.get(collectionName).getIndexes().stream()
-                .map(Document::getAsMap).
-                toList();
-    }
-
-    @Override
-    public void createIndex(String collectionName, String indexDocumentString) {
-        checkCollectionExists(collectionName);
-        T indexDocument = documentGenerator.createFromString(indexDocumentString);
-        collections.get(collectionName).createIndex(indexDocument);
-    }
-
-    @Override
-    public void deleteIndex(String collectionName, String indexDocumentString) {
-        checkCollectionExists(collectionName);
-        T indexDocument = documentGenerator.createFromString(indexDocumentString);
-        collections.get(collectionName).deleteIndex(indexDocument);
+    public IndexedDocumentsCollection<T> get(String collectionName) {
+        return collections.get(collectionName);
     }
 
     @Override
@@ -214,7 +157,7 @@ public class GenericDatabase<T extends Document> implements Database {
     @Override
     public void deleteDatabase() {
         for (String collection : collections.keySet()) {
-            deleteCollection(collection);
+            removeCollection(collection);
         }
     }
 

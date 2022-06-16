@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.stream.Stream;
 
-public class ExtraFileUtils {
+public class FileUtils {
     private static final PathMatcher jsonMatcher = FileSystems.getDefault()
             .getPathMatcher("glob:**/*.json");
 

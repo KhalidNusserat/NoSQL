@@ -4,7 +4,7 @@ import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentGenerator;
 import com.atypon.nosql.database.io.DefaultIOEngine;
 import com.atypon.nosql.database.io.IOEngine;
-import com.atypon.nosql.database.utils.ExtraFileUtils;
+import com.atypon.nosql.database.utils.FileUtils;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -42,8 +42,8 @@ public class GenericBasicDocumentsCollection<T extends Document> implements Docu
 
     @Override
     public boolean contains(T documentCriteria) {
-        return ExtraFileUtils.traverseDirectory(documentsPath)
-                .filter(ExtraFileUtils::isJsonFile)
+        return FileUtils.traverseDirectory(documentsPath)
+                .filter(FileUtils::isJsonFile)
                 .map(documentPath -> ioEngine.read(documentPath, documentGenerator))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -52,8 +52,8 @@ public class GenericBasicDocumentsCollection<T extends Document> implements Docu
 
     @Override
     public Collection<T> getAllThatMatches(T documentCriteria) {
-        return ExtraFileUtils.traverseDirectory(documentsPath)
-                .filter(ExtraFileUtils::isJsonFile)
+        return FileUtils.traverseDirectory(documentsPath)
+                .filter(FileUtils::isJsonFile)
                 .map(documentPath -> ioEngine.read(documentPath, documentGenerator))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -84,8 +84,8 @@ public class GenericBasicDocumentsCollection<T extends Document> implements Docu
     }
 
     private List<Path> getPathsThatMatch(T documentCriteria) {
-        return ExtraFileUtils.traverseDirectory(documentsPath)
-                .filter(ExtraFileUtils::isJsonFile)
+        return FileUtils.traverseDirectory(documentsPath)
+                .filter(FileUtils::isJsonFile)
                 .filter(path -> ioEngine.read(path, documentGenerator)
                         .map(documentCriteria::subsetOf)
                         .orElse(false))
@@ -93,7 +93,7 @@ public class GenericBasicDocumentsCollection<T extends Document> implements Docu
     }
 
     @Override
-    public int deleteAllThatMatches(T documentCriteria) {
+    public int removeAllThatMatches(T documentCriteria) {
         List<Path> paths = getPathsThatMatch(documentCriteria);
         paths.forEach(ioEngine::delete);
         return paths.size();

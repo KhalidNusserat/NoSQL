@@ -7,7 +7,7 @@ import com.atypon.nosql.database.io.IOEngine;
 
 import java.nio.file.Path;
 
-public class GenericDatabaseGenerator<T extends Document> implements DatabaseGenerator {
+public class GenericDatabaseGenerator<T extends Document> implements DatabaseGenerator<T> {
     private final IOEngine<T> ioEngine;
 
     private final DocumentGenerator<T> documentGenerator;
@@ -28,7 +28,7 @@ public class GenericDatabaseGenerator<T extends Document> implements DatabaseGen
     }
 
     @Override
-    public Database create(Path databaseDirectory) {
+    public Database<T> create(Path databaseDirectory) {
         return GenericDatabase.<T>builder()
                 .setDatabaseDirectory(databaseDirectory)
                 .setDocumentGenerator(documentGenerator)

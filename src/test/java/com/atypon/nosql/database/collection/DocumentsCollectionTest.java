@@ -7,7 +7,7 @@ import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.database.gsondocument.GsonDocument;
 import com.atypon.nosql.database.gsondocument.GsonDocumentGenerator;
 import com.atypon.nosql.database.io.DefaultIOEngine;
-import com.atypon.nosql.database.utils.ExtraFileUtils;
+import com.atypon.nosql.database.utils.FileUtils;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,7 +57,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
 
     @AfterEach
     void tearDown() {
-        ExtraFileUtils.deleteDirectory(testDirectory);
+        FileUtils.deleteDirectory(testDirectory);
     }
 
     @Test
@@ -81,7 +81,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
         collection.addDocument(john);
         JsonObject matchCpeStudents = new JsonObject();
         matchCpeStudents.addProperty("major", "CPE");
-        collection.deleteAllThatMatches(GsonDocument.fromJsonObject(matchCpeStudents));
+        collection.removeAllThatMatches(GsonDocument.fromJsonObject(matchCpeStudents));
         Thread.sleep(100);
         assertEquals(Set.of(john), Set.copyOf(collection.getAll()));
     }

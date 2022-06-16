@@ -1,55 +1,62 @@
 package com.atypon.nosql;
 
+import com.atypon.nosql.database.Database;
 import com.atypon.nosql.database.DatabasesManager;
+import com.atypon.nosql.database.collection.DocumentsCollection;
+import com.atypon.nosql.database.document.Document;
+import com.atypon.nosql.database.document.DocumentGenerator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.Map;
 
-@RestController
-public class DocumentsRestController {
-    private final DatabasesManager databasesManager;
+public abstract class DocumentsRestController<T extends Document> {
+    private final DatabasesManager<T> databasesManager;
 
-    public DocumentsRestController(DatabasesManager databasesManager) {
+    private final DocumentGenerator<T> documentGenerator;
+
+    public DocumentsRestController(DatabasesManager<T> databasesManager, DocumentGenerator<T> documentGenerator) {
         this.databasesManager = databasesManager;
-    }
-
-    private void checkDatabaseExists(String database) {
-        if (!databasesManager.contains(database)) {
-            throw new NoSuchDatabaseException(database);
-        }
+        this.documentGenerator = documentGenerator;
     }
 
     @GetMapping("/databases/{database}/collections/{collection}/documents")
     public ResponseEntity<Collection<Map<String, Object>>> getDocumentsThatMatch(
-            @PathVariable("database") String database,
-            @PathVariable("collection") String collection,
-            @RequestBody String matchDocument
+            @PathVariable("database") String databaseName,
+            @PathVariable("collection") String collectionName,
+            @RequestBody String matchDocumentString
     ) {
-        checkDatabaseExists(database);
-        return ResponseEntity.ok(databasesManager.get(database).readDocuments(collection, matchDocument));
+        T matchDocument = documentGenerator.createFromString(matchDocumentString);
+        Database<T> database = databasesManager.get(databaseName);
+        DocumentsCollection<T> documentsCollection = database.get(collectionName);
+        Collection<T> results = documentsCollection.getAllThatMatches(matchDocument);
+        return ResponseEntity.ok(Document.getResultsAsMaps(results));
     }
 
     @PostMapping("/databases/{database}/collections/{collection}/documents")
     public ResponseEntity<String> addDocument(
-            @PathVariable("database") String database,
-            @PathVariable("collection") String collection,
-            @RequestBody String document
+            @PathVariable("database") String databaseName,
+            @PathVariable("collection") String collectionName,
+            @RequestBody String documentString
     ) {
-        checkDatabaseExists(database);
-        databasesManager.get(database).addDocument(collection, document);
+        T document = documentGenerator.createFromString(documentString);
+        Database<T> database = databasesManager.get(databaseName);
+        DocumentsCollection<T> documentsCollection = database.get(collectionName);
+        documentsCollection.addDocument(document);
         return ResponseEntity.ok("Added [1] document");
     }
 
     @DeleteMapping("/databases/{database}/collections/{collection}/documents")
     public ResponseEntity<String> deleteDocuments(
-            @PathVariable("database") String database,
-            @PathVariable("collection") String collection,
-            @RequestBody String matchDocument
+            @PathVariable("database") String databaseName,
+            @PathVariable("collection") String collectionName,
+            @RequestBody String matchDocumentString
     ) {
-        checkDatabaseExists(database);
-        int deletedCount = databasesManager.get(database).deleteDocuments(collection, matchDocument);
+        T matchDocument = documentGenerator.createFromString(matchDocumentString);
+        Database<T> database = databasesManager.get(databaseName);
+        DocumentsCollection<T> documentsCollection = database.get(collectionName);
+        int deletedCount = documentsCollection.removeAllThatMatches(matchDocument);
         return ResponseEntity.ok("Deleted [" + deletedCount + "] documents");
     }
 }

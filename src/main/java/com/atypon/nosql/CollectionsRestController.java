@@ -8,21 +8,14 @@ import java.util.Collection;
 
 @RestController
 public class CollectionsRestController {
-    private final DatabasesManager databasesManager;
+    private final DatabasesManager<?> databasesManager;
 
-    public CollectionsRestController(DatabasesManager databasesManager) {
+    public CollectionsRestController(DatabasesManager<?> databasesManager) {
         this.databasesManager = databasesManager;
-    }
-
-    private void checkDatabaseExists(String database) {
-        if (!databasesManager.contains(database)) {
-            throw new NoSuchDatabaseException(database);
-        }
     }
 
     @GetMapping("/databases/{database}/collections")
     public ResponseEntity<Collection<String>> getAllCollections(@PathVariable("database") String database) {
-        checkDatabaseExists(database);
         return ResponseEntity.ok(databasesManager.get(database).getCollectionsNames());
     }
 
@@ -32,7 +25,6 @@ public class CollectionsRestController {
             @PathVariable("collection") String collection,
             @RequestBody String schema
     ) {
-        checkDatabaseExists(database);
         databasesManager.get(database).createCollection(collection, schema);
         return ResponseEntity.ok("Created collection: " + database + "/" + collection);
     }
@@ -42,8 +34,7 @@ public class CollectionsRestController {
             @PathVariable("database") String database,
             @PathVariable("collection") String collection
     ) {
-        checkDatabaseExists(database);
-        databasesManager.get(database).deleteCollection(collection);
+        databasesManager.get(database).removeCollection(collection);
         return ResponseEntity.ok("Deleted collection: " + collection);
     }
 }

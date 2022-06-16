@@ -5,7 +5,7 @@ import com.atypon.nosql.database.document.ObjectIdGenerator;
 import com.atypon.nosql.database.document.RandomObjectIdGenerator;
 import com.atypon.nosql.database.gsondocument.GsonDocument;
 import com.atypon.nosql.database.gsondocument.GsonDocumentGenerator;
-import com.atypon.nosql.database.utils.ExtraFileUtils;
+import com.atypon.nosql.database.utils.FileUtils;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -72,7 +71,7 @@ public abstract class IOEngineTest {
         Path filepath = io.write(khalid, testDirectory);
         io.delete(filepath);
         Thread.sleep(50);
-        assertEquals(0, ExtraFileUtils.countFiles(testDirectory, 1));
+        assertEquals(0, FileUtils.countFiles(testDirectory, 1));
     }
 
     @Test
@@ -82,6 +81,6 @@ public abstract class IOEngineTest {
         filepath = io.update(khalid, filepath);
         assertEquals(khalid, io.read(filepath, documentGenerator).orElseThrow());
         Thread.sleep(50);
-        assertEquals(1, ExtraFileUtils.countFiles(testDirectory, 1));
+        assertEquals(1, FileUtils.countFiles(testDirectory, 1));
     }
 }

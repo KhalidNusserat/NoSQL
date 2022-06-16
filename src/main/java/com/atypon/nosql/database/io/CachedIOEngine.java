@@ -3,7 +3,7 @@ package com.atypon.nosql.database.io;
 import com.atypon.nosql.database.cache.Cache;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentGenerator;
-import com.atypon.nosql.database.utils.ExtraFileUtils;
+import com.atypon.nosql.database.utils.FileUtils;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -54,8 +54,8 @@ public class CachedIOEngine<T extends Document> implements IOEngine<T> {
 
     @Override
     public List<T> readDirectory(Path directoryPath, DocumentGenerator<T> documentGenerator) {
-        return ExtraFileUtils.traverseDirectory(directoryPath)
-                .filter(ExtraFileUtils::isJsonFile)
+        return FileUtils.traverseDirectory(directoryPath)
+                .filter(FileUtils::isJsonFile)
                 .map(path -> read(path, documentGenerator))
                 .filter(Optional::isPresent)
                 .map(Optional::get)

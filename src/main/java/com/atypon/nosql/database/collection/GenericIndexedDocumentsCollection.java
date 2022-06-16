@@ -6,7 +6,7 @@ import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.database.index.Index;
 import com.atypon.nosql.database.index.IndexGenerator;
 import com.atypon.nosql.database.io.IOEngine;
-import com.atypon.nosql.database.utils.ExtraFileUtils;
+import com.atypon.nosql.database.utils.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -70,7 +70,7 @@ public class GenericIndexedDocumentsCollection<T extends Document> implements In
 
     private void loadIndexes() throws IOException {
         Files.walk(indexesPath)
-                .filter(ExtraFileUtils::isJsonFile)
+                .filter(FileUtils::isJsonFile)
                 .forEach(indexPath -> {
                     T indexFields = ioEngine.read(indexPath, documentGenerator).orElseThrow();
                     Index<T> index = indexGenerator.createNewIndex(indexFields, indexPath, ioEngine, documentGenerator);
@@ -197,7 +197,7 @@ public class GenericIndexedDocumentsCollection<T extends Document> implements In
 
     @Override
     @SuppressWarnings("unchecked")
-    public int deleteAllThatMatches(T documentCriteria) throws FieldsDoNotMatchException {
+    public int removeAllThatMatches(T documentCriteria) throws FieldsDoNotMatchException {
         T criteriaFields = (T) documentCriteria.getFields();
         if (indexes.containsKey(criteriaFields)) {
             Collection<Path> paths = indexes.get(criteriaFields).get(documentCriteria);
@@ -211,7 +211,7 @@ public class GenericIndexedDocumentsCollection<T extends Document> implements In
             });
             return paths.size();
         } else {
-            return documentsCollection.deleteAllThatMatches(documentCriteria);
+            return documentsCollection.removeAllThatMatches(documentCriteria);
         }
     }
 

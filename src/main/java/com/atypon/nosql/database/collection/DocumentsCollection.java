@@ -14,7 +14,7 @@ public interface DocumentsCollection<T extends Document> {
 
     Path updateDocument(T documentCriteria, T updatedDocument);
 
-    int deleteAllThatMatches(T matchDocument);
+    int removeAllThatMatches(T matchDocument);
 
     Collection<T> getAll();
 }

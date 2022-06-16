@@ -1,26 +1,17 @@
 package com.atypon.nosql.database;
 
+import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
+import com.atypon.nosql.database.document.Document;
+
 import java.util.Collection;
 import java.util.Map;
 
-public interface Database {
+public interface Database<T extends Document> {
     void createCollection(String collectionName, String schemaString);
 
-    void deleteCollection(String collectionName);
+    void removeCollection(String collectionName);
 
-    void addDocument(String collectionName, String documentString);
-
-    void updateDocument(String collectionName, String documentID, String updatedDocumentString);
-
-    Collection<Map<String, Object>> readDocuments(String collectionName, String matchDocumentString);
-
-    int deleteDocuments(String collectionName, String matchDocumentString);
-
-    Collection<Map<String, Object>> getCollectionIndexes(String collectionName);
-
-    void createIndex(String collectionName, String indexDocumentString);
-
-    void deleteIndex(String collectionName, String indexDocumentString);
+    IndexedDocumentsCollection<T> get(String collectionName);
 
     Collection<String> getCollectionsNames();
 
