@@ -1,7 +1,7 @@
 package com.atypon.nosql.database.io;
 
 import com.atypon.nosql.database.document.Document;
-import com.atypon.nosql.database.document.DocumentGenerator;
+import com.atypon.nosql.database.document.DocumentFactory;
 import com.atypon.nosql.database.utils.FileUtils;
 
 import java.io.BufferedReader;
@@ -22,10 +22,10 @@ public class DefaultIOEngine implements IOEngine {
 
     private final Random random = new Random();
 
-    private final DocumentGenerator documentGenerator;
+    private final DocumentFactory documentFactory;
 
-    public DefaultIOEngine(DocumentGenerator documentGenerator) {
-        this.documentGenerator = documentGenerator;
+    public DefaultIOEngine(DocumentFactory documentFactory) {
+        this.documentFactory = documentFactory;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class DefaultIOEngine implements IOEngine {
         }
         try (BufferedReader reader = Files.newBufferedReader(documentPath)) {
             String src = reader.lines().collect(Collectors.joining());
-            return Optional.of(documentGenerator.createFromString(src));
+            return Optional.of(documentFactory.createFromString(src));
         } catch (IOException e) {
             return Optional.empty();
         }

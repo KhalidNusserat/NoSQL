@@ -1,11 +1,12 @@
 package com.atypon.nosql.database.collection;
 
-import com.atypon.nosql.database.document.DocumentGenerator;
+import com.atypon.nosql.database.document.Document;
+import com.atypon.nosql.database.document.DocumentFactory;
 import com.atypon.nosql.database.document.ObjectIdGenerator;
 import com.atypon.nosql.database.document.RandomObjectIdGenerator;
 import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.database.gsondocument.GsonDocument;
-import com.atypon.nosql.database.gsondocument.GsonDocumentGenerator;
+import com.atypon.nosql.database.gsondocument.GsonDocumentFactory;
 import com.atypon.nosql.database.io.DefaultIOEngine;
 import com.atypon.nosql.database.utils.FileUtils;
 import com.google.gson.JsonObject;
@@ -25,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class Person {
     private static final ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
 
-    private static final GsonDocumentGenerator documentGenerator = new GsonDocumentGenerator(idGenerator);
+    private static final GsonDocumentFactory documentGenerator = new GsonDocumentFactory(idGenerator);
 
     public static GsonDocument newPerson(String name, int age, String major) {
         String src = String.format("{name: %s, age: %d, major: %s}", name, age, major);
@@ -33,7 +34,7 @@ class Person {
     }
 }
 
-public abstract class DocumentsCollectionTest<T extends DocumentsCollection<GsonDocument>> {
+public abstract class DocumentsCollectionTest<T extends DocumentsCollection> {
     protected final Path testDirectory = Path.of("./test");
 
     protected final GsonDocument khalid = Person.newPerson("Khalid", 22, "CPE");
@@ -42,11 +43,15 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
 
     protected final GsonDocument john = Person.newPerson("John", 42, "CIS");
 
-    protected final DefaultIOEngine<GsonDocument> ioEngine = new DefaultIOEngine<>();
+    protected final DefaultIOEngine ioEngine;
 
     protected final ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
 
-    protected final DocumentGenerator<GsonDocument> documentGenerator = new GsonDocumentGenerator(idGenerator);
+    protected final DocumentFactory documentFactory = new GsonDocumentFactory(idGenerator);
+
+    protected DocumentsCollectionTest() {
+        ioEngine = new DefaultIOEngine(documentFactory);
+    }
 
     public abstract T create();
 
@@ -66,11 +71,11 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
         collection.addDocument(khalid);
         collection.addDocument(hamza);
         collection.addDocument(john);
-        assertEquals(List.of(khalid), collection.getAllThatMatches(GsonDocument.fromString("{name: \"Khalid\"}")));
+        assertEquals(List.of(khalid), collection.getAllThatMatch(GsonDocument.fromString("{name: \"Khalid\"}")));
         JsonObject matchCpeObject = new JsonObject();
         matchCpeObject.addProperty("major", "CPE");
         GsonDocument matchCpe = GsonDocument.fromJsonObject(matchCpeObject);
-        assertEquals(Set.of(khalid, hamza), Set.copyOf(collection.getAllThatMatches(matchCpe)));
+        assertEquals(Set.of(khalid, hamza), Set.copyOf(collection.getAllThatMatch(matchCpe)));
     }
 
     @Test
@@ -81,7 +86,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
         collection.addDocument(john);
         JsonObject matchCpeStudents = new JsonObject();
         matchCpeStudents.addProperty("major", "CPE");
-        collection.removeAllThatMatches(GsonDocument.fromJsonObject(matchCpeStudents));
+        collection.removeAllThatMatch(GsonDocument.fromJsonObject(matchCpeStudents));
         Thread.sleep(100);
         assertEquals(Set.of(john), Set.copyOf(collection.getAll()));
     }
@@ -92,6 +97,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection<Gson
         collection.addDocument(khalid);
         collection.addDocument(hamza);
         collection.addDocument(john);
-        assertTrue(List.of(khalid, hamza, john).containsAll(collection.getAll()));
+        List<Document> result = (List<Document>) collection.getAll();
+        assertTrue(List.of(khalid, hamza, john).containsAll(result));
     }
 }

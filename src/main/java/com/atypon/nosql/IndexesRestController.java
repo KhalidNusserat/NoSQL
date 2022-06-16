@@ -1,6 +1,8 @@
 package com.atypon.nosql;
 
 import com.atypon.nosql.database.DatabasesManager;
+import com.atypon.nosql.database.document.Document;
+import com.atypon.nosql.database.document.DocumentFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,44 +13,41 @@ import java.util.Map;
 public class IndexesRestController {
     private final DatabasesManager databasesManager;
 
-    public IndexesRestController(DatabasesManager databasesManager) {
-        this.databasesManager = databasesManager;
-    }
+    private final DocumentFactory documentFactory;
 
-    private void checkDatabaseExists(String database) {
-        if (!databasesManager.contains(database)) {
-            throw new NoSuchDatabaseException(database);
-        }
+    public IndexesRestController(DatabasesManager databasesManager, DocumentFactory documentFactory) {
+        this.databasesManager = databasesManager;
+        this.documentFactory = documentFactory;
     }
 
     @GetMapping("/databases/{database}/collections/{collection}/indexes")
     public ResponseEntity<Collection<Map<String, Object>>> getIndexes(
-            @PathVariable("database") String database,
-            @PathVariable("collection") String collection
+            @PathVariable("database") String databaseName,
+            @PathVariable("collection") String collectionName
     ) {
-        checkDatabaseExists(database);
-        return ResponseEntity.ok(databasesManager.get(database).getCollectionIndexes(collection));
+        Collection<Document> result = databasesManager.get(databaseName).get(collectionName).getIndexes();
+        return ResponseEntity.ok(Document.getResultsAsMaps(result));
     }
 
     @PostMapping("/databases/{database}/collections/{collection}/indexes")
     public ResponseEntity<String> createIndex(
-            @PathVariable("database") String database,
-            @PathVariable("collection") String collection,
-            @RequestBody String index
+            @PathVariable("database") String databaseName,
+            @PathVariable("collection") String collectionName,
+            @RequestBody String indexDocumentString
     ) {
-        checkDatabaseExists(database);
-        databasesManager.get(database).createIndex(collection, index);
-        return ResponseEntity.ok("Created [1] index");
+        Document indexDocument = documentFactory.createFromString(indexDocumentString);
+        databasesManager.get(databaseName).get(collectionName).createIndex(indexDocument);
+        return ResponseEntity.ok("Created [1] indexDocumentString");
     }
 
     @DeleteMapping("/databases/{database}/collections/{collection}/indexes")
     public ResponseEntity<String> deleteIndex(
-            @PathVariable("database") String database,
-            @PathVariable("collection") String collection,
-            @RequestBody String matchIndex
+            @PathVariable("database") String databaseName,
+            @PathVariable("collection") String collectionName,
+            @RequestBody String indexDocumentString
     ) {
-        checkDatabaseExists(database);
-        databasesManager.get(database).deleteIndex(collection, matchIndex);
+        Document indexDocument = documentFactory.createFromString(indexDocumentString);
+        databasesManager.get(databaseName).get(collectionName).deleteIndex(indexDocument);
         return ResponseEntity.ok("Deleted [1] index");
     }
 }

@@ -1,10 +1,10 @@
 package com.atypon.nosql.database.io;
 
-import com.atypon.nosql.database.document.DocumentGenerator;
+import com.atypon.nosql.database.document.DocumentFactory;
 import com.atypon.nosql.database.document.ObjectIdGenerator;
 import com.atypon.nosql.database.document.RandomObjectIdGenerator;
 import com.atypon.nosql.database.gsondocument.GsonDocument;
-import com.atypon.nosql.database.gsondocument.GsonDocumentGenerator;
+import com.atypon.nosql.database.gsondocument.GsonDocumentFactory;
 import com.atypon.nosql.database.utils.FileUtils;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.AfterEach;
@@ -18,15 +18,13 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class IOEngineTest {
-    private final Path testDirectory = Path.of("./test");
+    protected final Path testDirectory = Path.of("./test");
+
+    protected final DocumentFactory documentFactory;
 
     private final GsonDocument khalid;
 
     private final GsonDocument john;
-
-    private final ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
-
-    private final DocumentGenerator<GsonDocument> documentGenerator = new GsonDocumentGenerator(idGenerator);
 
     protected IOEngineTest() {
         JsonObject khalidObject = new JsonObject();
@@ -37,9 +35,11 @@ public abstract class IOEngineTest {
         johnObject.addProperty("name", "John");
         johnObject.addProperty("content", "Jo".repeat(10000000));
         john = GsonDocument.fromJsonObject(johnObject);
+        ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
+        documentFactory = new GsonDocumentFactory(idGenerator);
     }
 
-    public abstract IOEngine<GsonDocument> create();
+    public abstract IOEngine create();
 
     @BeforeEach
     void setUp() throws IOException {
@@ -60,14 +60,14 @@ public abstract class IOEngineTest {
 
     @Test
     void writeAndRead() {
-        IOEngine<GsonDocument> io = create();
+        IOEngine io = create();
         Path filepath = io.write(khalid, testDirectory);
-        assertEquals(khalid, io.read(filepath, documentGenerator).orElseThrow());
+        assertEquals(khalid, io.read(filepath).orElseThrow());
     }
 
     @Test
     void delete() throws InterruptedException {
-        IOEngine<GsonDocument> io = create();
+        IOEngine io = create();
         Path filepath = io.write(khalid, testDirectory);
         io.delete(filepath);
         Thread.sleep(50);
@@ -76,10 +76,10 @@ public abstract class IOEngineTest {
 
     @Test
     void update() throws InterruptedException {
-        IOEngine<GsonDocument> io = create();
+        IOEngine io = create();
         Path filepath = io.write(john, testDirectory);
         filepath = io.update(khalid, filepath);
-        assertEquals(khalid, io.read(filepath, documentGenerator).orElseThrow());
+        assertEquals(khalid, io.read(filepath).orElseThrow());
         Thread.sleep(50);
         assertEquals(1, FileUtils.countFiles(testDirectory, 1));
     }

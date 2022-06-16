@@ -1,13 +1,11 @@
 package com.atypon.nosql.database;
 
-import com.atypon.nosql.database.document.Document;
-
 import java.util.Collection;
 
-public interface DatabasesManager<T extends Document> {
+public interface DatabasesManager {
     void create(String databaseName);
 
-    Database<T> get(String databaseName);
+    Database get(String databaseName);
 
     void remove(String databaseName);
 

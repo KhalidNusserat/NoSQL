@@ -4,21 +4,21 @@ import com.atypon.nosql.database.Database;
 import com.atypon.nosql.database.DatabasesManager;
 import com.atypon.nosql.database.collection.DocumentsCollection;
 import com.atypon.nosql.database.document.Document;
-import com.atypon.nosql.database.document.DocumentGenerator;
+import com.atypon.nosql.database.document.DocumentFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.Map;
 
-public abstract class DocumentsRestController<T extends Document> {
-    private final DatabasesManager<T> databasesManager;
+public abstract class DocumentsRestController {
+    private final DatabasesManager databasesManager;
 
-    private final DocumentGenerator<T> documentGenerator;
+    private final DocumentFactory documentFactory;
 
-    public DocumentsRestController(DatabasesManager<T> databasesManager, DocumentGenerator<T> documentGenerator) {
+    public DocumentsRestController(DatabasesManager databasesManager, DocumentFactory documentFactory) {
         this.databasesManager = databasesManager;
-        this.documentGenerator = documentGenerator;
+        this.documentFactory = documentFactory;
     }
 
     @GetMapping("/databases/{database}/collections/{collection}/documents")
@@ -27,10 +27,10 @@ public abstract class DocumentsRestController<T extends Document> {
             @PathVariable("collection") String collectionName,
             @RequestBody String matchDocumentString
     ) {
-        T matchDocument = documentGenerator.createFromString(matchDocumentString);
-        Database<T> database = databasesManager.get(databaseName);
-        DocumentsCollection<T> documentsCollection = database.get(collectionName);
-        Collection<T> results = documentsCollection.getAllThatMatches(matchDocument);
+        Document matchDocument = documentFactory.createFromString(matchDocumentString);
+        Database database = databasesManager.get(databaseName);
+        DocumentsCollection documentsCollection = database.get(collectionName);
+        Collection<Document> results = documentsCollection.getAllThatMatch(matchDocument);
         return ResponseEntity.ok(Document.getResultsAsMaps(results));
     }
 
@@ -40,9 +40,9 @@ public abstract class DocumentsRestController<T extends Document> {
             @PathVariable("collection") String collectionName,
             @RequestBody String documentString
     ) {
-        T document = documentGenerator.createFromString(documentString);
-        Database<T> database = databasesManager.get(databaseName);
-        DocumentsCollection<T> documentsCollection = database.get(collectionName);
+        Document document = documentFactory.createFromString(documentString);
+        Database database = databasesManager.get(databaseName);
+        DocumentsCollection documentsCollection = database.get(collectionName);
         documentsCollection.addDocument(document);
         return ResponseEntity.ok("Added [1] document");
     }
@@ -53,10 +53,10 @@ public abstract class DocumentsRestController<T extends Document> {
             @PathVariable("collection") String collectionName,
             @RequestBody String matchDocumentString
     ) {
-        T matchDocument = documentGenerator.createFromString(matchDocumentString);
-        Database<T> database = databasesManager.get(databaseName);
-        DocumentsCollection<T> documentsCollection = database.get(collectionName);
-        int deletedCount = documentsCollection.removeAllThatMatches(matchDocument);
+        Document matchDocument = documentFactory.createFromString(matchDocumentString);
+        Database database = databasesManager.get(databaseName);
+        DocumentsCollection documentsCollection = database.get(collectionName);
+        int deletedCount = documentsCollection.removeAllThatMatch(matchDocument);
         return ResponseEntity.ok("Deleted [" + deletedCount + "] documents");
     }
 }

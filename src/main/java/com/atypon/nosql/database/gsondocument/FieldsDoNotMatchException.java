@@ -9,7 +9,7 @@ public class FieldsDoNotMatchException extends RuntimeException {
     public FieldsDoNotMatchException() {
     }
 
-    public <T extends Document> FieldsDoNotMatchException(T first, T second) {
+    public FieldsDoNotMatchException(Document first, Document second) {
         super(String.format("Fields do not match between %s and %s", first, second));
     }
 }

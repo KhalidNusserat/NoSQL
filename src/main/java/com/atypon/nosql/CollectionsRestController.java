@@ -8,9 +8,9 @@ import java.util.Collection;
 
 @RestController
 public class CollectionsRestController {
-    private final DatabasesManager<?> databasesManager;
+    private final DatabasesManager databasesManager;
 
-    public CollectionsRestController(DatabasesManager<?> databasesManager) {
+    public CollectionsRestController(DatabasesManager databasesManager) {
         this.databasesManager = databasesManager;
     }
 

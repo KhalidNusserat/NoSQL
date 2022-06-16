@@ -1,7 +1,6 @@
 package com.atypon.nosql.database;
 
 import com.atypon.nosql.NoSuchDatabaseException;
-import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.utils.FileUtils;
 
 import java.nio.file.Files;
@@ -10,16 +9,16 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultDatabasesManager<T extends Document> implements DatabasesManager<T> {
-    private final Map<String, Database<T>> databases = new ConcurrentHashMap<>();
+public class DefaultDatabasesManager implements DatabasesManager {
+    private final Map<String, Database> databases = new ConcurrentHashMap<>();
 
     private final Path databasesDirectory;
 
-    private final DatabaseGenerator<T> databaseGenerator;
+    private final DatabaseFactory databaseFactory;
 
-    public DefaultDatabasesManager(Path databasesDirectory, DatabaseGenerator<T> databaseGenerator) {
+    public DefaultDatabasesManager(Path databasesDirectory, DatabaseFactory databaseFactory) {
         this.databasesDirectory = databasesDirectory;
-        this.databaseGenerator = databaseGenerator;
+        this.databaseFactory = databaseFactory;
         FileUtils.createDirectories(databasesDirectory);
         loadDatabases();
     }
@@ -32,13 +31,13 @@ public class DefaultDatabasesManager<T extends Document> implements DatabasesMan
 
     private void loadDatabase(Path databaseDirectory) {
         String databaseName = databaseDirectory.getFileName().toString();
-        databases.put(databaseName, databaseGenerator.create(databaseDirectory));
+        databases.put(databaseName, databaseFactory.create(databaseDirectory));
     }
 
     @Override
     public void create(String databaseName) {
         Path databaseDirectory = databasesDirectory.resolve(databaseName + "/");
-        databases.put(databaseName, databaseGenerator.create(databaseDirectory));
+        databases.put(databaseName, databaseFactory.create(databaseDirectory));
     }
 
     private void checkDatabaseExists(String database) {
@@ -48,7 +47,7 @@ public class DefaultDatabasesManager<T extends Document> implements DatabasesMan
     }
 
     @Override
-    public Database<T> get(String databaseName) {
+    public Database get(String databaseName) {
         checkDatabaseExists(databaseName);
         return databases.get(databaseName);
     }

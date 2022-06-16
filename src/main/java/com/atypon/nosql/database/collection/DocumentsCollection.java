@@ -5,16 +5,16 @@ import com.atypon.nosql.database.document.Document;
 import java.nio.file.Path;
 import java.util.Collection;
 
-public interface DocumentsCollection<T extends Document> {
-    boolean contains(T matchDocument);
+public interface DocumentsCollection {
+    boolean contains(Document matchDocument);
 
-    Collection<T> getAllThatMatches(T matchDocument);
+    Collection<Document> getAllThatMatch(Document matchDocument);
 
-    Path addDocument(T document);
+    Path addDocument(Document document);
 
-    Path updateDocument(T documentCriteria, T updatedDocument);
+    Path updateDocument(Document documentCriteria, Document updatedDocument);
 
-    int removeAllThatMatches(T matchDocument);
+    int removeAllThatMatch(Document matchDocument);
 
-    Collection<T> getAll();
+    Collection<Document> getAll();
 }

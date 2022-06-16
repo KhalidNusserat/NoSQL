@@ -1,6 +1,7 @@
 package com.atypon.nosql.database.gsondocument;
 
-import com.atypon.nosql.database.document.DocumentSchemaGenerator;
+import com.atypon.nosql.database.document.Document;
+import com.atypon.nosql.database.document.DocumentSchemaFactory;
 import com.atypon.nosql.database.document.InvalidDocumentSchema;
 import com.atypon.nosql.database.gsondocument.constraints.*;
 import com.google.gson.JsonArray;
@@ -9,7 +10,7 @@ import com.google.gson.JsonObject;
 
 import java.util.regex.Pattern;
 
-public class GsonDocumentSchemaGenerator implements DocumentSchemaGenerator<GsonDocument> {
+public class GsonDocumentSchemaFactory implements DocumentSchemaFactory {
     private final Pattern optionalPattern = Pattern.compile("^\\w+(!?\\?|\\?!?)$");
 
     private final Pattern notnullPattern = Pattern.compile("^\\w+(\\??!|!\\??)$");
@@ -17,12 +18,13 @@ public class GsonDocumentSchemaGenerator implements DocumentSchemaGenerator<Gson
     private final TypeConstraintParser typeConstraintParser = new TypeConstraintParser();
 
     @Override
-    public GsonDocumentSchema createSchema(GsonDocument schemaDocument) throws InvalidDocumentSchema {
-        JsonObject schemaObject = schemaDocument.object;
-        return new GsonDocumentSchema(extractConstraintsFromObject(schemaObject), schemaDocument);
+    public GsonDocumentSchema createSchema(Document schemaDocument) {
+        GsonDocument gsonDocument = (GsonDocument) schemaDocument;
+        JsonObject schemaObject = gsonDocument.object;
+        return new GsonDocumentSchema(extractConstraintsFromObject(schemaObject), gsonDocument);
     }
 
-    private Constraints extractConstraintsFromObject(JsonObject object) throws InvalidDocumentSchema {
+    private Constraints extractConstraintsFromObject(JsonObject object) {
         Constraints constraints = Constraints.empty();
         for (var entry : object.entrySet()) {
             String field = entry.getKey();
@@ -45,7 +47,7 @@ public class GsonDocumentSchemaGenerator implements DocumentSchemaGenerator<Gson
         return field.replace("!", "").replace("?", "");
     }
 
-    private Constraint extractConstraints(JsonElement element) throws InvalidDocumentSchema {
+    private Constraint extractConstraints(JsonElement element) {
         if (element.isJsonNull()) {
             throw new InvalidDocumentSchema("Null not expected in a schema definition");
         } else if (element.isJsonPrimitive()) {

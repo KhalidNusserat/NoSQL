@@ -1,16 +1,15 @@
 package com.atypon.nosql;
 
-import com.atypon.nosql.database.DatabaseGenerator;
+import com.atypon.nosql.database.DatabaseFactory;
 import com.atypon.nosql.database.DatabasesManager;
 import com.atypon.nosql.database.DefaultDatabasesManager;
-import com.atypon.nosql.database.GenericDatabaseGenerator;
+import com.atypon.nosql.database.GenericDatabaseFactory;
 import com.atypon.nosql.database.cache.LRUCache;
-import com.atypon.nosql.database.document.DocumentGenerator;
-import com.atypon.nosql.database.document.DocumentSchemaGenerator;
+import com.atypon.nosql.database.document.DocumentFactory;
+import com.atypon.nosql.database.document.DocumentSchemaFactory;
 import com.atypon.nosql.database.document.RandomObjectIdGenerator;
-import com.atypon.nosql.database.gsondocument.GsonDocument;
-import com.atypon.nosql.database.gsondocument.GsonDocumentGenerator;
-import com.atypon.nosql.database.gsondocument.GsonDocumentSchemaGenerator;
+import com.atypon.nosql.database.gsondocument.GsonDocumentFactory;
+import com.atypon.nosql.database.gsondocument.GsonDocumentSchemaFactory;
 import com.atypon.nosql.database.io.CachedIOEngine;
 import com.atypon.nosql.database.io.DefaultIOEngine;
 import com.atypon.nosql.database.io.IOEngine;
@@ -29,31 +28,31 @@ public class NoSqlRestApiApplication {
     }
 
     @Bean
-    public IOEngine<GsonDocument> ioEngine() {
-        return CachedIOEngine.from(new DefaultIOEngine<>(), new LRUCache<>(100000));
+    public DocumentFactory documentFactory() {
+        return new GsonDocumentFactory(new RandomObjectIdGenerator());
     }
 
     @Bean
-    public DocumentGenerator<GsonDocument> documentGenerator() {
-        return new GsonDocumentGenerator(new RandomObjectIdGenerator());
+    public IOEngine ioEngine() {
+        return CachedIOEngine.from(new DefaultIOEngine(documentFactory()), new LRUCache<>(100000));
     }
 
     @Bean
-    public DocumentSchemaGenerator<GsonDocument> documentSchemaGenerator() {
-        return new GsonDocumentSchemaGenerator();
+    public DocumentSchemaFactory documentSchemaGenerator() {
+        return new GsonDocumentSchemaFactory();
     }
 
     @Bean
-    public DatabaseGenerator<GsonDocument> databaseGenerator() {
-        return GenericDatabaseGenerator.<GsonDocument>builder()
-                .setDocumentGenerator(documentGenerator())
+    public DatabaseFactory databaseGenerator() {
+        return GenericDatabaseFactory.builder()
+                .setDocumentGenerator(documentFactory())
                 .setSchemaGenerator(documentSchemaGenerator())
                 .setIoEngine(ioEngine())
                 .build();
     }
 
     @Bean
-    public DatabasesManager<GsonDocument> databasesManager() {
-        return new DefaultDatabasesManager<>(databasesDirectory, databaseGenerator());
+    public DatabasesManager databasesManager() {
+        return new DefaultDatabasesManager(databasesDirectory, databaseGenerator());
     }
 }

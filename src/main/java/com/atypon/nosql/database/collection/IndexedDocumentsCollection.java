@@ -4,10 +4,10 @@ import com.atypon.nosql.database.document.Document;
 
 import java.util.Collection;
 
-public interface IndexedDocumentsCollection<T extends Document> extends DocumentsCollection<T> {
-    void createIndex(T matchDocument);
+public interface IndexedDocumentsCollection extends DocumentsCollection {
+    void createIndex(Document documentCriteria);
 
-    void deleteIndex(T matchDocument);
+    void deleteIndex(Document documentCriteria);
 
-    Collection<T> getIndexes();
+    Collection<Document> getIndexes();
 }

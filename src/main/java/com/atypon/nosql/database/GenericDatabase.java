@@ -1,15 +1,12 @@
 package com.atypon.nosql.database;
 
-import com.atypon.nosql.database.collection.GenericIndexedDocumentsCollection;
+import com.atypon.nosql.database.collection.BasicIndexedDocumentsCollection;
 import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
 import com.atypon.nosql.database.document.*;
-import com.atypon.nosql.database.index.GenericIndexGenerator;
+import com.atypon.nosql.database.index.DefaultIndexFactory;
 import com.atypon.nosql.database.io.IOEngine;
 import com.atypon.nosql.database.utils.FileUtils;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
@@ -19,51 +16,41 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class GenericDatabase<T extends Document> implements Database<T> {
-    private final Map<String, IndexedDocumentsCollection<T>> collections = new ConcurrentHashMap<>();
+public class GenericDatabase implements Database {
+    private final Map<String, IndexedDocumentsCollection> collections = new ConcurrentHashMap<>();
 
-    private final Map<String, DocumentSchema<T>> schemas = new ConcurrentHashMap<>();
+    private final Map<String, DocumentSchema> schemas = new ConcurrentHashMap<>();
 
-    private final IOEngine<T> ioEngine;
+    private final IOEngine ioEngine;
 
     private final Path databaseDirectory;
 
-    private final GenericIndexGenerator<T> indexGenerator = new GenericIndexGenerator<>();
+    private final DefaultIndexFactory indexGenerator = new DefaultIndexFactory();
 
-    private final DocumentGenerator<T> documentGenerator;
+    private final DocumentFactory documentFactory;
 
-    private final DocumentSchemaGenerator<T> schemaGenerator;
+    private final DocumentSchemaFactory schemaGenerator;
 
     private final ExecutorService directoriesDeletingService = Executors.newCachedThreadPool();
 
     private GenericDatabase(
-            IOEngine<T> ioEngine,
+            IOEngine ioEngine,
             Path databaseDirectory,
-            DocumentGenerator<T> documentGenerator,
-            DocumentSchemaGenerator<T> schemaGenerator
+            DocumentFactory documentFactory,
+            DocumentSchemaFactory schemaGenerator
     ) {
         this.ioEngine = ioEngine;
         this.databaseDirectory = databaseDirectory;
-        this.documentGenerator = documentGenerator;
+        this.documentFactory = documentFactory;
         this.schemaGenerator = schemaGenerator;
-        createDirectories(databaseDirectory);
+        FileUtils.createDirectories(databaseDirectory);
         FileUtils.traverseDirectory(databaseDirectory)
                 .filter(path -> !path.equals(databaseDirectory))
                 .forEach(this::loadCollection);
     }
 
-    public static <T extends Document> GenericDatabaseBuilder<T> builder() {
-        return new GenericDatabaseBuilder<>();
-    }
-
-    private void createDirectories(Path... directoriesPaths) {
-        try {
-            for (Path directoryPath : directoriesPaths) {
-                Files.createDirectories(directoryPath);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+    public static GenericDatabaseBuilder builder() {
+        return new GenericDatabaseBuilder();
     }
 
     private Path getSchemaPath(Path collectionDirectory) {
@@ -73,12 +60,12 @@ public class GenericDatabase<T extends Document> implements Database<T> {
     private void loadCollection(Path collectionDirectory) {
         String collectionName = collectionDirectory.getFileName().toString();
         try {
-            Optional<DocumentSchema<T>> schema = loadSchema(getSchemaPath(collectionDirectory));
+            Optional<DocumentSchema> schema = loadSchema(getSchemaPath(collectionDirectory));
             if (schema.isPresent()) {
                 schemas.put(collectionName, schema.get());
-                IndexedDocumentsCollection<T> documentsCollection = GenericIndexedDocumentsCollection.<T>builder()
+                IndexedDocumentsCollection documentsCollection = BasicIndexedDocumentsCollection.builder()
                         .setDocumentsPath(collectionDirectory)
-                        .setDocumentGenerator(documentGenerator)
+                        .setDocumentGenerator(documentFactory)
                         .setIndexGenerator(indexGenerator)
                         .setIOEngine(ioEngine)
                         .build();
@@ -101,21 +88,22 @@ public class GenericDatabase<T extends Document> implements Database<T> {
             throw new CollectionAlreadyExists(collectionName);
         }
         Path collectionDirectory = databaseDirectory.resolve(collectionName + "/");
-        createDirectories(collectionDirectory, getSchemaPath(collectionDirectory));
-        IndexedDocumentsCollection<T> documentsCollection = GenericIndexedDocumentsCollection.<T>builder()
+        FileUtils.createDirectories(collectionDirectory);
+        FileUtils.createDirectories(getSchemaPath(collectionDirectory));
+        IndexedDocumentsCollection documentsCollection = BasicIndexedDocumentsCollection.builder()
                 .setDocumentsPath(collectionDirectory)
-                .setDocumentGenerator(documentGenerator)
+                .setDocumentGenerator(documentFactory)
                 .setIndexGenerator(indexGenerator)
                 .setIOEngine(ioEngine)
                 .build();
         collections.put(collectionName, documentsCollection);
-        DocumentSchema<T> documentSchema = createNewSchema(schemaString, getSchemaPath(collectionDirectory));
+        DocumentSchema documentSchema = createNewSchema(schemaString, getSchemaPath(collectionDirectory));
         schemas.put(collectionName, documentSchema);
     }
 
-    private DocumentSchema<T> createNewSchema(String schemaDocumentString, Path schemaDirectory) {
-        T schemaDocument = documentGenerator.createFromString(schemaDocumentString);
-        DocumentSchema<T> documentSchema = schemaGenerator.createSchema(schemaDocument);
+    private DocumentSchema createNewSchema(String schemaDocumentString, Path schemaDirectory) {
+        Document schemaDocument = documentFactory.createFromString(schemaDocumentString);
+        DocumentSchema documentSchema = schemaGenerator.createSchema(schemaDocument);
         ioEngine.write(documentSchema.getAsDocument(), schemaDirectory);
         return documentSchema;
     }
@@ -128,9 +116,8 @@ public class GenericDatabase<T extends Document> implements Database<T> {
         directoriesDeletingService.submit(() -> FileUtils.deleteDirectory(collectionDirectory));
     }
 
-    private Optional<DocumentSchema<T>> loadSchema(Path schemaDirectory)
-            throws InvalidDocumentSchema {
-        List<T> directoryContents = ioEngine.readDirectory(schemaDirectory, documentGenerator);
+    private Optional<DocumentSchema> loadSchema(Path schemaDirectory) {
+        List<Document> directoryContents = ioEngine.readDirectory(schemaDirectory);
         if (directoryContents.size() == 1) {
             return Optional.of(schemaGenerator.createSchema(directoryContents.get(0)));
         } else {
@@ -139,7 +126,7 @@ public class GenericDatabase<T extends Document> implements Database<T> {
     }
 
     @Override
-    public IndexedDocumentsCollection<T> get(String collectionName) {
+    public IndexedDocumentsCollection get(String collectionName) {
         return collections.get(collectionName);
     }
 
@@ -161,37 +148,37 @@ public class GenericDatabase<T extends Document> implements Database<T> {
         }
     }
 
-    public static class GenericDatabaseBuilder<T extends Document> {
+    public static class GenericDatabaseBuilder {
         private Path databaseDirectory;
 
-        private IOEngine<T> ioEngine;
+        private IOEngine ioEngine;
 
-        private DocumentGenerator<T> documentGenerator;
+        private DocumentFactory documentFactory;
 
-        private DocumentSchemaGenerator<T> schemaGenerator;
+        private DocumentSchemaFactory schemaGenerator;
 
-        public GenericDatabaseBuilder<T> setDatabaseDirectory(Path databaseDirectory) {
+        public GenericDatabaseBuilder setDatabaseDirectory(Path databaseDirectory) {
             this.databaseDirectory = databaseDirectory;
             return this;
         }
 
-        public GenericDatabaseBuilder<T> setIoEngine(IOEngine<T> ioEngine) {
+        public GenericDatabaseBuilder setIoEngine(IOEngine ioEngine) {
             this.ioEngine = ioEngine;
             return this;
         }
 
-        public GenericDatabaseBuilder<T> setDocumentGenerator(DocumentGenerator<T> documentGenerator) {
-            this.documentGenerator = documentGenerator;
+        public GenericDatabaseBuilder setDocumentGenerator(DocumentFactory documentFactory) {
+            this.documentFactory = documentFactory;
             return this;
         }
 
-        public GenericDatabaseBuilder<T> setDocumentSchemaGenerator(DocumentSchemaGenerator<T> schemaGenerator) {
+        public GenericDatabaseBuilder setDocumentSchemaGenerator(DocumentSchemaFactory schemaGenerator) {
             this.schemaGenerator = schemaGenerator;
             return this;
         }
 
-        public GenericDatabase<T> build() {
-            return new GenericDatabase<>(ioEngine, databaseDirectory, documentGenerator, schemaGenerator);
+        public GenericDatabase build() {
+            return new GenericDatabase(ioEngine, databaseDirectory, documentFactory, schemaGenerator);
         }
     }
 }

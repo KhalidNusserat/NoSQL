@@ -1,7 +1,7 @@
 package com.atypon.nosql.database.document;
 
-public interface DocumentSchema<T extends Document> {
-    boolean validate(T document);
+public interface DocumentSchema {
+    boolean validate(Document document);
 
-    T getAsDocument();
+    Document getAsDocument();
 }

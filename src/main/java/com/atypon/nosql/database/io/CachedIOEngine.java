@@ -2,7 +2,6 @@ package com.atypon.nosql.database.io;
 
 import com.atypon.nosql.database.cache.Cache;
 import com.atypon.nosql.database.document.Document;
-import com.atypon.nosql.database.document.DocumentGenerator;
 import com.atypon.nosql.database.utils.FileUtils;
 
 import java.nio.file.Path;

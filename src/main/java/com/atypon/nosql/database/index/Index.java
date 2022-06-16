@@ -6,18 +6,18 @@ import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
 import java.nio.file.Path;
 import java.util.Collection;
 
-public interface Index<T extends Document> {
-    void add(T document, Path documentPath) throws FieldsDoNotMatchException;
+public interface Index {
+    void add(Document document, Path documentPath);
 
-    void remove(T document) throws FieldsDoNotMatchException;
+    void remove(Document document);
 
-    Collection<Path> get(T matchDocument) throws FieldsDoNotMatchException;
+    Collection<Path> get(Document matchDocument);
 
-    boolean contains(T matchDocument) throws FieldsDoNotMatchException;
+    boolean contains(Document matchDocument);
 
     Path getIndexPath();
 
     void populateIndex(Path collectionPath);
 
-    T getFields();
+    Document getFields();
 }

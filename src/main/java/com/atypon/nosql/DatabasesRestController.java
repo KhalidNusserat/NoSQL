@@ -1,8 +1,6 @@
 package com.atypon.nosql;
 
 import com.atypon.nosql.database.DatabasesManager;
-import com.atypon.nosql.database.gsondocument.GsonDocument;
-import com.google.gson.Gson;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,9 +8,9 @@ import java.util.Collection;
 
 @RestController
 public class DatabasesRestController {
-    private final DatabasesManager<?> databasesManager;
+    private final DatabasesManager databasesManager;
 
-    public DatabasesRestController(DatabasesManager<?> databasesManager) {
+    public DatabasesRestController(DatabasesManager databasesManager) {
         this.databasesManager = databasesManager;
     }
 

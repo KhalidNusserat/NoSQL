@@ -1,9 +1,10 @@
 package com.atypon.nosql.database.gsondocument;
 
+import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentSchema;
 import com.atypon.nosql.database.gsondocument.constraints.Constraints;
 
-public class GsonDocumentSchema implements DocumentSchema<GsonDocument> {
+public class GsonDocumentSchema implements DocumentSchema {
     private final Constraints constraints;
 
     private final GsonDocument schemaDocument;
@@ -14,8 +15,9 @@ public class GsonDocumentSchema implements DocumentSchema<GsonDocument> {
     }
 
     @Override
-    public boolean validate(GsonDocument document) {
-        return constraints.validate(document.object);
+    public boolean validate(Document document) {
+        GsonDocument gsonDocument = (GsonDocument) document;
+        return constraints.validate(gsonDocument.object);
     }
 
     @Override

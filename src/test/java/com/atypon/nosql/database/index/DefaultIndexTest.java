@@ -1,11 +1,11 @@
 package com.atypon.nosql.database.index;
 
-import com.atypon.nosql.database.document.DocumentGenerator;
+import com.atypon.nosql.database.document.DocumentFactory;
 import com.atypon.nosql.database.document.ObjectIdGenerator;
 import com.atypon.nosql.database.document.RandomObjectIdGenerator;
 import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.database.gsondocument.GsonDocument;
-import com.atypon.nosql.database.gsondocument.GsonDocumentGenerator;
+import com.atypon.nosql.database.gsondocument.GsonDocumentFactory;
 import com.atypon.nosql.database.io.DefaultIOEngine;
 import com.atypon.nosql.database.io.IOEngine;
 import com.google.gson.JsonNull;
@@ -24,11 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class DefaultIndexTest {
     private final Path testDirectory = Path.of("./test");
 
-    private final IOEngine ioEngine = new DefaultIOEngine();
+    private final IOEngine ioEngine;
 
-    private final ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
-
-    private final DocumentGenerator<GsonDocument> documentGenerator = new GsonDocumentGenerator(idGenerator);
+    DefaultIndexTest() {
+        ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
+        DocumentFactory documentFactory = new GsonDocumentFactory(idGenerator);
+        ioEngine = new DefaultIOEngine(documentFactory);
+    }
 
     @BeforeEach
     void setUp() throws IOException {
@@ -54,11 +56,10 @@ class DefaultIndexTest {
         GsonDocument matchNameAndUniversity = GsonDocument.fromString(
                 "{name: null, university: {name: null}}"
         );
-        DefaultIndex<GsonDocument> fieldIndex = new DefaultIndex<>(
+        DefaultIndex fieldIndex = new DefaultIndex(
                 matchNameAndUniversity,
                 Path.of("."),
-                ioEngine,
-                documentGenerator
+                ioEngine
         );
         JsonObject khalidObject = new JsonObject();
         khalidObject.addProperty("name", "Khalid");

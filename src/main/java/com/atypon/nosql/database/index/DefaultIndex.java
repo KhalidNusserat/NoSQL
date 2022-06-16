@@ -1,64 +1,50 @@
 package com.atypon.nosql.database.index;
 
 import com.atypon.nosql.database.document.Document;
-import com.atypon.nosql.database.document.DocumentGenerator;
-import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.database.io.IOEngine;
 import com.atypon.nosql.database.utils.FileUtils;
 import com.atypon.nosql.database.utils.ReversedHashMap;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
-public class DefaultIndex<T extends Document> implements Index<T> {
-    private final T fieldsDocument;
+public class DefaultIndex implements Index {
+    private final Document fieldsDocument;
 
-    private final ReversedHashMap<Path, T> pathToValues;
+    private final ReversedHashMap<Path, Document> pathToValues;
 
     private final Path indexPath;
 
-    private final IOEngine<T> ioEngine;
-
-    private final DocumentGenerator<T> documentGenerator;
+    private final IOEngine ioEngine;
 
     public DefaultIndex(
-            T fieldsDocument,
+            Document fieldsDocument,
             Path indexPath,
-            IOEngine<T> ioEngine,
-            DocumentGenerator<T> documentGenerator) {
+            IOEngine ioEngine) {
         this.fieldsDocument = fieldsDocument;
         this.indexPath = indexPath;
         this.ioEngine = ioEngine;
-        this.documentGenerator = documentGenerator;
         pathToValues = new ReversedHashMap<>();
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public void add(T document, Path documentPath) throws FieldsDoNotMatchException {
-        pathToValues.put(documentPath, (T) document.getValuesToMatch(fieldsDocument));
+    public void add(Document document, Path documentPath) {
+        pathToValues.put(documentPath, document.getValuesToMatch(fieldsDocument));
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public void remove(T document) throws FieldsDoNotMatchException {
-        pathToValues.removeByValue((T) document.getValuesToMatch(fieldsDocument));
+    public void remove(Document document) {
+        pathToValues.removeByValue(document.getValuesToMatch(fieldsDocument));
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Collection<Path> get(T document) throws FieldsDoNotMatchException {
-        return pathToValues.getFromValue((T) document.getValuesToMatch(fieldsDocument));
+    public Collection<Path> get(Document document) {
+        return pathToValues.getFromValue(document.getValuesToMatch(fieldsDocument));
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public boolean contains(T document) throws FieldsDoNotMatchException {
-        return pathToValues.containsValue((T) document.getValuesToMatch(fieldsDocument));
+    public boolean contains(Document document) {
+        return pathToValues.containsValue(document.getValuesToMatch(fieldsDocument));
     }
 
     @Override
@@ -68,27 +54,17 @@ public class DefaultIndex<T extends Document> implements Index<T> {
 
     @Override
     public void populateIndex(Path collectionPath) {
-        try {
-            List<Path> paths = Files.walk(collectionPath, 1)
-                    .filter(FileUtils::isJsonFile)
-                    .toList();
-            for (Path path : paths) {
-                Optional<T> document = ioEngine.read(path, documentGenerator);
-                if (document.isPresent()) {
-                    try {
-                        add(document.get(), path);
-                    } catch (FieldsDoNotMatchException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        FileUtils.traverseDirectory(collectionPath)
+                .filter(FileUtils::isJsonFile)
+                .forEach(this::addDocumentToIndex);
+    }
+
+    private void addDocumentToIndex(Path documentPath) {
+        ioEngine.read(documentPath).ifPresent(value -> add(value, documentPath));
     }
 
     @Override
-    public T getFields() {
+    public Document getFields() {
         return fieldsDocument;
     }
 }
