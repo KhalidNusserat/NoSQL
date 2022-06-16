@@ -15,15 +15,21 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class DefaultIOEngine<T extends Document> implements IOEngine<T> {
+public class DefaultIOEngine implements IOEngine {
     private final ExecutorService deleteService = Executors.newCachedThreadPool();
 
     private final Set<Path> uncommittedFiles = new HashSet<>();
 
     private final Random random = new Random();
 
+    private final DocumentGenerator documentGenerator;
+
+    public DefaultIOEngine(DocumentGenerator documentGenerator) {
+        this.documentGenerator = documentGenerator;
+    }
+
     @Override
-    public Path write(T document, Path directoryPath) {
+    public Path write(Document document, Path directoryPath) {
         Path documentPath = getNewDocumentPath(directoryPath);
         writeAtPath(document, documentPath);
         return directoryPath;
@@ -33,7 +39,7 @@ public class DefaultIOEngine<T extends Document> implements IOEngine<T> {
         return directoryPath.resolve(random.nextLong() + ".json");
     }
 
-    private void writeAtPath(T document, Path documentPath) {
+    private void writeAtPath(Document document, Path documentPath) {
         try (BufferedWriter writer = Files.newBufferedWriter(documentPath)) {
             writer.write(document.toString());
         } catch (IOException e) {
@@ -47,7 +53,7 @@ public class DefaultIOEngine<T extends Document> implements IOEngine<T> {
     }
 
     @Override
-    public Path update(T updatedDocument, Path documentPath) {
+    public Path update(Document updatedDocument, Path documentPath) {
         Path updatedDocumentPath = getNewDocumentPath(documentPath.getParent());
         add(updatedDocumentPath);
         writeAtPath(updatedDocument, updatedDocumentPath);
@@ -65,7 +71,7 @@ public class DefaultIOEngine<T extends Document> implements IOEngine<T> {
     }
 
     @Override
-    public Optional<T> read(Path documentPath, DocumentGenerator<T> documentGenerator) {
+    public Optional<Document> read(Path documentPath) {
         if (uncommittedFiles.contains(documentPath)) {
             return Optional.empty();
         }
@@ -78,10 +84,10 @@ public class DefaultIOEngine<T extends Document> implements IOEngine<T> {
     }
 
     @Override
-    public List<T> readDirectory(Path directoryPath, DocumentGenerator<T> documentGenerator) {
+    public List<Document> readDirectory(Path directoryPath) {
         return FileUtils.traverseDirectory(directoryPath)
                 .filter(FileUtils::isJsonFile)
-                .map(documentPath -> read(documentPath, documentGenerator))
+                .map(this::read)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList();

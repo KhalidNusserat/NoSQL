@@ -9,34 +9,34 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-public class CachedIOEngine<T extends Document> implements IOEngine<T> {
-    private final IOEngine<T> ioEngine;
+public class CachedIOEngine implements IOEngine {
+    private final IOEngine ioEngine;
 
-    private final Cache<Path, T> cache;
+    private final Cache<Path, Document> cache;
 
-    private CachedIOEngine(IOEngine<T> ioEngine, Cache<Path, T> cache) {
+    private CachedIOEngine(IOEngine ioEngine, Cache<Path, Document> cache) {
         this.ioEngine = ioEngine;
         this.cache = cache;
     }
 
-    public static <T extends Document> CachedIOEngine<T> from(IOEngine<T> IOEngine, Cache<Path, T> cache) {
-        return new CachedIOEngine<>(IOEngine, cache);
+    public static CachedIOEngine from(IOEngine IOEngine, Cache<Path, Document> cache) {
+        return new CachedIOEngine(IOEngine, cache);
     }
 
     @Override
-    public Path write(T document, Path directory) {
+    public Path write(Document document, Path directory) {
         Path filepath = ioEngine.write(document, directory);
         cache.put(filepath, document);
         return filepath;
     }
 
     @Override
-    public Optional<T> read(Path documentPath, DocumentGenerator<T> documentGenerator) {
-        Optional<T> cacheResult = cache.get(documentPath);
+    public Optional<Document> read(Path documentPath) {
+        Optional<Document> cacheResult = cache.get(documentPath);
         if (cacheResult.isPresent()) {
             return cacheResult;
         } else {
-            return ioEngine.read(documentPath, documentGenerator);
+            return ioEngine.read(documentPath);
         }
     }
 
@@ -46,17 +46,17 @@ public class CachedIOEngine<T extends Document> implements IOEngine<T> {
     }
 
     @Override
-    public Path update(T updatedDocument, Path documentPath) {
+    public Path update(Document updatedDocument, Path documentPath) {
         Path filepath = ioEngine.update(updatedDocument, documentPath);
         cache.put(filepath, updatedDocument);
         return filepath;
     }
 
     @Override
-    public List<T> readDirectory(Path directoryPath, DocumentGenerator<T> documentGenerator) {
+    public List<Document> readDirectory(Path directoryPath) {
         return FileUtils.traverseDirectory(directoryPath)
                 .filter(FileUtils::isJsonFile)
-                .map(path -> read(path, documentGenerator))
+                .map(this::read)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList();
