@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collection;
 import java.util.Map;
 
-public abstract class DocumentsRestController {
+@RestController
+public class DocumentsRestController {
     private final DatabasesManager databasesManager;
 
     private final DocumentFactory documentFactory;
@@ -40,10 +41,11 @@ public abstract class DocumentsRestController {
             @PathVariable("collection") String collectionName,
             @RequestBody String documentString
     ) {
-        Document document = documentFactory.createFromString(documentString);
+        Document documentWithoutId = documentFactory.createFromString(documentString);
+        Document documentWithId = documentFactory.appendId(documentWithoutId);
         Database database = databasesManager.get(databaseName);
         DocumentsCollection documentsCollection = database.get(collectionName);
-        documentsCollection.addDocument(document);
+        documentsCollection.addDocument(documentWithId);
         return ResponseEntity.ok("Added [1] document");
     }
 
