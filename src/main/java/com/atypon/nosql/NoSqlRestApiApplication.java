@@ -13,6 +13,7 @@ import com.atypon.nosql.database.gsondocument.GsonDocumentSchemaFactory;
 import com.atypon.nosql.database.io.CachedIOEngine;
 import com.atypon.nosql.database.io.DefaultIOEngine;
 import com.atypon.nosql.database.io.IOEngine;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -21,10 +22,13 @@ import java.nio.file.Path;
 
 @SpringBootApplication
 public class NoSqlRestApiApplication {
-    private final Path databasesDirectory = Path.of("./databases");
-
     public static void main(String[] args) {
         SpringApplication.run(NoSqlRestApiApplication.class, args);
+    }
+
+    @Bean
+    public Path databasesDirectory() {
+        return Path.of("./databases");
     }
 
     @Bean
@@ -53,6 +57,6 @@ public class NoSqlRestApiApplication {
 
     @Bean
     public DatabasesManager databasesManager() {
-        return new DefaultDatabasesManager(databasesDirectory, databaseGenerator());
+        return new DefaultDatabasesManager(databasesDirectory(), databaseGenerator());
     }
 }
