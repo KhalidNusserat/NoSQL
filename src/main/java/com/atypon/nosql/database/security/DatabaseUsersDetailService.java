@@ -3,6 +3,7 @@ package com.atypon.nosql.database.security;
 import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class DatabaseUsersDetailService implements UserDetailsService {
 
@@ -31,8 +33,15 @@ public class DatabaseUsersDetailService implements UserDetailsService {
         Document usernameCriteria = documentFactory.createFromString(usernameCriteriaString);
         List<Document> matchedUsers = usersCollection.getAllThatMatch(usernameCriteria);
         if (matchedUsers.size() > 1) {
+            log.error(
+                    "More than one user found: found [{}], expected [1]",
+                    matchedUsers.size()
+            );
             throw new RuntimeException("More than one user with the same username");
         } else if (matchedUsers.size() == 0) {
+            log.error(
+                    "No user found: found [0], expected [1]"
+            );
             throw new RuntimeException("User does not exist");
         }
         Map<String, Object> userDocument = matchedUsers.get(0).getAsMap();

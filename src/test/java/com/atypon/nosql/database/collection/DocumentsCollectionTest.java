@@ -7,7 +7,7 @@ import com.atypon.nosql.database.document.RandomObjectIdGenerator;
 import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.database.gsondocument.GsonDocument;
 import com.atypon.nosql.database.gsondocument.GsonDocumentFactory;
-import com.atypon.nosql.database.io.DefaultIOEngine;
+import com.atypon.nosql.database.io.BasicIOEngine;
 import com.atypon.nosql.database.utils.FileUtils;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.AfterEach;
@@ -43,14 +43,14 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection> {
 
     protected final GsonDocument john = Person.newPerson("John", 42, "CIS");
 
-    protected final DefaultIOEngine ioEngine;
+    protected final BasicIOEngine ioEngine;
 
     protected final ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
 
     protected final DocumentFactory documentFactory = new GsonDocumentFactory(idGenerator);
 
     protected DocumentsCollectionTest() {
-        ioEngine = new DefaultIOEngine(documentFactory);
+        ioEngine = new BasicIOEngine(documentFactory);
     }
 
     public abstract T create();
@@ -97,7 +97,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection> {
         collection.addDocument(khalid);
         collection.addDocument(hamza);
         collection.addDocument(john);
-        List<Document> result = (List<Document>) collection.getAll();
+        List<Document> result = collection.getAll();
         assertTrue(List.of(khalid, hamza, john).containsAll(result));
     }
 }

@@ -7,7 +7,7 @@ class CachedIOEngineTest extends IOEngineTest {
     @Override
     public IOEngine create() {
         return CachedIOEngine.from(
-                new DefaultIOEngine(documentFactory),
+                new BasicIOEngine(documentFactory),
                 new LRUCache<>(100)
         );
     }

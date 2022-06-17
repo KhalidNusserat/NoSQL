@@ -7,9 +7,11 @@ import com.atypon.nosql.database.gsondocument.constraints.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.regex.Pattern;
 
+@Slf4j
 public class GsonDocumentSchemaFactory implements DocumentSchemaFactory {
     private final Pattern optionalPattern = Pattern.compile("^\\w+(!?\\?|\\?!?)$");
 
@@ -49,6 +51,9 @@ public class GsonDocumentSchemaFactory implements DocumentSchemaFactory {
 
     private Constraint extractConstraints(JsonElement element) {
         if (element.isJsonNull()) {
+            log.error(
+                    "Null is not expected in a schema definition document"
+            );
             throw new InvalidDocumentSchema("Null not expected in a schema definition");
         } else if (element.isJsonPrimitive()) {
             return typeConstraintParser.extractTypeConstraint(element.getAsString());

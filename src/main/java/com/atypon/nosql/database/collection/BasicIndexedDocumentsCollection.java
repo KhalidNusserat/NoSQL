@@ -7,12 +7,14 @@ import com.atypon.nosql.database.index.Index;
 import com.atypon.nosql.database.index.IndexFactory;
 import com.atypon.nosql.database.index.IndexesManager;
 import com.atypon.nosql.database.io.IOEngine;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 public class BasicIndexedDocumentsCollection implements IndexedDocumentsCollection {
     private final IOEngine ioEngine;
 
@@ -96,8 +98,17 @@ public class BasicIndexedDocumentsCollection implements IndexedDocumentsCollecti
     public Path updateDocument(Document documentCriteria, Document updatedDocument) {
         List<Document> matchingDocuments = documentsCollection.getAllThatMatch(documentCriteria);
         if (matchingDocuments.size() > 1) {
+            log.error(
+                    "More than one document matched: {} matched [{}] documents, expected [1]",
+                    documentCriteria,
+                    matchingDocuments.size()
+            );
             throw new MultipleFilesMatchedException(matchingDocuments.size());
         } else if (matchingDocuments.size() == 0) {
+            log.error(
+                    "No documents matched: {} matched [0] documents, expected [1]",
+                    documentCriteria
+            );
             throw new NoSuchDocumentException(documentCriteria);
         } else {
             Document oldDocument = matchingDocuments.get(0);

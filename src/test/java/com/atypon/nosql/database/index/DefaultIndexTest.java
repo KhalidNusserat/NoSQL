@@ -6,8 +6,6 @@ import com.atypon.nosql.database.document.RandomObjectIdGenerator;
 import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.database.gsondocument.GsonDocument;
 import com.atypon.nosql.database.gsondocument.GsonDocumentFactory;
-import com.atypon.nosql.database.io.DefaultIOEngine;
-import com.atypon.nosql.database.io.IOEngine;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import org.junit.jupiter.api.AfterEach;

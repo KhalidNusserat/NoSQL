@@ -6,18 +6,20 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Objects;
 
+@Slf4j
 public class GsonDocument implements Document {
+    final JsonObject object;
+
     private final static Gson gson = new Gson();
 
     private final static Type mapType = new TypeToken<Map<String, Object>>() {
     }.getType();
-
-    final JsonObject object;
 
     private GsonDocument(JsonObject object) {
         this.object = object.deepCopy();
@@ -72,6 +74,11 @@ public class GsonDocument implements Document {
             String field = entry.getKey();
             JsonElement element = entry.getValue();
             if (!valuesSource.getAsJsonObject().has(field)) {
+                log.error(
+                        "Fields mismatch between {} and {}",
+                        fieldsSource,
+                        valuesSource
+                );
                 throw new FieldsDoNotMatchException();
             }
             JsonElement matchedFields = valuesToMatch(element, valuesSource.getAsJsonObject().get(field));
@@ -83,13 +90,9 @@ public class GsonDocument implements Document {
 
     @Override
     public Document getValuesToMatch(Document otherDocument) {
-        try {
-            JsonObject otherDocumentObject = ((GsonDocument) otherDocument).object;
-            JsonObject matchedObject = valuesToMatch(otherDocumentObject, object).getAsJsonObject();
-            return new GsonDocument(matchedObject);
-        } catch (FieldsDoNotMatchException e) {
-            throw new FieldsDoNotMatchException(this, otherDocument);
-        }
+        JsonObject otherDocumentObject = ((GsonDocument) otherDocument).object;
+        JsonObject matchedObject = valuesToMatch(otherDocumentObject, object).getAsJsonObject();
+        return new GsonDocument(matchedObject);
     }
 
     private JsonObject getCriteriaObject(JsonObject object) {

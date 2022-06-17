@@ -14,7 +14,7 @@ import com.atypon.nosql.database.gsondocument.GsonDocumentSchemaFactory;
 import com.atypon.nosql.database.index.DefaultIndexFactory;
 import com.atypon.nosql.database.index.IndexFactory;
 import com.atypon.nosql.database.io.CachedIOEngine;
-import com.atypon.nosql.database.io.DefaultIOEngine;
+import com.atypon.nosql.database.io.BasicIOEngine;
 import com.atypon.nosql.database.io.IOEngine;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -56,7 +56,7 @@ public class NoSqlRestApiApplication {
     @Bean
     public IOEngine ioEngine(DocumentFactory documentFactory) {
         LRUCache<Path, Document> cache = new LRUCache<>(100000);
-        return CachedIOEngine.from(new DefaultIOEngine(documentFactory), cache);
+        return CachedIOEngine.from(new BasicIOEngine(documentFactory), cache);
     }
 
     @Bean

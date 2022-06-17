@@ -3,6 +3,7 @@ package com.atypon.nosql.database.io;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
 import com.atypon.nosql.database.utils.FileUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -15,7 +16,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class DefaultIOEngine implements IOEngine {
+@Slf4j
+public class BasicIOEngine implements IOEngine {
     private final ExecutorService deleteService = Executors.newCachedThreadPool();
 
     private final Set<Path> uncommittedFiles = new HashSet<>();
@@ -24,7 +26,7 @@ public class DefaultIOEngine implements IOEngine {
 
     private final DocumentFactory documentFactory;
 
-    public DefaultIOEngine(DocumentFactory documentFactory) {
+    public BasicIOEngine(DocumentFactory documentFactory) {
         this.documentFactory = documentFactory;
     }
 
@@ -43,6 +45,12 @@ public class DefaultIOEngine implements IOEngine {
         try (BufferedWriter writer = Files.newBufferedWriter(documentPath)) {
             writer.write(document.toString());
         } catch (IOException e) {
+            log.error(
+                    "An error occurred while trying to write the document \"{}\" at \"{}\": {}",
+                    document,
+                    documentPath,
+                    e.getMessage()
+            );
             throw new UncheckedIOException(e);
         }
     }
