@@ -61,20 +61,16 @@ public class GenericDatabase implements Database {
 
     private void loadCollection(Path collectionDirectory) {
         String collectionName = collectionDirectory.getFileName().toString();
-        try {
-            Optional<DocumentSchema> schema = loadSchema(getSchemaPath(collectionDirectory));
-            if (schema.isPresent()) {
-                schemas.put(collectionName, schema.get());
-                IndexedDocumentsCollection documentsCollection = BasicIndexedDocumentsCollection.builder()
-                        .setDocumentsPath(collectionDirectory)
-                        .setDocumentFactory(documentFactory)
-                        .setIndexFactory(indexFactory)
-                        .setIOEngine(ioEngine)
-                        .build();
-                collections.put(collectionName, documentsCollection);
-            }
-        } catch (InvalidDocumentSchema e) {
-            throw new RuntimeException(e);
+        Optional<DocumentSchema> schema = loadSchema(getSchemaPath(collectionDirectory));
+        if (schema.isPresent()) {
+            schemas.put(collectionName, schema.get());
+            IndexedDocumentsCollection documentsCollection = BasicIndexedDocumentsCollection.builder()
+                    .setDocumentsPath(collectionDirectory)
+                    .setDocumentFactory(documentFactory)
+                    .setIndexFactory(indexFactory)
+                    .setIOEngine(ioEngine)
+                    .build();
+            collections.put(collectionName, documentsCollection);
         }
     }
 
