@@ -53,6 +53,7 @@ public class DefaultIndexesManager implements IndexesManager {
         Index idIndex = indexFactory.createFromFields(idIndexFields);
         if (!indexes.containsKey(idIndexFields)) {
             indexes.put(idIndexFields, idIndex);
+            indexesCollection.addDocument(idIndexFields);
         }
     }
 
