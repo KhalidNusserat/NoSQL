@@ -1,6 +1,6 @@
 package com.atypon.nosql.database;
 
-import com.atypon.nosql.NoSuchDatabaseException;
+import com.atypon.nosql.api.NoSuchDatabaseException;
 import com.atypon.nosql.database.utils.FileUtils;
 
 import java.nio.file.Files;

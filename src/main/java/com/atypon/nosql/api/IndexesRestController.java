@@ -1,4 +1,4 @@
-package com.atypon.nosql;
+package com.atypon.nosql.api;
 
 import com.atypon.nosql.database.DatabasesManager;
 import com.atypon.nosql.database.document.Document;
