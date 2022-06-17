@@ -1,8 +1,9 @@
-package com.atypon.nosql;
+package com.atypon.nosql.api.controllers;
 
-import com.atypon.nosql.database.DatabasesManager;
+import com.atypon.nosql.api.services.DatabasesService;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
+import com.atypon.nosql.database.utils.DocumentUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,12 +12,12 @@ import java.util.Map;
 
 @RestController
 public class IndexesRestController {
-    private final DatabasesManager databasesManager;
+    private final DatabasesService databasesService;
 
     private final DocumentFactory documentFactory;
 
-    public IndexesRestController(DatabasesManager databasesManager, DocumentFactory documentFactory) {
-        this.databasesManager = databasesManager;
+    public IndexesRestController(DatabasesService databasesService, DocumentFactory documentFactory) {
+        this.databasesService = databasesService;
         this.documentFactory = documentFactory;
     }
 
@@ -25,8 +26,8 @@ public class IndexesRestController {
             @PathVariable("database") String databaseName,
             @PathVariable("collection") String collectionName
     ) {
-        Collection<Document> result = databasesManager.get(databaseName).get(collectionName).getIndexes();
-        return ResponseEntity.ok(Document.getResultsAsMaps(result));
+        Collection<Document> result = databasesService.get(databaseName).get(collectionName).getIndexes();
+        return ResponseEntity.ok(DocumentUtils.documentsToMaps(result));
     }
 
     @PostMapping("/databases/{database}/collections/{collection}/indexes")
@@ -36,7 +37,7 @@ public class IndexesRestController {
             @RequestBody String indexDocumentString
     ) {
         Document indexDocument = documentFactory.createFromString(indexDocumentString);
-        databasesManager.get(databaseName).get(collectionName).createIndex(indexDocument);
+        databasesService.get(databaseName).get(collectionName).createIndex(indexDocument);
         return ResponseEntity.ok("Created [1] indexDocumentString");
     }
 
@@ -47,7 +48,7 @@ public class IndexesRestController {
             @RequestBody String indexDocumentString
     ) {
         Document indexDocument = documentFactory.createFromString(indexDocumentString);
-        databasesManager.get(databaseName).get(collectionName).deleteIndex(indexDocument);
+        databasesService.get(databaseName).get(collectionName).deleteIndex(indexDocument);
         return ResponseEntity.ok("Deleted [1] index");
     }
 }

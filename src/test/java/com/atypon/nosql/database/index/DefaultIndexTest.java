@@ -24,12 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class DefaultIndexTest {
     private final Path testDirectory = Path.of("./test");
 
-    private final IOEngine ioEngine;
-
     DefaultIndexTest() {
         ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
         DocumentFactory documentFactory = new GsonDocumentFactory(idGenerator);
-        ioEngine = new DefaultIOEngine(documentFactory);
     }
 
     @BeforeEach
@@ -56,11 +53,7 @@ class DefaultIndexTest {
         GsonDocument matchNameAndUniversity = GsonDocument.fromString(
                 "{name: null, university: {name: null}}"
         );
-        DefaultIndex fieldIndex = new DefaultIndex(
-                matchNameAndUniversity,
-                Path.of("."),
-                ioEngine
-        );
+        DefaultIndex fieldIndex = new DefaultIndex(matchNameAndUniversity);
         JsonObject khalidObject = new JsonObject();
         khalidObject.addProperty("name", "Khalid");
         JsonObject yarmouk = new JsonObject();

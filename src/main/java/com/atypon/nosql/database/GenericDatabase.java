@@ -3,7 +3,7 @@ package com.atypon.nosql.database;
 import com.atypon.nosql.database.collection.BasicIndexedDocumentsCollection;
 import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
 import com.atypon.nosql.database.document.*;
-import com.atypon.nosql.database.index.DefaultIndexFactory;
+import com.atypon.nosql.database.index.IndexFactory;
 import com.atypon.nosql.database.io.IOEngine;
 import com.atypon.nosql.database.utils.FileUtils;
 
@@ -25,24 +25,26 @@ public class GenericDatabase implements Database {
 
     private final Path databaseDirectory;
 
-    private final DefaultIndexFactory indexGenerator = new DefaultIndexFactory();
+    private final IndexFactory indexFactory;
 
     private final DocumentFactory documentFactory;
 
-    private final DocumentSchemaFactory schemaGenerator;
+    private final DocumentSchemaFactory schemaFactory;
 
     private final ExecutorService directoriesDeletingService = Executors.newCachedThreadPool();
 
     private GenericDatabase(
             IOEngine ioEngine,
             Path databaseDirectory,
+            IndexFactory indexFactory,
             DocumentFactory documentFactory,
-            DocumentSchemaFactory schemaGenerator
+            DocumentSchemaFactory schemaFactory
     ) {
         this.ioEngine = ioEngine;
         this.databaseDirectory = databaseDirectory;
+        this.indexFactory = indexFactory;
         this.documentFactory = documentFactory;
-        this.schemaGenerator = schemaGenerator;
+        this.schemaFactory = schemaFactory;
         FileUtils.createDirectories(databaseDirectory);
         FileUtils.traverseDirectory(databaseDirectory)
                 .filter(path -> !path.equals(databaseDirectory))
@@ -65,8 +67,8 @@ public class GenericDatabase implements Database {
                 schemas.put(collectionName, schema.get());
                 IndexedDocumentsCollection documentsCollection = BasicIndexedDocumentsCollection.builder()
                         .setDocumentsPath(collectionDirectory)
-                        .setDocumentGenerator(documentFactory)
-                        .setIndexGenerator(indexGenerator)
+                        .setDocumentFactory(documentFactory)
+                        .setIndexFactory(indexFactory)
                         .setIOEngine(ioEngine)
                         .build();
                 collections.put(collectionName, documentsCollection);
@@ -92,8 +94,8 @@ public class GenericDatabase implements Database {
         FileUtils.createDirectories(getSchemaPath(collectionDirectory));
         IndexedDocumentsCollection documentsCollection = BasicIndexedDocumentsCollection.builder()
                 .setDocumentsPath(collectionDirectory)
-                .setDocumentGenerator(documentFactory)
-                .setIndexGenerator(indexGenerator)
+                .setDocumentFactory(documentFactory)
+                .setIndexFactory(indexFactory)
                 .setIOEngine(ioEngine)
                 .build();
         collections.put(collectionName, documentsCollection);
@@ -103,7 +105,7 @@ public class GenericDatabase implements Database {
 
     private DocumentSchema createNewSchema(String schemaDocumentString, Path schemaDirectory) {
         Document schemaDocument = documentFactory.createFromString(schemaDocumentString);
-        DocumentSchema documentSchema = schemaGenerator.createSchema(schemaDocument);
+        DocumentSchema documentSchema = schemaFactory.createSchema(schemaDocument);
         ioEngine.write(documentSchema.getAsDocument(), schemaDirectory);
         return documentSchema;
     }
@@ -119,7 +121,7 @@ public class GenericDatabase implements Database {
     private Optional<DocumentSchema> loadSchema(Path schemaDirectory) {
         List<Document> directoryContents = ioEngine.readDirectory(schemaDirectory);
         if (directoryContents.size() == 1) {
-            return Optional.of(schemaGenerator.createSchema(directoryContents.get(0)));
+            return Optional.of(schemaFactory.createSchema(directoryContents.get(0)));
         } else {
             return Optional.empty();
         }
@@ -155,6 +157,8 @@ public class GenericDatabase implements Database {
 
         private DocumentFactory documentFactory;
 
+        private IndexFactory indexFactory;
+
         private DocumentSchemaFactory schemaGenerator;
 
         public GenericDatabaseBuilder setDatabaseDirectory(Path databaseDirectory) {
@@ -172,13 +176,24 @@ public class GenericDatabase implements Database {
             return this;
         }
 
+        public GenericDatabaseBuilder setIndexFactory(IndexFactory indexFactory) {
+            this.indexFactory = indexFactory;
+            return this;
+        }
+
         public GenericDatabaseBuilder setDocumentSchemaGenerator(DocumentSchemaFactory schemaGenerator) {
             this.schemaGenerator = schemaGenerator;
             return this;
         }
 
         public GenericDatabase build() {
-            return new GenericDatabase(ioEngine, databaseDirectory, documentFactory, schemaGenerator);
+            return new GenericDatabase(
+                    ioEngine,
+                    databaseDirectory,
+                    indexFactory,
+                    documentFactory,
+                    schemaGenerator
+            );
         }
     }
 }

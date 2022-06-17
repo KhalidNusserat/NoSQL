@@ -15,9 +15,5 @@ public interface Index {
 
     boolean contains(Document matchDocument);
 
-    Path getIndexPath();
-
-    void populateIndex(Path collectionPath);
-
     Document getFields();
 }

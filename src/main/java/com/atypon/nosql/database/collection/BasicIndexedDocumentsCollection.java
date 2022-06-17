@@ -2,35 +2,23 @@ package com.atypon.nosql.database.collection;
 
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
-import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
+import com.atypon.nosql.database.index.DefaultIndexesManager;
 import com.atypon.nosql.database.index.Index;
 import com.atypon.nosql.database.index.IndexFactory;
+import com.atypon.nosql.database.index.IndexesManager;
 import com.atypon.nosql.database.io.IOEngine;
-import com.atypon.nosql.database.utils.FileUtils;
 
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class BasicIndexedDocumentsCollection implements IndexedDocumentsCollection {
     private final IOEngine ioEngine;
 
-    private final Path documentsPath;
-
     private final BasicDocumentsCollection documentsCollection;
 
-    private final DocumentFactory documentFactory;
-
-    private final BasicDocumentsCollection indexesCollection;
-
-    private final Map<Document, Index> indexes = new ConcurrentHashMap<>();
-
-    private final IndexFactory indexFactory;
-
-    private final Path indexesPath;
+    private final IndexesManager indexesManager;
 
     private BasicIndexedDocumentsCollection(
             Path collectionPath,
@@ -39,90 +27,53 @@ public class BasicIndexedDocumentsCollection implements IndexedDocumentsCollecti
             IOEngine ioEngine
     ) {
         this.ioEngine = ioEngine;
-        this.documentFactory = documentFactory;
-        this.indexFactory = indexFactory;
-        documentsPath = collectionPath.resolve("documents/");
-        documentsCollection = new BasicDocumentsCollection(documentsPath, ioEngine);
-        indexesPath = collectionPath.resolve("indexes/");
-        indexesCollection = new BasicDocumentsCollection(indexesPath, ioEngine);
-        FileUtils.createDirectories(indexesPath);
-        loadIndexes();
-        createIdIndex();
+        Path documentsDirectory = collectionPath.resolve("documents/");
+        documentsCollection = new BasicDocumentsCollection(documentsDirectory, ioEngine);
+        Path indexesPath = collectionPath.resolve("indexes/");
+        indexesManager = new DefaultIndexesManager(indexesPath, indexFactory, ioEngine, documentFactory);
+        indexesManager.populateIndexes(documentsDirectory);
     }
 
     public static GenericIndexedDocumentsCollectionBuilder builder() {
         return new GenericIndexedDocumentsCollectionBuilder();
     }
 
-    private void loadIndexes() {
-        FileUtils.traverseDirectory(indexesPath)
-                .filter(FileUtils::isJsonFile)
-                .forEach(this::loadIndex);
-    }
-
-    private void loadIndex(Path indexPath) {
-        Document indexFields = ioEngine.read(indexPath).orElseThrow();
-        Index index = indexFactory.createNewIndex(indexFields, indexPath, ioEngine);
-        index.populateIndex(documentsPath);
-        indexes.put(indexFields, index);
-    }
-
-    private void createIdIndex() {
-        String idCriteriaFields = "{\"_id\": null}";
-        Document idCriteria = documentFactory.createFromString(idCriteriaFields);
-        if (!indexes.containsKey(idCriteria)) {
-            Path indexPath = indexesCollection.addDocument(idCriteria);
-            indexes.put(
-                    idCriteria,
-                    indexFactory.createNewIndex(idCriteria, indexPath, ioEngine)
-            );
-        }
-    }
-
     @Override
     public void createIndex(Document indexFields) {
-        if (indexes.containsKey(indexFields)) {
-            throw new IndexAlreadyExistsException(indexFields);
-        }
-        Path indexPath = indexesCollection.addDocument(indexFields);
-        indexes.put(
-                indexFields,
-                indexFactory.createNewIndex(indexFields, indexPath, ioEngine)
-        );
+        indexesManager.createIndex(indexFields);
     }
 
     @Override
     public void deleteIndex(Document indexFields) {
-        if (!indexes.containsKey(indexFields)) {
-            throw new NoSuchIndexException(indexFields);
-        }
-        ioEngine.delete(indexes.get(indexFields).getIndexPath());
-        indexes.remove(indexFields);
+        indexesManager.removeIndex(indexFields);
+    }
+
+    @Override
+    public boolean containsIndex(Document indexFields) {
+        return indexesManager.contains(indexFields);
     }
 
     @Override
     public Collection<Document> getIndexes() {
-        return indexesCollection.getAll();
+        return indexesManager.getAllIndexesFields();
     }
 
     @Override
-    public boolean contains(Document documentCriteria) throws FieldsDoNotMatchException {
+    public boolean contains(Document documentCriteria) {
         Document criteriaFields = documentCriteria.getFields();
-        if (indexes.containsKey(criteriaFields)) {
-            Index index = indexes.get(criteriaFields);
-            return index.contains(
-                    index.getFields().getValuesToMatch(documentCriteria)
-            );
+        if (indexesManager.contains(criteriaFields)) {
+            Index index = indexesManager.get(criteriaFields);
+            return index.contains(documentCriteria);
         } else {
             return documentsCollection.contains(documentCriteria);
         }
     }
 
     @Override
-    public Collection<Document> getAllThatMatch(Document documentCriteria) {
+    public List<Document> getAllThatMatch(Document documentCriteria) {
         Document criteriaFields = documentCriteria.getFields();
-        if (indexes.containsKey(criteriaFields)) {
-            Index index = indexes.get(criteriaFields);
+        if (indexesManager.contains(criteriaFields)) {
+            Index index = indexesManager.get(criteriaFields);
             return index.get(documentCriteria.getValuesToMatch(index.getFields()))
                     .stream()
                     .map(ioEngine::read)
@@ -134,36 +85,25 @@ public class BasicIndexedDocumentsCollection implements IndexedDocumentsCollecti
         }
     }
 
-    private void updateAllIndexes(Document document, Path documentPath) {
-        indexes.values().forEach(index -> index.add(document, documentPath));
-    }
-
     @Override
     public Path addDocument(Document addedDocument) {
         Path addedDocumentPath = documentsCollection.addDocument(addedDocument);
-        updateAllIndexes(addedDocument, addedDocumentPath);
+        indexesManager.addDocument(addedDocument, addedDocumentPath);
         return addedDocumentPath;
-    }
-
-    private List<Path> getMatchingDocumentPath(Document documentCriteria) {
-        Document criteriaFields = documentCriteria.getFields();
-        return indexes.get(criteriaFields)
-                .get(documentCriteria)
-                .stream()
-                .filter(path -> ioEngine.read(path).map(documentCriteria::subsetOf).orElseThrow())
-                .toList();
     }
 
     @Override
     public Path updateDocument(Document documentCriteria, Document updatedDocument) {
-        List<Path> matchingDocumentsPath = getMatchingDocumentPath(documentCriteria);
-        if (matchingDocumentsPath.size() > 1) {
-            throw new MultipleFilesMatchedException(matchingDocumentsPath.size());
-        } else if (matchingDocumentsPath.size() == 0) {
+        List<Document> matchingDocuments = documentsCollection.getAllThatMatch(documentCriteria);
+        if (matchingDocuments.size() > 1) {
+            throw new MultipleFilesMatchedException(matchingDocuments.size());
+        } else if (matchingDocuments.size() == 0) {
             throw new NoSuchDocumentException(documentCriteria);
         } else {
-            Path updatedDocumentPath = documentsCollection.updateDocument(documentCriteria, updatedDocument);
-            updateAllIndexes(updatedDocument, updatedDocumentPath);
+            Document oldDocument = matchingDocuments.get(0);
+            Path updatedDocumentPath = documentsCollection.updateDocument(oldDocument, updatedDocument);
+            indexesManager.removeDocument(oldDocument);
+            indexesManager.addDocument(updatedDocument, updatedDocumentPath);
             return updatedDocumentPath;
         }
     }
@@ -171,10 +111,12 @@ public class BasicIndexedDocumentsCollection implements IndexedDocumentsCollecti
     @Override
     public int removeAllThatMatch(Document documentCriteria) {
         Document criteriaFields = documentCriteria.getFields();
-        if (indexes.containsKey(criteriaFields)) {
-            Collection<Path> paths = indexes.get(criteriaFields).get(documentCriteria);
-            paths.forEach(ioEngine::delete);
-            indexes.forEach((fields, fieldIndex) -> fieldIndex.remove(documentCriteria));
+        if (indexesManager.contains(criteriaFields)) {
+            Collection<Path> paths = indexesManager.get(criteriaFields).get(documentCriteria);
+            for (Path path : paths) {
+                ioEngine.read(path).ifPresent(indexesManager::removeDocument);
+                ioEngine.delete(path);
+            }
             return paths.size();
         } else {
             return documentsCollection.removeAllThatMatch(documentCriteria);
@@ -182,7 +124,7 @@ public class BasicIndexedDocumentsCollection implements IndexedDocumentsCollecti
     }
 
     @Override
-    public Collection<Document> getAll() {
+    public List<Document> getAll() {
         return documentsCollection.getAll();
     }
 
@@ -200,12 +142,12 @@ public class BasicIndexedDocumentsCollection implements IndexedDocumentsCollecti
             return this;
         }
 
-        public GenericIndexedDocumentsCollectionBuilder setDocumentGenerator(DocumentFactory documentFactory) {
+        public GenericIndexedDocumentsCollectionBuilder setDocumentFactory(DocumentFactory documentFactory) {
             this.documentFactory = documentFactory;
             return this;
         }
 
-        public GenericIndexedDocumentsCollectionBuilder setIndexGenerator(IndexFactory indexFactory) {
+        public GenericIndexedDocumentsCollectionBuilder setIndexFactory(IndexFactory indexFactory) {
             this.indexFactory = indexFactory;
             return this;
         }

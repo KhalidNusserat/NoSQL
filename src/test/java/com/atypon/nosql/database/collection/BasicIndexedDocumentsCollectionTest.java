@@ -1,6 +1,5 @@
 package com.atypon.nosql.database.collection;
 
-import com.atypon.nosql.database.gsondocument.GsonDocument;
 import com.atypon.nosql.database.index.DefaultIndexFactory;
 
 class BasicIndexedDocumentsCollectionTest extends DocumentsCollectionTest<BasicIndexedDocumentsCollection> {
@@ -9,9 +8,9 @@ class BasicIndexedDocumentsCollectionTest extends DocumentsCollectionTest<BasicI
     @Override
     public BasicIndexedDocumentsCollection create() {
         return BasicIndexedDocumentsCollection.builder()
-                .setDocumentGenerator(documentFactory)
+                .setDocumentFactory(documentFactory)
                 .setDocumentsPath(testDirectory)
-                .setIndexGenerator(indexGenerator)
+                .setIndexFactory(indexGenerator)
                 .setIOEngine(ioEngine)
                 .build();
     }

@@ -31,6 +31,10 @@ public class GsonDocument implements Document {
         return GsonDocument.fromJsonObject(gson.fromJson(src, JsonObject.class));
     }
 
+    public static GsonDocument fromMap(Map<String, Object> map) {
+        return GsonDocument.fromJsonObject(gson.toJsonTree(map).getAsJsonObject());
+    }
+
     @Override
     public boolean subsetOf(Document matchDocument) {
         return firstSubsetOfSecond(object, ((GsonDocument) matchDocument).object);

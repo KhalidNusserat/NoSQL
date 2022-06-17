@@ -13,17 +13,8 @@ public class DefaultIndex implements Index {
 
     private final ReversedHashMap<Path, Document> pathToValues;
 
-    private final Path indexPath;
-
-    private final IOEngine ioEngine;
-
-    public DefaultIndex(
-            Document fieldsDocument,
-            Path indexPath,
-            IOEngine ioEngine) {
+    public DefaultIndex(Document fieldsDocument) {
         this.fieldsDocument = fieldsDocument;
-        this.indexPath = indexPath;
-        this.ioEngine = ioEngine;
         pathToValues = new ReversedHashMap<>();
     }
 
@@ -45,22 +36,6 @@ public class DefaultIndex implements Index {
     @Override
     public boolean contains(Document document) {
         return pathToValues.containsValue(document.getValuesToMatch(fieldsDocument));
-    }
-
-    @Override
-    public Path getIndexPath() {
-        return indexPath;
-    }
-
-    @Override
-    public void populateIndex(Path collectionPath) {
-        FileUtils.traverseDirectory(collectionPath)
-                .filter(FileUtils::isJsonFile)
-                .forEach(this::addDocumentToIndex);
-    }
-
-    private void addDocumentToIndex(Path documentPath) {
-        ioEngine.read(documentPath).ifPresent(value -> add(value, documentPath));
     }
 
     @Override
