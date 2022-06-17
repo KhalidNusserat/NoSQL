@@ -99,14 +99,14 @@ public class BasicIndexedDocumentsCollection implements IndexedDocumentsCollecti
         List<Document> matchingDocuments = documentsCollection.getAllThatMatch(documentCriteria);
         if (matchingDocuments.size() > 1) {
             log.error(
-                    "More than one document matched: {} matched [{}] documents, expected [1]",
+                    "More than one document matched: \"{}\" matched [{}] documents, expected [1]",
                     documentCriteria,
                     matchingDocuments.size()
             );
             throw new MultipleFilesMatchedException(matchingDocuments.size());
         } else if (matchingDocuments.size() == 0) {
             log.error(
-                    "No documents matched: {} matched [0] documents, expected [1]",
+                    "No documents matched: \"{}\" matched [0] documents, expected [1]",
                     documentCriteria
             );
             throw new NoSuchDocumentException(documentCriteria);

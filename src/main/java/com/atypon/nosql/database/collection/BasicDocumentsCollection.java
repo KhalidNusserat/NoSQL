@@ -52,14 +52,14 @@ public class BasicDocumentsCollection implements DocumentsCollection {
         List<Path> matchingDocumentsPaths = getPathsThatMatch(documentCriteria);
         if (matchingDocumentsPaths.size() > 1) {
             log.error(
-                    "More than one document matched: {} matched [{}] documents, expected [1]",
+                    "More than one document matched: \"{}\" matched [{}] documents, expected [1]",
                     documentCriteria,
                     matchingDocumentsPaths.size()
             );
             throw new MultipleFilesMatchedException(matchingDocumentsPaths.size());
         } else if (matchingDocumentsPaths.size() == 0) {
             log.error(
-                    "No documents matched: {} matched [0] documents, expected [1]",
+                    "No documents matched: \"{}\" matched [0] documents, expected [1]",
                     documentCriteria
             );
             throw new NoSuchDocumentException(documentCriteria);

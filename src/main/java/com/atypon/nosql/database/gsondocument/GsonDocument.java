@@ -75,7 +75,7 @@ public class GsonDocument implements Document {
             JsonElement element = entry.getValue();
             if (!valuesSource.getAsJsonObject().has(field)) {
                 log.error(
-                        "Fields mismatch between {} and {}",
+                        "Fields mismatch between \"{}\" and \"{}\"",
                         fieldsSource,
                         valuesSource
                 );

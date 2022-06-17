@@ -34,13 +34,15 @@ public class DatabaseUsersDetailService implements UserDetailsService {
         List<Document> matchedUsers = usersCollection.getAllThatMatch(usernameCriteria);
         if (matchedUsers.size() > 1) {
             log.error(
-                    "More than one user found: found [{}], expected [1]",
+                    "More than one user named \"{}\" found: found [{}], expected [1]",
+                    username,
                     matchedUsers.size()
             );
             throw new RuntimeException("More than one user with the same username");
         } else if (matchedUsers.size() == 0) {
             log.error(
-                    "No user found: found [0], expected [1]"
+                    "No user named \"{}\" found: found [0], expected [1]",
+                    username
             );
             throw new RuntimeException("User does not exist");
         }
