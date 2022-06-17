@@ -32,7 +32,7 @@ public class DefaultIOEngine implements IOEngine {
     public Path write(Document document, Path directoryPath) {
         Path documentPath = getNewDocumentPath(directoryPath);
         writeAtPath(document, documentPath);
-        return directoryPath;
+        return documentPath;
     }
 
     private Path getNewDocumentPath(Path directoryPath) {

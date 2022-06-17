@@ -3,6 +3,7 @@ package com.atypon.nosql.api.controllers;
 import com.atypon.nosql.api.services.DatabasesService;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
+import com.atypon.nosql.database.utils.DocumentUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,7 @@ public class IndexesRestController {
             @PathVariable("collection") String collectionName
     ) {
         Collection<Document> result = databasesService.get(databaseName).get(collectionName).getIndexes();
-        return ResponseEntity.ok(Document.getResultsAsMaps(result));
+        return ResponseEntity.ok(DocumentUtils.documentsToMaps(result));
     }
 
     @PostMapping("/databases/{database}/collections/{collection}/indexes")

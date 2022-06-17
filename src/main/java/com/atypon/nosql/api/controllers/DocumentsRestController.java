@@ -5,6 +5,7 @@ import com.atypon.nosql.api.services.DatabasesService;
 import com.atypon.nosql.database.collection.DocumentsCollection;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
+import com.atypon.nosql.database.utils.DocumentUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +33,7 @@ public class DocumentsRestController {
         Database database = databasesService.get(databaseName);
         DocumentsCollection documentsCollection = database.get(collectionName);
         Collection<Document> results = documentsCollection.getAllThatMatch(matchDocument);
-        return ResponseEntity.ok(Document.getResultsAsMaps(results));
+        return ResponseEntity.ok(DocumentUtils.documentsToMaps(results));
     }
 
     @PostMapping("/databases/{database}/collections/{collection}/documents")

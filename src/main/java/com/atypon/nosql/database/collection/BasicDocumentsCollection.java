@@ -54,7 +54,7 @@ public class BasicDocumentsCollection implements DocumentsCollection {
         } else if (matchingDocumentsPaths.size() == 0) {
             throw new NoSuchDocumentException(documentCriteria);
         } else {
-            return ioEngine.update(documentCriteria, matchingDocumentsPaths.get(0));
+            return ioEngine.update(updatedDocument, matchingDocumentsPaths.get(0));
         }
     }
 
