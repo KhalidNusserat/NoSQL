@@ -1,6 +1,6 @@
-package com.atypon.nosql.api;
+package com.atypon.nosql.api.controllers;
 
-import com.atypon.nosql.database.DatabasesManager;
+import com.atypon.nosql.api.services.DatabasesService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -8,15 +8,15 @@ import java.util.Collection;
 
 @RestController
 public class CollectionsRestController {
-    private final DatabasesManager databasesManager;
+    private final DatabasesService databasesService;
 
-    public CollectionsRestController(DatabasesManager databasesManager) {
-        this.databasesManager = databasesManager;
+    public CollectionsRestController(DatabasesService databasesService) {
+        this.databasesService = databasesService;
     }
 
     @GetMapping("/databases/{database}/collections")
     public ResponseEntity<Collection<String>> getAllCollections(@PathVariable("database") String database) {
-        return ResponseEntity.ok(databasesManager.get(database).getCollectionsNames());
+        return ResponseEntity.ok(databasesService.get(database).getCollectionsNames());
     }
 
     @PostMapping("/databases/{database}/collections/{collection}")
@@ -25,7 +25,7 @@ public class CollectionsRestController {
             @PathVariable("collection") String collection,
             @RequestBody String schema
     ) {
-        databasesManager.get(database).createCollection(collection, schema);
+        databasesService.get(database).createCollection(collection, schema);
         return ResponseEntity.ok("Created collection: " + database + "/" + collection);
     }
 
@@ -34,7 +34,7 @@ public class CollectionsRestController {
             @PathVariable("database") String database,
             @PathVariable("collection") String collection
     ) {
-        databasesManager.get(database).removeCollection(collection);
+        databasesService.get(database).removeCollection(collection);
         return ResponseEntity.ok("Deleted collection: " + collection);
     }
 }

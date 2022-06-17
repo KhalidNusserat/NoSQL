@@ -1,6 +1,6 @@
-package com.atypon.nosql.api;
+package com.atypon.nosql.api.controllers;
 
-import com.atypon.nosql.database.security.DatabaseUsersService;
+import com.atypon.nosql.database.security.DatabaseUsersDetailService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,9 +11,9 @@ import java.util.Map;
 
 @RestController
 public class UsersRestController {
-    private final DatabaseUsersService usersService;
+    private final DatabaseUsersDetailService usersService;
 
-    public UsersRestController(DatabaseUsersService usersService) {
+    public UsersRestController(DatabaseUsersDetailService usersService) {
         this.usersService = usersService;
     }
 

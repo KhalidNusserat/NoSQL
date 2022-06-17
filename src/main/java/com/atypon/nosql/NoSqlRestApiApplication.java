@@ -1,8 +1,6 @@
 package com.atypon.nosql;
 
 import com.atypon.nosql.database.DatabaseFactory;
-import com.atypon.nosql.database.DatabasesManager;
-import com.atypon.nosql.database.DefaultDatabasesManager;
 import com.atypon.nosql.database.GenericDatabaseFactory;
 import com.atypon.nosql.database.cache.LRUCache;
 import com.atypon.nosql.database.document.DocumentFactory;
@@ -25,8 +23,6 @@ import java.nio.file.Path;
 
 @SpringBootApplication
 public class NoSqlRestApiApplication {
-    private final Path databasesDirectory = Path.of("./databases");
-
     public static void main(String[] args) {
         SpringApplication.run(NoSqlRestApiApplication.class, args);
     }
@@ -62,8 +58,8 @@ public class NoSqlRestApiApplication {
     }
 
     @Bean
-    public DatabasesManager databasesManager() {
-        return new DefaultDatabasesManager(databasesDirectory, databaseGenerator());
+    public Path databasesDirectory() {
+        return Path.of("./databases");
     }
 
     @Bean

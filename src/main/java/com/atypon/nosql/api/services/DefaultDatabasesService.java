@@ -1,7 +1,10 @@
-package com.atypon.nosql.database;
+package com.atypon.nosql.api.services;
 
-import com.atypon.nosql.api.NoSuchDatabaseException;
+import com.atypon.nosql.api.controllers.NoSuchDatabaseException;
+import com.atypon.nosql.database.Database;
+import com.atypon.nosql.database.DatabaseFactory;
 import com.atypon.nosql.database.utils.FileUtils;
+import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,14 +12,15 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultDatabasesManager implements DatabasesManager {
-    private final Map<String, Database> databases = new ConcurrentHashMap<>();
-
+@Service
+public class DefaultDatabasesService implements DatabasesService {
     private final Path databasesDirectory;
+
+    private final Map<String, Database> databases = new ConcurrentHashMap<>();
 
     private final DatabaseFactory databaseFactory;
 
-    public DefaultDatabasesManager(Path databasesDirectory, DatabaseFactory databaseFactory) {
+    public DefaultDatabasesService(Path databasesDirectory, DatabaseFactory databaseFactory) {
         this.databasesDirectory = databasesDirectory;
         this.databaseFactory = databaseFactory;
         FileUtils.createDirectories(databasesDirectory);

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class DatabaseUsersService implements UserDetailsService {
+public class DatabaseUsersDetailService implements UserDetailsService {
 
     private final DocumentFactory documentFactory;
 
@@ -25,7 +25,7 @@ public class DatabaseUsersService implements UserDetailsService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public DatabaseUsersService(
+    public DatabaseUsersDetailService(
             DocumentFactory documentFactory,
             IndexFactory indexFactory,
             IOEngine ioEngine,

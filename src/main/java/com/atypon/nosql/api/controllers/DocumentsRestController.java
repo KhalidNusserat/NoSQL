@@ -1,7 +1,7 @@
-package com.atypon.nosql.api;
+package com.atypon.nosql.api.controllers;
 
 import com.atypon.nosql.database.Database;
-import com.atypon.nosql.database.DatabasesManager;
+import com.atypon.nosql.api.services.DatabasesService;
 import com.atypon.nosql.database.collection.DocumentsCollection;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
@@ -13,12 +13,12 @@ import java.util.Map;
 
 @RestController
 public class DocumentsRestController {
-    private final DatabasesManager databasesManager;
+    private final DatabasesService databasesService;
 
     private final DocumentFactory documentFactory;
 
-    public DocumentsRestController(DatabasesManager databasesManager, DocumentFactory documentFactory) {
-        this.databasesManager = databasesManager;
+    public DocumentsRestController(DatabasesService databasesService, DocumentFactory documentFactory) {
+        this.databasesService = databasesService;
         this.documentFactory = documentFactory;
     }
 
@@ -29,7 +29,7 @@ public class DocumentsRestController {
             @RequestBody String matchDocumentString
     ) {
         Document matchDocument = documentFactory.createFromString(matchDocumentString);
-        Database database = databasesManager.get(databaseName);
+        Database database = databasesService.get(databaseName);
         DocumentsCollection documentsCollection = database.get(collectionName);
         Collection<Document> results = documentsCollection.getAllThatMatch(matchDocument);
         return ResponseEntity.ok(Document.getResultsAsMaps(results));
@@ -43,7 +43,7 @@ public class DocumentsRestController {
     ) {
         Document documentWithoutId = documentFactory.createFromString(documentString);
         Document documentWithId = documentFactory.appendId(documentWithoutId);
-        Database database = databasesManager.get(databaseName);
+        Database database = databasesService.get(databaseName);
         DocumentsCollection documentsCollection = database.get(collectionName);
         documentsCollection.addDocument(documentWithId);
         return ResponseEntity.ok("Added [1] document");
@@ -56,7 +56,7 @@ public class DocumentsRestController {
             @RequestBody String matchDocumentString
     ) {
         Document matchDocument = documentFactory.createFromString(matchDocumentString);
-        Database database = databasesManager.get(databaseName);
+        Database database = databasesService.get(databaseName);
         DocumentsCollection documentsCollection = database.get(collectionName);
         int deletedCount = documentsCollection.removeAllThatMatch(matchDocument);
         return ResponseEntity.ok("Deleted [" + deletedCount + "] documents");
