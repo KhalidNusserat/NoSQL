@@ -7,6 +7,7 @@ import com.atypon.nosql.database.index.Index;
 import com.atypon.nosql.database.index.IndexFactory;
 import com.atypon.nosql.database.index.IndexesManager;
 import com.atypon.nosql.database.io.IOEngine;
+import com.atypon.nosql.database.utils.StopWatch;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
@@ -26,14 +27,24 @@ public class BasicIndexedDocumentsCollection implements IndexedDocumentsCollecti
             Path collectionPath,
             DocumentFactory documentFactory,
             IndexFactory indexFactory,
-            IOEngine ioEngine
-    ) {
+            IOEngine ioEngine) {
+        log.info(
+                "Initializing an indexed documents collection at {}", 
+                collectionPath
+        );
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         this.ioEngine = ioEngine;
         Path documentsDirectory = collectionPath.resolve("documents/");
-        documentsCollection = new BasicDocumentsCollection(documentsDirectory, ioEngine);
         Path indexesPath = collectionPath.resolve("indexes/");
+        documentsCollection = new BasicDocumentsCollection(documentsDirectory, ioEngine);
         indexesManager = new DefaultIndexesManager(indexesPath, indexFactory, ioEngine, documentFactory);
         indexesManager.populateIndexes(documentsDirectory);
+        log.info(
+                "Finished initializing indexed documents collection at {} in {} second",
+                collectionPath,
+                stopWatch.end()
+        );
     }
 
     public static GenericIndexedDocumentsCollectionBuilder builder() {
@@ -173,8 +184,7 @@ public class BasicIndexedDocumentsCollection implements IndexedDocumentsCollecti
                     documentsPath,
                     documentFactory,
                     indexFactory,
-                    ioEngine
-            );
+                    ioEngine);
         }
     }
 }
