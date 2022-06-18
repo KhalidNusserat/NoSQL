@@ -1,10 +1,12 @@
 package com.atypon.nosql.database.collection;
 
 import com.atypon.nosql.database.document.Document;
+import com.atypon.nosql.database.document.DocumentSchema;
 import com.atypon.nosql.database.index.Index;
 import com.atypon.nosql.database.index.IndexesCollection;
 import com.atypon.nosql.database.index.IndexesCollectionFactory;
 import com.atypon.nosql.database.io.IOEngine;
+import com.atypon.nosql.database.utils.FileUtils;
 import com.google.common.base.Stopwatch;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,27 +23,42 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
 
     private final IndexesCollection indexesCollection;
 
+    private final Path schemaDirectory;
+
+    private final DocumentSchema documentSchema;
+
     public DefaultIndexedDocumentsCollection(
             Path collectionPath,
             IOEngine ioEngine,
             BasicDocumentsCollectionFactory documentsCollectionFactory,
-            IndexesCollectionFactory indexesCollectionFactory) {
+            IndexesCollectionFactory indexesCollectionFactory,
+            DocumentSchema documentSchema) {
         log.info(
                 "Initializing an indexed documents collection at {}", 
                 collectionPath
         );
         Stopwatch stopwatch = Stopwatch.createStarted();
         Path documentsDirectory = collectionPath.resolve("documents/");
-        Path indexesPath = collectionPath.resolve("indexes/");
+        Path indexesDirectory = collectionPath.resolve("indexes/");
+        schemaDirectory = collectionPath.resolve("schema/");
+        FileUtils.createDirectories(documentsDirectory, indexesDirectory, schemaDirectory);
         documentsCollection = documentsCollectionFactory.createCollection(documentsDirectory);
         this.ioEngine = ioEngine;
-        this.indexesCollection = indexesCollectionFactory.createIndexesCollection(indexesPath);
+        this.indexesCollection = indexesCollectionFactory.createIndexesCollection(indexesDirectory);
         this.indexesCollection.populateIndexes(documentsDirectory);
+        this.documentSchema = documentSchema;
+        writeSchema();
         log.info(
                 "Finished initializing indexed documents collection at {} in {}",
                 collectionPath,
                 stopwatch.elapsed()
         );
+    }
+
+    private void writeSchema() {
+        if (FileUtils.countFiles(schemaDirectory, 1) == 0) {
+            ioEngine.write(documentSchema.getAsDocument(), schemaDirectory);
+        }
     }
 
     @Override
@@ -50,7 +67,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
     }
 
     @Override
-    public void deleteIndex(Document indexFields) {
+    public void removeIndex(Document indexFields) {
         indexesCollection.removeIndex(indexFields);
     }
 
@@ -62,6 +79,11 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
     @Override
     public Collection<Document> getIndexes() {
         return indexesCollection.getAllIndexesFields();
+    }
+
+    @Override
+    public Document getSchema() {
+        return documentSchema.getAsDocument();
     }
 
     @Override

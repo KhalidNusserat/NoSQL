@@ -61,9 +61,12 @@ public class FileUtils {
         }
     }
 
-    public static void createDirectories(Path databasesDirectory) {
+    public static void createDirectories(Path firstDirectory, Path... directories) {
         try {
-            Files.createDirectories(databasesDirectory);
+            Files.createDirectories(firstDirectory);
+            for (Path directory : directories) {
+                Files.createDirectories(directory);
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

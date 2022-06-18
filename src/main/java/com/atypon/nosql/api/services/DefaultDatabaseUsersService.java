@@ -1,18 +1,12 @@
 package com.atypon.nosql.api.services;
 
 import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
-import com.atypon.nosql.database.collection.IndexedDocumentsCollectionFactory;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
-import com.atypon.nosql.database.io.IOEngine;
-import com.atypon.nosql.database.utils.DocumentUtils;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.Path;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -64,11 +58,15 @@ public class DefaultDatabaseUsersService implements DatabaseUsersService {
     public Collection<Map<String, Object>> getUsers() {
        Collection<Document> users = usersCollection.getAll();
        Collection<Document> usersWithoutPasswords = removePasswords(users);
-       return DocumentUtils.documentsToMaps(usersWithoutPasswords);
+       return documentsToMaps(usersWithoutPasswords);
+    }
+
+    private Collection<Map<String, Object>> documentsToMaps(Collection<Document> documents) {
+        return documents.stream().map(Document::getAsMap).toList();
     }
 
     private Collection<Document> removePasswords(Collection<Document> users) {
-        Collection<Map<String, Object>> maps = DocumentUtils.documentsToMaps(users);
+        Collection<Map<String, Object>> maps = documentsToMaps(users);
         maps.forEach(map -> map.remove("password"));
         return maps.stream().map(documentFactory::createFromMap).toList();
     }

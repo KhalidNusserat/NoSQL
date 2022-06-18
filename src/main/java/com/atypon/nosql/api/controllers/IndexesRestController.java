@@ -1,9 +1,8 @@
 package com.atypon.nosql.api.controllers;
 
 import com.atypon.nosql.api.services.DatabasesService;
-import com.atypon.nosql.database.document.Document;
-import com.atypon.nosql.database.document.DocumentFactory;
-import com.atypon.nosql.database.utils.DocumentUtils;
+import com.atypon.nosql.synchronisation.SynchronisationService;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,11 +13,13 @@ import java.util.Map;
 public class IndexesRestController {
     private final DatabasesService databasesService;
 
-    private final DocumentFactory documentFactory;
+    private final SynchronisationService synchronisationService;
 
-    public IndexesRestController(DatabasesService databasesService, DocumentFactory documentFactory) {
+    public IndexesRestController(
+            DatabasesService databasesService,
+            SynchronisationService synchronisationService) {
         this.databasesService = databasesService;
-        this.documentFactory = documentFactory;
+        this.synchronisationService = synchronisationService;
     }
 
     @GetMapping("/databases/{database}/collections/{collection}/indexes")
@@ -26,29 +27,38 @@ public class IndexesRestController {
             @PathVariable("database") String databaseName,
             @PathVariable("collection") String collectionName
     ) {
-        Collection<Document> result = databasesService.get(databaseName).get(collectionName).getIndexes();
-        return ResponseEntity.ok(DocumentUtils.documentsToMaps(result));
+        return ResponseEntity.ok(databasesService.getCollectionIndexes(databaseName, collectionName));
     }
 
     @PostMapping("/databases/{database}/collections/{collection}/indexes")
     public ResponseEntity<String> createIndex(
             @PathVariable("database") String databaseName,
             @PathVariable("collection") String collectionName,
-            @RequestBody String indexDocumentString
+            @RequestBody Map<String, Object> indexMap
     ) {
-        Document indexDocument = documentFactory.createFromString(indexDocumentString);
-        databasesService.get(databaseName).get(collectionName).createIndex(indexDocument);
+        databasesService.createIndex(databaseName, collectionName, indexMap);
+        synchronisationService
+                .method(HttpMethod.POST)
+                .requestBody(indexMap)
+                .url("/databases/{database}/collections/{collection}/indexes")
+                .parameters(databaseName, collectionName)
+                .synchronise();
         return ResponseEntity.ok("Created [1] indexDocumentString");
     }
 
     @DeleteMapping("/databases/{database}/collections/{collection}/indexes")
-    public ResponseEntity<String> deleteIndex(
+    public ResponseEntity<String> removeIndex(
             @PathVariable("database") String databaseName,
             @PathVariable("collection") String collectionName,
-            @RequestBody String indexDocumentString
+            @RequestBody Map<String, Object> indexMap
     ) {
-        Document indexDocument = documentFactory.createFromString(indexDocumentString);
-        databasesService.get(databaseName).get(collectionName).deleteIndex(indexDocument);
-        return ResponseEntity.ok("Deleted [1] index");
+        databasesService.removeIndex(databaseName, collectionName, indexMap);
+        synchronisationService
+                .method(HttpMethod.DELETE)
+                .requestBody(indexMap)
+                .url("/databases/{database}/collections/{collection}/indexes")
+                .parameters(databaseName, collectionName)
+                .synchronise();
+        return ResponseEntity.ok("Removed [1] index");
     }
 }

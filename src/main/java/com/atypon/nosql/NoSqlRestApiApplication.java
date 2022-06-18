@@ -8,12 +8,14 @@ import com.atypon.nosql.database.document.DocumentFactory;
 import com.atypon.nosql.database.io.BasicIOEngine;
 import com.atypon.nosql.database.io.CachedIOEngine;
 import com.atypon.nosql.database.io.IOEngine;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -49,12 +51,34 @@ public class NoSqlRestApiApplication {
     public IndexedDocumentsCollection usersCollection(
             DocumentFactory documentFactory,
             Path usersDirectory,
-            IndexedDocumentsCollectionFactory collectionFactory,
+            IndexedDocumentsCollectionFactory documentsCollectionFactory,
             PasswordEncoder passwordEncoder) {
-        IndexedDocumentsCollection usersCollection = collectionFactory.createCollection(usersDirectory);
+        IndexedDocumentsCollection usersCollection;
+        usersCollection = createUsersCollection(documentFactory, usersDirectory, documentsCollectionFactory);
         createUsernameIndex(usersCollection, documentFactory);
         createAdminUser(documentFactory, usersCollection, passwordEncoder);
         return usersCollection;
+    }
+
+    private IndexedDocumentsCollection createUsersCollection(DocumentFactory documentFactory, Path usersDirectory, IndexedDocumentsCollectionFactory documentsCollectionFactory) {
+        IndexedDocumentsCollection usersCollection;
+        if (Files.exists(usersDirectory)) {
+            usersCollection = documentsCollectionFactory.createCollection(usersDirectory);
+        } else {
+            Map<String, Object> schemaMap = Map.of(
+                    "username!", "string",
+                    "password!", "string",
+                    "roles!", List.of("string")
+            );
+            Document usersSchema = documentFactory.createFromMap(schemaMap);
+            usersCollection = documentsCollectionFactory.createCollection(usersDirectory, usersSchema);
+        }
+        return usersCollection;
+    }
+
+    @Bean
+    public List<String> secondaryNodesUrls(ApplicationArguments arguments) {
+        return arguments.getOptionValues("node");
     }
 
     private void createUsernameIndex(IndexedDocumentsCollection usersCollection, DocumentFactory documentFactory) {
