@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-public class BasicDocumentsCollection implements DocumentsCollection {
+public class DefaultBasicDocumentsCollection implements DocumentsCollection {
     private final IOEngine ioEngine;
 
     private final Path documentsPath;
 
-    public BasicDocumentsCollection(Path collectionPath, IOEngine ioEngine) {
+    public DefaultBasicDocumentsCollection(Path collectionPath, IOEngine ioEngine) {
         this.ioEngine = ioEngine;
         documentsPath = collectionPath;
         FileUtils.createDirectories(documentsPath);

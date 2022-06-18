@@ -1,20 +1,12 @@
 package com.atypon.nosql;
 
-import com.atypon.nosql.database.DatabaseFactory;
-import com.atypon.nosql.database.GenericDatabaseFactory;
 import com.atypon.nosql.database.cache.LRUCache;
-import com.atypon.nosql.database.collection.BasicIndexedDocumentsCollection;
 import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
+import com.atypon.nosql.database.collection.IndexedDocumentsCollectionFactory;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
-import com.atypon.nosql.database.document.DocumentSchemaFactory;
-import com.atypon.nosql.database.document.RandomObjectIdGenerator;
-import com.atypon.nosql.database.gsondocument.GsonDocumentFactory;
-import com.atypon.nosql.database.gsondocument.GsonDocumentSchemaFactory;
-import com.atypon.nosql.database.index.DefaultIndexFactory;
-import com.atypon.nosql.database.index.IndexFactory;
-import com.atypon.nosql.database.io.CachedIOEngine;
 import com.atypon.nosql.database.io.BasicIOEngine;
+import com.atypon.nosql.database.io.CachedIOEngine;
 import com.atypon.nosql.database.io.IOEngine;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -43,40 +35,9 @@ public class NoSqlRestApiApplication {
     }
 
     @Bean
-    public DocumentFactory documentFactory() {
-        RandomObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
-        return new GsonDocumentFactory(idGenerator);
-    }
-
-    @Bean
-    public IndexFactory indexFactory() {
-        return new DefaultIndexFactory();
-    }
-
-    @Bean
     public IOEngine ioEngine(DocumentFactory documentFactory) {
         LRUCache<Path, Document> cache = new LRUCache<>(100000);
         return CachedIOEngine.from(new BasicIOEngine(documentFactory), cache);
-    }
-
-    @Bean
-    public DocumentSchemaFactory documentSchemaFactory() {
-        return new GsonDocumentSchemaFactory();
-    }
-
-    @Bean
-    public DatabaseFactory databaseGenerator(
-            DocumentFactory documentFactory,
-            DocumentSchemaFactory schemaFactory,
-            IOEngine ioEngine,
-            IndexFactory indexFactory
-    ) {
-        return GenericDatabaseFactory.builder()
-                .setDocumentFactory(documentFactory)
-                .setSchemaFactory(schemaFactory)
-                .setIoEngine(ioEngine)
-                .setIndexFactory(indexFactory)
-                .build();
     }
 
     @Bean
@@ -85,20 +46,14 @@ public class NoSqlRestApiApplication {
     }
 
     @Bean
-    public BasicIndexedDocumentsCollection usersCollection(
+    public IndexedDocumentsCollection usersCollection(
             DocumentFactory documentFactory,
             Path usersDirectory,
-            IndexFactory indexFactory,
-            IOEngine ioEngine
-    ) {
-        BasicIndexedDocumentsCollection usersCollection = BasicIndexedDocumentsCollection.builder()
-                .setDocumentFactory(documentFactory)
-                .setDocumentsPath(usersDirectory)
-                .setIndexFactory(indexFactory)
-                .setIOEngine(ioEngine)
-                .build();
+            IndexedDocumentsCollectionFactory collectionFactory,
+            PasswordEncoder passwordEncoder) {
+        IndexedDocumentsCollection usersCollection = collectionFactory.createCollection(usersDirectory);
         createUsernameIndex(usersCollection, documentFactory);
-        createAdminUser(documentFactory, usersCollection);
+        createAdminUser(documentFactory, usersCollection, passwordEncoder);
         return usersCollection;
     }
 
@@ -109,12 +64,15 @@ public class NoSqlRestApiApplication {
         }
     }
 
-    private void createAdminUser(DocumentFactory documentFactory, BasicIndexedDocumentsCollection usersCollection) {
+    private void createAdminUser(
+            DocumentFactory documentFactory,
+            IndexedDocumentsCollection usersCollection,
+            PasswordEncoder passwordEncoder) {
         Document adminCriteria = documentFactory.createFromString("{username: \"admin\"}");
         if (!usersCollection.contains(adminCriteria)) {
             Map<String, Object> adminUserData = Map.of(
                     "username", "admin",
-                    "password", passwordEncoder().encode("admin"),
+                    "password", passwordEncoder.encode("admin"),
                     "roles", List.of("ADMIN")
             );
             Document admin = documentFactory.createFromMap(adminUserData);

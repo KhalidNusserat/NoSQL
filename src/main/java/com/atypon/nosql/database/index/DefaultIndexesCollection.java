@@ -1,6 +1,6 @@
 package com.atypon.nosql.database.index;
 
-import com.atypon.nosql.database.collection.BasicDocumentsCollection;
+import com.atypon.nosql.database.collection.DefaultBasicDocumentsCollection;
 import com.atypon.nosql.database.collection.IndexAlreadyExistsException;
 import com.atypon.nosql.database.collection.NoSuchIndexException;
 import com.atypon.nosql.database.document.Document;
@@ -14,29 +14,25 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultIndexesManager implements IndexesManager {
+public class DefaultIndexesCollection implements IndexesCollection {
     private final Path indexesDirectory;
     
     private final Map<Document, Index> indexes = new ConcurrentHashMap<>();
 
-    private final BasicDocumentsCollection indexesCollection;
-
-    private final IndexFactory indexFactory;
+    private final DefaultBasicDocumentsCollection indexesCollection;
     
     private final IOEngine ioEngine;
 
-    public DefaultIndexesManager(
+    public DefaultIndexesCollection(
             Path indexesDirectory,
-            IndexFactory indexFactory,
             IOEngine ioEngine,
             DocumentFactory documentFactory) {
-        this.indexFactory = indexFactory;
         this.indexesDirectory = indexesDirectory;
         this.ioEngine = ioEngine;
-        indexesCollection = new BasicDocumentsCollection(indexesDirectory, ioEngine);
+        indexesCollection = new DefaultBasicDocumentsCollection(indexesDirectory, ioEngine);
         FileUtils.createDirectories(indexesDirectory);
         loadIndexes();
-        createIdIndex(indexFactory, documentFactory);
+        createIdIndex(documentFactory);
     }
 
     private void loadIndexes() {
@@ -45,12 +41,12 @@ public class DefaultIndexesManager implements IndexesManager {
                 .map(ioEngine::read)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .forEach(indexFields -> indexes.put(indexFields, indexFactory.createFromFields(indexFields)));
+                .forEach(indexFields -> indexes.put(indexFields, new DefaultIndex(indexFields)));
     }
 
-    private void createIdIndex(IndexFactory indexFactory, DocumentFactory documentFactory) {
+    private void createIdIndex(DocumentFactory documentFactory) {
         Document idIndexFields = documentFactory.createFromString("{_id: null}");
-        Index idIndex = indexFactory.createFromFields(idIndexFields);
+        Index idIndex = new DefaultIndex(idIndexFields);
         if (!indexes.containsKey(idIndexFields)) {
             indexes.put(idIndexFields, idIndex);
             indexesCollection.addDocument(idIndexFields);
@@ -66,8 +62,7 @@ public class DefaultIndexesManager implements IndexesManager {
         if (indexes.containsKey(indexFields)) {
             throw new IndexAlreadyExistsException(indexFields);
         }
-        Index index = indexFactory.createFromFields(indexFields);
-        indexes.put(indexFields, index);
+        indexes.put(indexFields, new DefaultIndex(indexFields));
         indexesCollection.addDocument(indexFields);
     }
 

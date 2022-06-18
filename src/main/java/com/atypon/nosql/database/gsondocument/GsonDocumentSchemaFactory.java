@@ -8,10 +8,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.util.regex.Pattern;
 
 @Slf4j
+@Component
 public class GsonDocumentSchemaFactory implements DocumentSchemaFactory {
     private final Pattern optionalPattern = Pattern.compile("^\\w+(!?\\?|\\?!?)$");
 

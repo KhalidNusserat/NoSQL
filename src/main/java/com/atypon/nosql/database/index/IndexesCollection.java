@@ -5,7 +5,7 @@ import com.atypon.nosql.database.document.Document;
 import java.nio.file.Path;
 import java.util.List;
 
-public interface IndexesManager {
+public interface IndexesCollection {
     void createIndex(Document indexFields);
 
     void removeIndex(Document indexFields);

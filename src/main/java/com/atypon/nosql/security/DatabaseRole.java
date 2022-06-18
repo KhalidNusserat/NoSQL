@@ -1,4 +1,4 @@
-package com.atypon.nosql.database.security;
+package com.atypon.nosql.security;
 
 import org.springframework.security.core.GrantedAuthority;
 

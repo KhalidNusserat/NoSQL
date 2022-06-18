@@ -1,12 +1,16 @@
 package com.atypon.nosql.api.services;
 
 import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
+import com.atypon.nosql.database.collection.IndexedDocumentsCollectionFactory;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
+import com.atypon.nosql.database.io.IOEngine;
 import com.atypon.nosql.database.utils.DocumentUtils;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
