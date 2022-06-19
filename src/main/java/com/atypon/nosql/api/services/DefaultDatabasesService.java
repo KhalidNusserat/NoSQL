@@ -104,7 +104,6 @@ public class DefaultDatabasesService implements DatabasesService {
     public void addDocument(String databaseName, String collectionName, Map<String, Object> documentMap) {
         IndexedDocumentsCollection documentsCollection = getDocumentsCollection(databaseName, collectionName);
         Document document = documentFactory.createFromMap(documentMap);
-        document = documentFactory.appendId(document);
         documentsCollection.addDocument(document);
     }
 

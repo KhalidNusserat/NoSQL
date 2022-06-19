@@ -36,7 +36,7 @@ public abstract class IOEngineTest {
         johnObject.addProperty("content", "Jo".repeat(10000000));
         john = GsonDocument.fromJsonObject(johnObject);
         ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
-        documentFactory = new GsonDocumentFactory(idGenerator);
+        documentFactory = new GsonDocumentFactory();
     }
 
     public abstract IOEngine create();

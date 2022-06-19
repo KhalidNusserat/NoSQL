@@ -100,7 +100,6 @@ public class NoSqlRestApiApplication {
                     "roles", List.of("ADMIN")
             );
             Document admin = documentFactory.createFromMap(adminUserData);
-            admin = documentFactory.appendId(admin);
             usersCollection.addDocument(admin);
         }
     }

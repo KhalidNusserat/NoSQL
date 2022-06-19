@@ -115,6 +115,27 @@ public class GsonDocument implements Document {
     }
 
     @Override
+    public Document withField(String field, String value) {
+        JsonObject newObject = object.deepCopy();
+        object.addProperty(field, value);
+        return GsonDocument.fromJsonObject(newObject);
+    }
+
+    @Override
+    public Document withField(String field, Number value) {
+        JsonObject newObject = object.deepCopy();
+        object.addProperty(field, value);
+        return GsonDocument.fromJsonObject(newObject);
+    }
+
+    @Override
+    public Document withField(String field, boolean value) {
+        JsonObject newObject = object.deepCopy();
+        object.addProperty(field, value);
+        return GsonDocument.fromJsonObject(newObject);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

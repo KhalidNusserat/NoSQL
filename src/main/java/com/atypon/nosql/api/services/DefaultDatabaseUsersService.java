@@ -31,7 +31,6 @@ public class DefaultDatabaseUsersService implements DatabaseUsersService {
         String password = (String) userData.get("password");
         userData.put("password", passwordEncoder.encode(password));
         Document user = documentFactory.createFromMap(userData);
-        user = documentFactory.appendId(user);
         usersCollection.addDocument(user);
     }
 
@@ -41,7 +40,6 @@ public class DefaultDatabaseUsersService implements DatabaseUsersService {
         String password = (String) updatedUserData.get("password");
         updatedUserData.put("password", passwordEncoder.encode(password));
         Document updatedUser = documentFactory.createFromMap(updatedUserData);
-        updatedUser = documentFactory.appendId(updatedUser);
         usersCollection.updateDocument(oldUserCriteria, updatedUser);
     }
 

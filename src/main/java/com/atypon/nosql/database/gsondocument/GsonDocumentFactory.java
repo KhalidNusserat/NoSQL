@@ -9,11 +9,6 @@ import java.util.Map;
 
 @Component
 public class GsonDocumentFactory implements DocumentFactory {
-    private final ObjectIdGenerator idGenerator;
-
-    public GsonDocumentFactory(ObjectIdGenerator idGenerator) {
-        this.idGenerator = idGenerator;
-    }
 
     @Override
     public GsonDocument createFromString(String src) {
@@ -23,13 +18,5 @@ public class GsonDocumentFactory implements DocumentFactory {
     @Override
     public Document createFromMap(Map<String, Object> map) {
         return GsonDocument.fromMap(map);
-    }
-
-    @Override
-    public GsonDocument appendId(Document document) {
-        GsonDocument originalDocument = (GsonDocument) document;
-        GsonDocument resultDocument = GsonDocument.fromJsonObject(originalDocument.object);
-        resultDocument.object.addProperty("_id", idGenerator.getNewId());
-        return resultDocument;
     }
 }

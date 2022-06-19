@@ -24,7 +24,7 @@ class DefaultIndexTest {
 
     DefaultIndexTest() {
         ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
-        DocumentFactory documentFactory = new GsonDocumentFactory(idGenerator);
+        DocumentFactory documentFactory = new GsonDocumentFactory();
     }
 
     @BeforeEach

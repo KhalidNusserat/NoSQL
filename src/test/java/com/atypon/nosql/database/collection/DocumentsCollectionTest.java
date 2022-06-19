@@ -26,11 +26,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class Person {
     private static final ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
 
-    private static final GsonDocumentFactory documentGenerator = new GsonDocumentFactory(idGenerator);
+    private static final GsonDocumentFactory documentGenerator = new GsonDocumentFactory();
 
     public static GsonDocument newPerson(String name, int age, String major) {
         String src = String.format("{name: %s, age: %d, major: %s}", name, age, major);
-        return documentGenerator.appendId(documentGenerator.createFromString(src));
+        return (GsonDocument) documentGenerator.createFromString(src).withField("_id", idGenerator.newId());
     }
 }
 
@@ -47,7 +47,7 @@ public abstract class DocumentsCollectionTest<T extends DocumentsCollection> {
 
     protected final ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
 
-    protected final DocumentFactory documentFactory = new GsonDocumentFactory(idGenerator);
+    protected final DocumentFactory documentFactory = new GsonDocumentFactory();
 
     protected DocumentsCollectionTest() {
         ioEngine = new BasicIOEngine(documentFactory);

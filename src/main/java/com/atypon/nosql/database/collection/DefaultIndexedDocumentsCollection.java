@@ -2,6 +2,7 @@ package com.atypon.nosql.database.collection;
 
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentSchema;
+import com.atypon.nosql.database.document.ObjectIdGenerator;
 import com.atypon.nosql.database.index.Index;
 import com.atypon.nosql.database.index.IndexesCollection;
 import com.atypon.nosql.database.index.IndexesCollectionFactory;
@@ -19,6 +20,8 @@ import java.util.Optional;
 public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollection {
     private final IOEngine ioEngine;
 
+    private final ObjectIdGenerator idGenerator;
+
     private final DocumentsCollection documentsCollection;
 
     private final IndexesCollection indexesCollection;
@@ -30,6 +33,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
     public DefaultIndexedDocumentsCollection(
             Path collectionPath,
             IOEngine ioEngine,
+            ObjectIdGenerator idGenerator,
             BasicDocumentsCollectionFactory documentsCollectionFactory,
             IndexesCollectionFactory indexesCollectionFactory,
             DocumentSchema documentSchema) {
@@ -44,6 +48,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
         FileUtils.createDirectories(documentsDirectory, indexesDirectory, schemaDirectory);
         documentsCollection = documentsCollectionFactory.createCollection(documentsDirectory);
         this.ioEngine = ioEngine;
+        this.idGenerator = idGenerator;
         this.indexesCollection = indexesCollectionFactory.createIndexesCollection(indexesDirectory);
         this.indexesCollection.populateIndexes(documentsDirectory);
         this.documentSchema = documentSchema;
@@ -115,6 +120,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
 
     @Override
     public Path addDocument(Document addedDocument) {
+        addedDocument = addedDocument.withField("_id", idGenerator.newId());
         Path addedDocumentPath = documentsCollection.addDocument(addedDocument);
         indexesCollection.addDocument(addedDocument, addedDocumentPath);
         return addedDocumentPath;
@@ -122,6 +128,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
 
     @Override
     public Path updateDocument(Document documentCriteria, Document updatedDocument) {
+        updatedDocument = updatedDocument.withField("_id", idGenerator.newId());
         List<Document> matchingDocuments = documentsCollection.getAllThatMatch(documentCriteria);
         if (matchingDocuments.size() > 1) {
             log.error(

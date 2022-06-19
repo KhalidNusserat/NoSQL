@@ -3,6 +3,7 @@ package com.atypon.nosql.database.collection;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentSchema;
 import com.atypon.nosql.database.document.DocumentSchemaFactory;
+import com.atypon.nosql.database.document.ObjectIdGenerator;
 import com.atypon.nosql.database.index.IndexesCollectionFactory;
 import com.atypon.nosql.database.io.IOEngine;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,8 @@ import java.util.List;
 public class DefaultIndexedDocumentsCollectionFactory implements IndexedDocumentsCollectionFactory {
     private final IOEngine ioEngine;
 
+    private final ObjectIdGenerator idGenerator;
+
     private final BasicDocumentsCollectionFactory documentsCollectionFactory;
 
     private final IndexesCollectionFactory indexesCollectionFactory;
@@ -22,10 +25,12 @@ public class DefaultIndexedDocumentsCollectionFactory implements IndexedDocument
 
     public DefaultIndexedDocumentsCollectionFactory(
             IOEngine ioEngine,
+            ObjectIdGenerator idGenerator,
             BasicDocumentsCollectionFactory documentsCollectionFactory,
             IndexesCollectionFactory indexesCollectionFactory,
             DocumentSchemaFactory schemaFactory) {
         this.ioEngine = ioEngine;
+        this.idGenerator = idGenerator;
         this.documentsCollectionFactory = documentsCollectionFactory;
         this.indexesCollectionFactory = indexesCollectionFactory;
         this.schemaFactory = schemaFactory;
@@ -37,6 +42,7 @@ public class DefaultIndexedDocumentsCollectionFactory implements IndexedDocument
         return new DefaultIndexedDocumentsCollection(
                 collectionPath,
                 ioEngine,
+                idGenerator,
                 documentsCollectionFactory,
                 indexesCollectionFactory,
                 documentSchema
@@ -56,6 +62,7 @@ public class DefaultIndexedDocumentsCollectionFactory implements IndexedDocument
         return new DefaultIndexedDocumentsCollection(
                 collectionPath,
                 ioEngine,
+                idGenerator,
                 documentsCollectionFactory,
                 indexesCollectionFactory,
                 documentSchema

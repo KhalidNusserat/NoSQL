@@ -6,6 +6,4 @@ public interface DocumentFactory {
     Document createFromString(String src);
 
     Document createFromMap(Map<String, Object> map);
-
-    Document appendId(Document document);
 }
