@@ -20,7 +20,7 @@ public class DefaultSynchronisationService implements SynchronisationService {
 
     private HttpMethod method;
 
-    private String url;
+    private String resourceUrl;
 
     private Object[] urlVariables;
 
@@ -42,7 +42,7 @@ public class DefaultSynchronisationService implements SynchronisationService {
 
     @Override
     public DefaultSynchronisationService url(String url) {
-        this.url = url;
+        this.resourceUrl = url;
         return this;
     }
 
@@ -58,7 +58,15 @@ public class DefaultSynchronisationService implements SynchronisationService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
         for (String secondaryNodeUrl : secondaryNodesUrls) {
-            restTemplate.exchange(url, method, requestEntity, Object.class, urlVariables);
+            if (method == HttpMethod.GET) {
+                restTemplate.getForObject(secondaryNodeUrl + resourceUrl, Void.class, urlVariables);
+            } else if (method == HttpMethod.POST) {
+                restTemplate.postForObject(secondaryNodeUrl + resourceUrl, requestBody, Void.class, urlVariables);
+            } else if (method == HttpMethod.PUT) {
+                restTemplate.put(secondaryNodeUrl + resourceUrl, requestBody, Void.class, urlVariables);
+            } else if (method == HttpMethod.DELETE) {
+                restTemplate.delete(secondaryNodeUrl + resourceUrl, urlVariables);
+            }
         }
         requestBody = null;
         urlVariables = new Object[0];
