@@ -2,8 +2,8 @@ package com.atypon.nosql.database.collection;
 
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
-import com.atypon.nosql.database.document.ObjectIdGenerator;
-import com.atypon.nosql.database.document.RandomObjectIdGenerator;
+import com.atypon.nosql.database.document.DocumentIdGenerator;
+import com.atypon.nosql.database.document.Sha256DocumentIdGenerator;
 import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.database.gsondocument.GsonDocument;
 import com.atypon.nosql.database.gsondocument.GsonDocumentFactory;
@@ -24,28 +24,30 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class Person {
-    private static final ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
+    private static final DocumentIdGenerator idGenerator = new Sha256DocumentIdGenerator();
 
-    private static final GsonDocumentFactory documentGenerator = new GsonDocumentFactory();
+    private static final GsonDocumentFactory documentFactory = new GsonDocumentFactory();
 
-    public static GsonDocument newPerson(String name, int age, String major) {
+    public static Document newPerson(String name, int age, String major) {
         String src = String.format("{name: %s, age: %d, major: %s}", name, age, major);
-        return (GsonDocument) documentGenerator.createFromString(src).withField("_id", idGenerator.newId());
+        Document personDocument = documentFactory.createFromString(src);
+        personDocument = personDocument.withField("_id", idGenerator.newId(personDocument));
+        return personDocument;
     }
 }
 
 public abstract class DocumentsCollectionTest<T extends DocumentsCollection> {
     protected final Path testDirectory = Path.of("./test");
 
-    protected final GsonDocument khalid = Person.newPerson("Khalid", 22, "CPE");
+    protected final Document khalid = Person.newPerson("Khalid", 22, "CPE");
 
-    protected final GsonDocument hamza = Person.newPerson("Hamza", 22, "CPE");
+    protected final Document hamza = Person.newPerson("Hamza", 22, "CPE");
 
-    protected final GsonDocument john = Person.newPerson("John", 42, "CIS");
+    protected final Document john = Person.newPerson("John", 42, "CIS");
 
     protected final BasicIOEngine ioEngine;
 
-    protected final ObjectIdGenerator idGenerator = new RandomObjectIdGenerator();
+    protected final DocumentIdGenerator idGenerator = new Sha256DocumentIdGenerator();
 
     protected final DocumentFactory documentFactory = new GsonDocumentFactory();
 

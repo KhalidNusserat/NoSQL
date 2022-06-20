@@ -117,21 +117,21 @@ public class GsonDocument implements Document {
     @Override
     public Document withField(String field, String value) {
         JsonObject newObject = object.deepCopy();
-        object.addProperty(field, value);
+        newObject.addProperty(field, value);
         return GsonDocument.fromJsonObject(newObject);
     }
 
     @Override
     public Document withField(String field, Number value) {
         JsonObject newObject = object.deepCopy();
-        object.addProperty(field, value);
+        newObject.addProperty(field, value);
         return GsonDocument.fromJsonObject(newObject);
     }
 
     @Override
     public Document withField(String field, boolean value) {
         JsonObject newObject = object.deepCopy();
-        object.addProperty(field, value);
+        newObject.addProperty(field, value);
         return GsonDocument.fromJsonObject(newObject);
     }
 
@@ -156,5 +156,10 @@ public class GsonDocument implements Document {
     @Override
     public Map<String, Object> getAsMap() {
         return gson.fromJson(object, mapType);
+    }
+
+    @Override
+    public boolean containsField(String field) {
+        return object.has(field);
     }
 }

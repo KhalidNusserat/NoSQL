@@ -5,6 +5,7 @@ import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
 import com.atypon.nosql.database.collection.IndexedDocumentsCollectionFactory;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
+import com.atypon.nosql.database.document.DocumentIdGenerator;
 import com.atypon.nosql.database.io.BasicIOEngine;
 import com.atypon.nosql.database.io.CachedIOEngine;
 import com.atypon.nosql.database.io.IOEngine;
@@ -48,19 +49,28 @@ public class NoSqlRestApiApplication {
     }
 
     @Bean
+    public List<String> secondaryNodesUrls(ApplicationArguments arguments) {
+        return arguments.getOptionValues("node");
+    }
+
+    @Bean
     public IndexedDocumentsCollection usersCollection(
             DocumentFactory documentFactory,
             Path usersDirectory,
             IndexedDocumentsCollectionFactory documentsCollectionFactory,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            DocumentIdGenerator idGenerator) {
         IndexedDocumentsCollection usersCollection;
         usersCollection = createUsersCollection(documentFactory, usersDirectory, documentsCollectionFactory);
         createUsernameIndex(usersCollection, documentFactory);
-        createAdminUser(documentFactory, usersCollection, passwordEncoder);
+        createAdminUser(documentFactory, usersCollection, passwordEncoder, idGenerator);
         return usersCollection;
     }
 
-    private IndexedDocumentsCollection createUsersCollection(DocumentFactory documentFactory, Path usersDirectory, IndexedDocumentsCollectionFactory documentsCollectionFactory) {
+    private IndexedDocumentsCollection createUsersCollection(
+            DocumentFactory documentFactory,
+            Path usersDirectory,
+            IndexedDocumentsCollectionFactory documentsCollectionFactory) {
         IndexedDocumentsCollection usersCollection;
         if (Files.exists(usersDirectory)) {
             usersCollection = documentsCollectionFactory.createCollection(usersDirectory);
@@ -76,11 +86,6 @@ public class NoSqlRestApiApplication {
         return usersCollection;
     }
 
-    @Bean
-    public List<String> secondaryNodesUrls(ApplicationArguments arguments) {
-        return arguments.getOptionValues("node");
-    }
-
     private void createUsernameIndex(IndexedDocumentsCollection usersCollection, DocumentFactory documentFactory) {
         Document usernameIndex = documentFactory.createFromString("{username: null}");
         if (!usersCollection.containsIndex(usernameIndex)) {
@@ -91,7 +96,8 @@ public class NoSqlRestApiApplication {
     private void createAdminUser(
             DocumentFactory documentFactory,
             IndexedDocumentsCollection usersCollection,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            DocumentIdGenerator idGenerator) {
         Document adminCriteria = documentFactory.createFromString("{username: \"admin\"}");
         if (!usersCollection.contains(adminCriteria)) {
             Map<String, Object> adminUserData = Map.of(
@@ -100,6 +106,7 @@ public class NoSqlRestApiApplication {
                     "roles", List.of("ADMIN")
             );
             Document admin = documentFactory.createFromMap(adminUserData);
+            admin = admin.withField("_id", idGenerator.newId(admin));
             usersCollection.addDocument(admin);
         }
     }

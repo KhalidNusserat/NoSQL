@@ -2,7 +2,6 @@ package com.atypon.nosql.database.gsondocument;
 
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
-import com.atypon.nosql.database.document.ObjectIdGenerator;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

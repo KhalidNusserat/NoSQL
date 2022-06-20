@@ -16,4 +16,6 @@ public interface Document {
     Document withField(String field, boolean value);
 
     Map<String, Object> getAsMap();
+
+    boolean containsField(String field);
 }

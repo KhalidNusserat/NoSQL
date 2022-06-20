@@ -44,7 +44,7 @@ public class DatabaseUsersDetailService implements UserDetailsService {
                     "No user named \"{}\" found: found [0], expected [1]",
                     username
             );
-            throw new RuntimeException("User does not exist");
+            throw new UsernameNotFoundException("Username not found: " + username);
         }
         Map<String, Object> userDocument = matchedUsers.get(0).getAsMap();
         String password = (String) userDocument.get("password");

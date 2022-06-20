@@ -4,14 +4,19 @@ import com.atypon.nosql.api.controllers.NoSuchDatabaseException;
 import com.atypon.nosql.database.Database;
 import com.atypon.nosql.database.DatabaseFactory;
 import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
+import com.atypon.nosql.database.collection.IndexedDocumentsCollectionFactory;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
+import com.atypon.nosql.database.document.DocumentIdGenerator;
 import com.atypon.nosql.database.utils.FileUtils;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,10 +30,17 @@ public class DefaultDatabasesService implements DatabasesService {
 
     private final DocumentFactory documentFactory;
 
-    public DefaultDatabasesService(Path databasesDirectory, DatabaseFactory databaseFactory, DocumentFactory documentFactory) {
+    private final DocumentTranslator documentTranslator;
+
+    public DefaultDatabasesService(
+            Path databasesDirectory,
+            DatabaseFactory databaseFactory,
+            DocumentFactory documentFactory,
+            DocumentTranslator documentTranslator) {
         this.databasesDirectory = databasesDirectory;
         this.databaseFactory = databaseFactory;
         this.documentFactory = documentFactory;
+        this.documentTranslator = documentTranslator;
         FileUtils.createDirectories(databasesDirectory);
         loadDatabases();
     }
@@ -103,7 +115,7 @@ public class DefaultDatabasesService implements DatabasesService {
     @Override
     public void addDocument(String databaseName, String collectionName, Map<String, Object> documentMap) {
         IndexedDocumentsCollection documentsCollection = getDocumentsCollection(databaseName, collectionName);
-        Document document = documentFactory.createFromMap(documentMap);
+        Document document = documentTranslator.translate(documentMap);
         documentsCollection.addDocument(document);
     }
 
