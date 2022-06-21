@@ -12,13 +12,8 @@ import java.util.Collection;
 public class DatabasesRestController {
     private final DatabasesService databasesService;
 
-    private final SynchronisationService synchronisationService;
-
-    public DatabasesRestController(
-            DatabasesService databasesService,
-            SynchronisationService synchronisationService) {
+    public DatabasesRestController(DatabasesService databasesService) {
         this.databasesService = databasesService;
-        this.synchronisationService = synchronisationService;
     }
 
     @GetMapping("/databases")
@@ -27,24 +22,17 @@ public class DatabasesRestController {
     }
 
     @PostMapping("/databases/{database}")
-    public ResponseEntity<String> createDatabase(@PathVariable("database") String databaseName) {
+    public ResponseEntity<String> createDatabase(
+            @PathVariable("database") String databaseName,
+            @RequestHeader("Authorization") String auth) {
+        System.out.println("AUTH: " + auth);
         databasesService.createDatabase(databaseName);
-        synchronisationService
-                .method(HttpMethod.POST)
-                .url("/databases/{database}")
-                .parameters(databaseName)
-                .synchronise();
         return ResponseEntity.ok("Database created: " + databaseName);
     }
 
     @DeleteMapping("/databases/{database}")
     public ResponseEntity<String> deleteDatabase(@PathVariable("database") String databaseName) {
         databasesService.removeDatabase(databaseName);
-        synchronisationService
-                .method(HttpMethod.DELETE)
-                .url("/databases/{database}")
-                .parameters(databaseName)
-                .synchronise();
         return ResponseEntity.ok("Database removed: " + databaseName);
     }
 }

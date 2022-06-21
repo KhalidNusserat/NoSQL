@@ -13,13 +13,8 @@ import java.util.Map;
 public class IndexesRestController {
     private final DatabasesService databasesService;
 
-    private final SynchronisationService synchronisationService;
-
-    public IndexesRestController(
-            DatabasesService databasesService,
-            SynchronisationService synchronisationService) {
+    public IndexesRestController(DatabasesService databasesService) {
         this.databasesService = databasesService;
-        this.synchronisationService = synchronisationService;
     }
 
     @GetMapping("/databases/{database}/collections/{collection}/indexes")
@@ -37,12 +32,6 @@ public class IndexesRestController {
             @RequestBody Map<String, Object> indexMap
     ) {
         databasesService.createIndex(databaseName, collectionName, indexMap);
-        synchronisationService
-                .method(HttpMethod.POST)
-                .requestBody(indexMap)
-                .url("/databases/{database}/collections/{collection}/indexes")
-                .parameters(databaseName, collectionName)
-                .synchronise();
         return ResponseEntity.ok("Created [1] indexDocumentString");
     }
 
@@ -53,12 +42,6 @@ public class IndexesRestController {
             @RequestBody Map<String, Object> indexMap
     ) {
         databasesService.removeIndex(databaseName, collectionName, indexMap);
-        synchronisationService
-                .method(HttpMethod.DELETE)
-                .requestBody(indexMap)
-                .url("/databases/{database}/collections/{collection}/indexes")
-                .parameters(databaseName, collectionName)
-                .synchronise();
         return ResponseEntity.ok("Removed [1] index");
     }
 }

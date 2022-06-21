@@ -6,13 +6,15 @@ import java.util.Map;
 
 public interface SynchronisationService {
 
-    DefaultSynchronisationService requestBody(Map<String, Object> requestBody);
+    SynchronisationService newInstance();
 
-    DefaultSynchronisationService method(HttpMethod method);
+    SynchronisationService requestBody(Map<String, Object> requestBody);
 
-    DefaultSynchronisationService url(String url);
+    SynchronisationService method(HttpMethod method);
 
-    DefaultSynchronisationService parameters(String... urlParameters);
+    SynchronisationService url(String url);
+
+    SynchronisationService parameters(String... urlParameters);
 
     void synchronise();
 }

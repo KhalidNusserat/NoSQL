@@ -9,6 +9,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class DefaultSynchronisationService implements SynchronisationService {
@@ -24,8 +26,15 @@ public class DefaultSynchronisationService implements SynchronisationService {
 
     private Object[] urlVariables;
 
-    public DefaultSynchronisationService(Collection<String> secondaryNodesUrls) {
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
+
+    private DefaultSynchronisationService(Collection<String> secondaryNodesUrls) {
         this.secondaryNodesUrls = secondaryNodesUrls;
+    }
+
+    @Override
+    public SynchronisationService newInstance() {
+        return new DefaultSynchronisationService(secondaryNodesUrls);
     }
 
     @Override
@@ -54,21 +63,16 @@ public class DefaultSynchronisationService implements SynchronisationService {
 
     @Override
     public void synchronise() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
-        for (String secondaryNodeUrl : secondaryNodesUrls) {
-            if (method == HttpMethod.GET) {
-                restTemplate.getForObject(secondaryNodeUrl + resourceUrl, Void.class, urlVariables);
-            } else if (method == HttpMethod.POST) {
-                restTemplate.postForObject(secondaryNodeUrl + resourceUrl, requestBody, Void.class, urlVariables);
-            } else if (method == HttpMethod.PUT) {
-                restTemplate.put(secondaryNodeUrl + resourceUrl, requestBody, Void.class, urlVariables);
-            } else if (method == HttpMethod.DELETE) {
-                restTemplate.delete(secondaryNodeUrl + resourceUrl, urlVariables);
+        executorService.submit(() -> {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.add("Authorization", "Basic YWRtaW46YWRtaW4=");
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+            for (String secondaryNodeUrl : secondaryNodesUrls) {
+                restTemplate.exchange(secondaryNodeUrl + resourceUrl, method, requestEntity, Void.class, urlVariables);
             }
-        }
-        requestBody = null;
-        urlVariables = new Object[0];
+            requestBody = null;
+            urlVariables = new Object[0];
+        });
     }
 }

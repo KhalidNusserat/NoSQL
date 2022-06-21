@@ -13,13 +13,8 @@ import java.util.Map;
 public class CollectionsRestController {
     private final DatabasesService databasesService;
 
-    private final SynchronisationService synchronisationService;
-
-    public CollectionsRestController(
-            DatabasesService databasesService,
-            SynchronisationService synchronisationService) {
+    public CollectionsRestController(DatabasesService databasesService) {
         this.databasesService = databasesService;
-        this.synchronisationService = synchronisationService;
     }
 
     @GetMapping("/databases/{database}/collections")
@@ -41,12 +36,6 @@ public class CollectionsRestController {
             @RequestBody Map<String, Object> schemaMap
     ) {
         databasesService.createDocumentsCollection(databaseName, collectionName, schemaMap);
-        synchronisationService
-                .method(HttpMethod.POST)
-                .requestBody(schemaMap)
-                .url("/databases/{database}/collections/{collection}")
-                .parameters(databaseName, collectionName)
-                .synchronise();
         return ResponseEntity.ok("Created collection: " + databaseName + "/" + collectionName);
     }
 
@@ -56,11 +45,6 @@ public class CollectionsRestController {
             @PathVariable("collection") String collectionName
     ) {
         databasesService.removeDocumentsCollection(databaseName, collectionName);
-        synchronisationService
-                .method(HttpMethod.DELETE)
-                .url("/databases/{database}/collections/{collection}")
-                .parameters(databaseName, collectionName)
-                .synchronise();
         return ResponseEntity.ok("Deleted collection: " + collectionName);
     }
 }

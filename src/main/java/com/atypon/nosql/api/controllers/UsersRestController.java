@@ -13,13 +13,8 @@ import java.util.Map;
 public class UsersRestController {
     private final DatabaseUsersService usersService;
 
-    private final SynchronisationService synchronisationService;
-
-    public UsersRestController(
-            DatabaseUsersService usersService,
-            SynchronisationService synchronisationService) {
+    public UsersRestController(DatabaseUsersService usersService) {
         this.usersService = usersService;
-        this.synchronisationService = synchronisationService;
     }
 
     @GetMapping("/users")
@@ -30,22 +25,12 @@ public class UsersRestController {
     @PostMapping("/users")
     public ResponseEntity<String> addUser(@RequestBody Map<String, Object> userData) {
         usersService.addUser(userData);
-        synchronisationService
-                .method(HttpMethod.POST)
-                .requestBody(userData)
-                .url("/users")
-                .synchronise();
         return ResponseEntity.ok("Added [1] user");
     }
 
     @DeleteMapping("/users/{username}")
     public ResponseEntity<String> deleteUser(@PathVariable("username") String username) {
         usersService.removeUser(username);
-        synchronisationService
-                .method(HttpMethod.DELETE)
-                .url("/users/{username}")
-                .parameters(username)
-                .synchronise();
         return ResponseEntity.ok("Deleted [1] user");
     }
 
@@ -54,12 +39,6 @@ public class UsersRestController {
             @PathVariable("username") String username,
             @RequestBody Map<String, Object> userData) {
         usersService.updateUser(username, userData);
-        synchronisationService
-                .method(HttpMethod.PUT)
-                .requestBody(userData)
-                .url("/users/{username}")
-                .parameters(username)
-                .synchronise();
         return ResponseEntity.ok("Updated [1] user");
     }
 }

@@ -4,19 +4,16 @@ import com.atypon.nosql.api.controllers.NoSuchDatabaseException;
 import com.atypon.nosql.database.Database;
 import com.atypon.nosql.database.DatabaseFactory;
 import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
-import com.atypon.nosql.database.collection.IndexedDocumentsCollectionFactory;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
-import com.atypon.nosql.database.document.DocumentIdGenerator;
 import com.atypon.nosql.database.utils.FileUtils;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.atypon.nosql.synchronisation.SynchronisationService;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,15 +29,19 @@ public class DefaultDatabasesService implements DatabasesService {
 
     private final DocumentTranslator documentTranslator;
 
+    private final SynchronisationService synchronisationService;
+
     public DefaultDatabasesService(
             Path databasesDirectory,
             DatabaseFactory databaseFactory,
             DocumentFactory documentFactory,
-            DocumentTranslator documentTranslator) {
+            DocumentTranslator documentTranslator,
+            SynchronisationService synchronisationService) {
         this.databasesDirectory = databasesDirectory;
         this.databaseFactory = databaseFactory;
         this.documentFactory = documentFactory;
         this.documentTranslator = documentTranslator;
+        this.synchronisationService = synchronisationService;
         FileUtils.createDirectories(databasesDirectory);
         loadDatabases();
     }
@@ -60,6 +61,12 @@ public class DefaultDatabasesService implements DatabasesService {
     public void createDatabase(String databaseName) {
         Path databaseDirectory = databasesDirectory.resolve(databaseName + "/");
         databases.put(databaseName, databaseFactory.create(databaseDirectory));
+        synchronisationService
+                .newInstance()
+                .method(HttpMethod.POST)
+                .url("/databases/{database}")
+                .parameters(databaseName)
+                .synchronise();
     }
 
     private void checkDatabaseExists(String database) {
@@ -73,6 +80,11 @@ public class DefaultDatabasesService implements DatabasesService {
         checkDatabaseExists(databaseName);
         databases.get(databaseName).deleteDatabase();
         databases.remove(databaseName);
+        synchronisationService
+                .method(HttpMethod.DELETE)
+                .url("/databases/{database}")
+                .parameters(databaseName)
+                .synchronise();
     }
 
     @Override
@@ -88,6 +100,12 @@ public class DefaultDatabasesService implements DatabasesService {
         checkDatabaseExists(databaseName);
         Database database = databases.get(databaseName);
         database.createCollection(collectionName, documentFactory.createFromMap(documentsSchema));
+        synchronisationService
+                .method(HttpMethod.POST)
+                .requestBody(documentsSchema)
+                .url("/databases/{database}/collections/{collection}")
+                .parameters(databaseName, collectionName)
+                .synchronise();
     }
 
     @Override
@@ -95,6 +113,11 @@ public class DefaultDatabasesService implements DatabasesService {
         checkDatabaseExists(databaseName);
         Database database = databases.get(databaseName);
         database.removeCollection(collectionName);
+        synchronisationService
+                .method(HttpMethod.DELETE)
+                .url("/databases/{database}/collections/{collection}")
+                .parameters(databaseName, collectionName)
+                .synchronise();
     }
 
     @Override
@@ -117,6 +140,12 @@ public class DefaultDatabasesService implements DatabasesService {
         IndexedDocumentsCollection documentsCollection = getDocumentsCollection(databaseName, collectionName);
         Document document = documentTranslator.translate(documentMap);
         documentsCollection.addDocument(document);
+        synchronisationService
+                .method(HttpMethod.POST)
+                .requestBody(document.getAsMap())
+                .url("/databases/{database}/collections/{collection}/documents")
+                .parameters(databaseName, collectionName)
+                .synchronise();
     }
 
     private IndexedDocumentsCollection getDocumentsCollection(String databaseName, String collectionName) {
@@ -132,7 +161,13 @@ public class DefaultDatabasesService implements DatabasesService {
             Map<String, Object> documentCriteriaMap) {
         IndexedDocumentsCollection documentsCollection = getDocumentsCollection(databaseName, collectionName);
         Document documentCriteria = documentFactory.createFromMap(documentCriteriaMap);
-        return documentsCollection.removeAllThatMatch(documentCriteria);
+        int removedCount = documentsCollection.removeAllThatMatch(documentCriteria);
+        synchronisationService
+                .method(HttpMethod.DELETE)
+                .url("/databases/{database}/collections/{collection}/documents")
+                .parameters(databaseName, collectionName)
+                .synchronise();
+        return removedCount;
     }
 
     @Override
@@ -156,8 +191,14 @@ public class DefaultDatabasesService implements DatabasesService {
             Map<String, Object> updatedDocumentMap) {
         IndexedDocumentsCollection documentsCollection = getDocumentsCollection(databaseName, collectionName);
         Document documentCriteria = documentFactory.createFromMap(Map.of("_id", documentId));
-        Document updatedDocument = documentFactory.createFromMap(updatedDocumentMap);
+        Document updatedDocument = documentTranslator.translate(updatedDocumentMap);
         documentsCollection.updateDocument(documentCriteria, updatedDocument);
+        synchronisationService
+                .method(HttpMethod.PUT)
+                .requestBody(updatedDocument.getAsMap())
+                .url("/databases/{database}/collections/{collection}/documents/{documentId}")
+                .parameters(databaseName, collectionName, documentId)
+                .synchronise();
     }
 
     @Override
@@ -165,6 +206,12 @@ public class DefaultDatabasesService implements DatabasesService {
         IndexedDocumentsCollection documentsCollection = getDocumentsCollection(databaseName, collectionName);
         Document indexDocument = documentFactory.createFromMap(indexMap);
         documentsCollection.createIndex(indexDocument);
+        synchronisationService
+                .method(HttpMethod.POST)
+                .requestBody(indexMap)
+                .url("/databases/{database}/collections/{collection}/indexes")
+                .parameters(databaseName, collectionName)
+                .synchronise();
     }
 
     @Override
@@ -172,6 +219,12 @@ public class DefaultDatabasesService implements DatabasesService {
         IndexedDocumentsCollection documentsCollection = getDocumentsCollection(databaseName, collectionName);
         Document indexDocument = documentFactory.createFromMap(indexMap);
         documentsCollection.removeIndex(indexDocument);
+        synchronisationService
+                .method(HttpMethod.DELETE)
+                .requestBody(indexMap)
+                .url("/databases/{database}/collections/{collection}/indexes")
+                .parameters(databaseName, collectionName)
+                .synchronise();
     }
 
     @Override

@@ -17,20 +17,24 @@ public class DefaultDatabaseUsersService implements DatabaseUsersService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final DocumentTranslator documentTranslator;
+
     public DefaultDatabaseUsersService(
             IndexedDocumentsCollection usersCollection,
             DocumentFactory documentFactory,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            DocumentTranslator documentTranslator) {
         this.usersCollection = usersCollection;
         this.documentFactory = documentFactory;
         this.passwordEncoder = passwordEncoder;
+        this.documentTranslator = documentTranslator;
     }
 
     @Override
     public void addUser(Map<String, Object> userData) {
         String password = (String) userData.get("password");
         userData.put("password", passwordEncoder.encode(password));
-        Document user = documentFactory.createFromMap(userData);
+        Document user = documentTranslator.translate(userData);
         usersCollection.addDocument(user);
     }
 
@@ -39,7 +43,7 @@ public class DefaultDatabaseUsersService implements DatabaseUsersService {
         Document oldUserCriteria = documentFactory.createFromMap(Map.of("username", username));
         String password = (String) updatedUserData.get("password");
         updatedUserData.put("password", passwordEncoder.encode(password));
-        Document updatedUser = documentFactory.createFromMap(updatedUserData);
+        Document updatedUser = documentTranslator.translate(updatedUserData);
         usersCollection.updateDocument(oldUserCriteria, updatedUser);
     }
 
