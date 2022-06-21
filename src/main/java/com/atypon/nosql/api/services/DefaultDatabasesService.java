@@ -81,6 +81,7 @@ public class DefaultDatabasesService implements DatabasesService {
         databases.get(databaseName).deleteDatabase();
         databases.remove(databaseName);
         synchronisationService
+                .newInstance()
                 .method(HttpMethod.DELETE)
                 .url("/databases/{database}")
                 .parameters(databaseName)
@@ -101,6 +102,7 @@ public class DefaultDatabasesService implements DatabasesService {
         Database database = databases.get(databaseName);
         database.createCollection(collectionName, documentFactory.createFromMap(documentsSchema));
         synchronisationService
+                .newInstance()
                 .method(HttpMethod.POST)
                 .requestBody(documentsSchema)
                 .url("/databases/{database}/collections/{collection}")
@@ -114,6 +116,7 @@ public class DefaultDatabasesService implements DatabasesService {
         Database database = databases.get(databaseName);
         database.removeCollection(collectionName);
         synchronisationService
+                .newInstance()
                 .method(HttpMethod.DELETE)
                 .url("/databases/{database}/collections/{collection}")
                 .parameters(databaseName, collectionName)
@@ -141,6 +144,7 @@ public class DefaultDatabasesService implements DatabasesService {
         Document document = documentTranslator.translate(documentMap);
         documentsCollection.addDocument(document);
         synchronisationService
+                .newInstance()
                 .method(HttpMethod.POST)
                 .requestBody(document.getAsMap())
                 .url("/databases/{database}/collections/{collection}/documents")
@@ -163,7 +167,9 @@ public class DefaultDatabasesService implements DatabasesService {
         Document documentCriteria = documentFactory.createFromMap(documentCriteriaMap);
         int removedCount = documentsCollection.removeAllThatMatch(documentCriteria);
         synchronisationService
+                .newInstance()
                 .method(HttpMethod.DELETE)
+                .requestBody(documentCriteriaMap)
                 .url("/databases/{database}/collections/{collection}/documents")
                 .parameters(databaseName, collectionName)
                 .synchronise();
@@ -194,6 +200,7 @@ public class DefaultDatabasesService implements DatabasesService {
         Document updatedDocument = documentTranslator.translate(updatedDocumentMap);
         documentsCollection.updateDocument(documentCriteria, updatedDocument);
         synchronisationService
+                .newInstance()
                 .method(HttpMethod.PUT)
                 .requestBody(updatedDocument.getAsMap())
                 .url("/databases/{database}/collections/{collection}/documents/{documentId}")
@@ -207,6 +214,7 @@ public class DefaultDatabasesService implements DatabasesService {
         Document indexDocument = documentFactory.createFromMap(indexMap);
         documentsCollection.createIndex(indexDocument);
         synchronisationService
+                .newInstance()
                 .method(HttpMethod.POST)
                 .requestBody(indexMap)
                 .url("/databases/{database}/collections/{collection}/indexes")
@@ -220,6 +228,7 @@ public class DefaultDatabasesService implements DatabasesService {
         Document indexDocument = documentFactory.createFromMap(indexMap);
         documentsCollection.removeIndex(indexDocument);
         synchronisationService
+                .newInstance()
                 .method(HttpMethod.DELETE)
                 .requestBody(indexMap)
                 .url("/databases/{database}/collections/{collection}/indexes")
