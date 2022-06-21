@@ -1,11 +1,11 @@
 package com.atypon.nosql;
 
+import com.atypon.nosql.api.services.DocumentTranslator;
 import com.atypon.nosql.database.cache.LRUCache;
 import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
 import com.atypon.nosql.database.collection.IndexedDocumentsCollectionFactory;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
-import com.atypon.nosql.database.document.DocumentIdGenerator;
 import com.atypon.nosql.database.io.BasicIOEngine;
 import com.atypon.nosql.database.io.CachedIOEngine;
 import com.atypon.nosql.database.io.IOEngine;
@@ -59,11 +59,11 @@ public class NoSqlRestApiApplication {
             Path usersDirectory,
             IndexedDocumentsCollectionFactory documentsCollectionFactory,
             PasswordEncoder passwordEncoder,
-            DocumentIdGenerator idGenerator) {
+            DocumentTranslator documentTranslator) {
         IndexedDocumentsCollection usersCollection;
         usersCollection = createUsersCollection(documentFactory, usersDirectory, documentsCollectionFactory);
         createUsernameIndex(usersCollection, documentFactory);
-        createAdminUser(documentFactory, usersCollection, passwordEncoder, idGenerator);
+        createAdminUser(documentFactory, usersCollection, passwordEncoder, documentTranslator);
         return usersCollection;
     }
 
@@ -97,7 +97,7 @@ public class NoSqlRestApiApplication {
             DocumentFactory documentFactory,
             IndexedDocumentsCollection usersCollection,
             PasswordEncoder passwordEncoder,
-            DocumentIdGenerator idGenerator) {
+            DocumentTranslator documentTranslator) {
         Document adminCriteria = documentFactory.createFromString("{username: \"admin\"}");
         if (!usersCollection.contains(adminCriteria)) {
             Map<String, Object> adminUserData = Map.of(
@@ -105,8 +105,7 @@ public class NoSqlRestApiApplication {
                     "password", passwordEncoder.encode("admin"),
                     "roles", List.of("ADMIN")
             );
-            Document admin = documentFactory.createFromMap(adminUserData);
-            admin = admin.withField("_id", idGenerator.newId(admin));
+            Document admin = documentTranslator.translate(adminUserData);
             usersCollection.addDocument(admin);
         }
     }
