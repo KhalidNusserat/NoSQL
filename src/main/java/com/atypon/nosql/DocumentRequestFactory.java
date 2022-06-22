@@ -1,13 +1,13 @@
 package com.atypon.nosql;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 public interface DocumentRequestFactory {
     DocumentRequest addDocuments(
             String database,
             String collection,
-            List<Map<String, Object>> documents
+            Collection<Map<String, Object>> documents
     );
 
     DocumentRequest readDocuments(

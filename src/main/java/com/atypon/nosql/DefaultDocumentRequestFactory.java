@@ -5,6 +5,7 @@ import com.atypon.nosql.database.document.DocumentFactory;
 import com.atypon.nosql.database.document.DocumentIdGenerator;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -20,8 +21,8 @@ public class DefaultDocumentRequestFactory implements DocumentRequestFactory {
     }
 
     @Override
-    public DocumentRequest addDocuments(String database, String collection, List<Map<String, Object>> documents) {
-        List<Document> parsedDocuments = documents.stream()
+    public DocumentRequest addDocuments(String database, String collection, Collection<Map<String, Object>> documents) {
+        Collection<Document> parsedDocuments = documents.stream()
                 .map(documentFactory::createFromMap)
                 .map(this::appendId)
                 .toList();
