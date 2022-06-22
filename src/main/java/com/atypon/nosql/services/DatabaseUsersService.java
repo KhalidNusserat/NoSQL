@@ -1,4 +1,4 @@
-package com.atypon.nosql.api.services;
+package com.atypon.nosql.services;
 
 import java.util.Collection;
 import java.util.Map;

@@ -1,6 +1,6 @@
 package com.atypon.nosql;
 
-import com.atypon.nosql.api.services.DocumentTranslator;
+import com.atypon.nosql.services.DocumentTranslator;
 import com.atypon.nosql.database.cache.LRUCache;
 import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
 import com.atypon.nosql.database.collection.IndexedDocumentsCollectionFactory;

@@ -1,8 +1,6 @@
-package com.atypon.nosql.api.controllers;
+package com.atypon.nosql.controllers;
 
-import com.atypon.nosql.api.services.DatabaseUsersService;
-import com.atypon.nosql.synchronisation.SynchronisationService;
-import org.springframework.http.HttpMethod;
+import com.atypon.nosql.services.DatabaseUsersService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

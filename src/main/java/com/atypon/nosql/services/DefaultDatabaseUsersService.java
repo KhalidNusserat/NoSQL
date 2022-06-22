@@ -1,4 +1,4 @@
-package com.atypon.nosql.api.services;
+package com.atypon.nosql.services;
 
 import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
 import com.atypon.nosql.database.document.Document;

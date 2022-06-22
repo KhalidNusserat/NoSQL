@@ -1,6 +1,6 @@
-package com.atypon.nosql.api.services;
+package com.atypon.nosql.services;
 
-import com.atypon.nosql.api.controllers.NoSuchDatabaseException;
+import com.atypon.nosql.controllers.NoSuchDatabaseException;
 import com.atypon.nosql.database.Database;
 import com.atypon.nosql.database.DatabaseFactory;
 import com.atypon.nosql.database.collection.IndexedDocumentsCollection;

@@ -1,4 +1,4 @@
-package com.atypon.nosql.api.controllers;
+package com.atypon.nosql.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
