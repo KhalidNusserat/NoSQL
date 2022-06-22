@@ -9,11 +9,7 @@ public interface Document {
 
     Document getFields();
 
-    Document withField(String field, String value);
-
-    Document withField(String field, Number value);
-
-    Document withField(String field, boolean value);
+    Document overrideFields(Document newFieldsValues);
 
     Map<String, Object> getAsMap();
 

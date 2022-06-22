@@ -115,24 +115,25 @@ public class GsonDocument implements Document {
     }
 
     @Override
-    public Document withField(String field, String value) {
-        JsonObject newObject = object.deepCopy();
-        newObject.addProperty(field, value);
+    public Document overrideFields(Document newFieldsValues) {
+        JsonObject otherObject = ((GsonDocument) newFieldsValues).object;
+        JsonObject newObject = mergeObjects(object, otherObject);
         return GsonDocument.fromJsonObject(newObject);
     }
 
-    @Override
-    public Document withField(String field, Number value) {
-        JsonObject newObject = object.deepCopy();
-        newObject.addProperty(field, value);
-        return GsonDocument.fromJsonObject(newObject);
-    }
-
-    @Override
-    public Document withField(String field, boolean value) {
-        JsonObject newObject = object.deepCopy();
-        newObject.addProperty(field, value);
-        return GsonDocument.fromJsonObject(newObject);
+    private JsonObject mergeObjects(JsonObject firstObject, JsonObject secondObject) {
+        JsonObject result = firstObject.deepCopy();
+        for (var entry : secondObject.entrySet()) {
+            String field = entry.getKey();
+            JsonElement element = entry.getValue();
+            if (element.isJsonObject()) {
+                JsonObject object = element.getAsJsonObject();
+                result.add(field, mergeObjects(object, firstObject.get(field).getAsJsonObject()));
+            } else {
+                result.add(field, element);
+            }
+        }
+        return result;
     }
 
     @Override
