@@ -6,7 +6,7 @@ import java.util.Map;
 public record DocumentRequest(
         String database,
         String collection,
-        DocumentOperation operation,
+        DatabaseOperation operation,
         DocumentType documentType,
         Map<String, Object> criteria,
         Collection<Map<String, Object>> documents) {
@@ -21,7 +21,7 @@ public record DocumentRequest(
 
         private String collection;
 
-        private DocumentOperation operation;
+        private DatabaseOperation operation;
 
         private DocumentType documentType;
 
@@ -39,7 +39,7 @@ public record DocumentRequest(
             return this;
         }
 
-        public DocumentRequestBuilder setOperation(DocumentOperation operation) {
+        public DocumentRequestBuilder setOperation(DatabaseOperation operation) {
             this.operation = operation;
             return this;
         }

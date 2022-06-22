@@ -18,7 +18,7 @@ public class DefaultDocumentRequestFormatter implements DocumentRequestFormatter
 
     @Override
     public DocumentRequest format(DocumentRequest request) {
-        if (request.operation() == DocumentOperation.ADD) {
+        if (request.operation() == DatabaseOperation.ADD_DOCUMENT) {
             List<Map<String, Object>> documents = new ArrayList<>(request.documents());
             documents.forEach(document -> document.put("_id", idGenerator.newId(document)));
             return DocumentRequest.builder()
