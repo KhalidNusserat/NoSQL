@@ -33,7 +33,7 @@ public class SynchronizationHandler implements DocumentRequestHandler {
     private void synchroniseNode(RemoteNode remoteNode, DocumentRequest request) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBasicAuth("sync", remoteNode.password());
+        headers.setBasicAuth("sync", remoteNode.syncPassword());
         HttpEntity<DocumentRequest> entity = new HttpEntity<>(request, headers);
         restTemplate.postForObject(remoteNode.url() + "/sync", entity, Void.class);
     }
