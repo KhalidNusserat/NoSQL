@@ -1,15 +1,6 @@
 package com.atypon.nosql;
 
-import java.util.Collection;
-import java.util.Map;
-
-public record DatabaseRequest(
-        String database,
-        String collection,
-        DatabaseOperation operation,
-        PayloadType payloadType,
-        Map<String, Object> criteria,
-        Collection<Map<String, Object>> documents) {
+public record DatabaseRequest(String database, String collection, DatabaseOperation operation, Payload payload) {
 
     public static DocumentRequestBuilder builder() {
         return new DocumentRequestBuilder();
@@ -23,11 +14,7 @@ public record DatabaseRequest(
 
         private DatabaseOperation operation;
 
-        private PayloadType payloadType;
-
-        private Map<String, Object> criteria;
-
-        private Collection<Map<String, Object>> documents;
+        private Payload payload;
 
         public DocumentRequestBuilder setDatabase(String database) {
             this.database = database;
@@ -44,23 +31,13 @@ public record DatabaseRequest(
             return this;
         }
 
-        public DocumentRequestBuilder setDocumentType(PayloadType payloadType) {
-            this.payloadType = payloadType;
-            return this;
-        }
-
-        public DocumentRequestBuilder setCriteria(Map<String, Object> criteria) {
-            this.criteria = criteria;
-            return this;
-        }
-
-        public DocumentRequestBuilder setDocuments(Collection<Map<String, Object>> documents) {
-            this.documents = documents;
+        public DocumentRequestBuilder setPayload(Payload payload) {
+            this.payload = payload;
             return this;
         }
 
         public DatabaseRequest createDocumentRequest() {
-            return new DatabaseRequest(database, collection, operation, payloadType, criteria, documents);
+            return new DatabaseRequest(database, collection, operation, payload);
         }
     }
 }

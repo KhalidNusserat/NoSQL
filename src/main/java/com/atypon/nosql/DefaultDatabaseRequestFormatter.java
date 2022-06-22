@@ -19,15 +19,16 @@ public class DefaultDatabaseRequestFormatter implements DatabaseRequestFormatter
     @Override
     public DatabaseRequest format(DatabaseRequest request) {
         if (request.operation() == DatabaseOperation.ADD_DOCUMENT) {
-            List<Map<String, Object>> documents = new ArrayList<>(request.documents());
+            List<Map<String, Object>> documents = new ArrayList<>(request.payload().documents());
             documents.forEach(document -> document.put("_id", idGenerator.newId(document)));
+            Payload updatedPayload = Payload.builder()
+                    .setDocuments(documents)
+                    .createPayload();
             return DatabaseRequest.builder()
                     .setDatabase(request.database())
                     .setCollection(request.collection())
-                    .setOperation(request.operation())
-                    .setDocumentType(request.payloadType())
-                    .setCriteria(request.criteria())
-                    .setDocuments(documents)
+                    .setOperation(DatabaseOperation.ADD_DOCUMENT)
+                    .setPayload(updatedPayload)
                     .createDocumentRequest();
         }
         return request;
