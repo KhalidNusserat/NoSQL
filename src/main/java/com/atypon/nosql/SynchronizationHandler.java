@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Component
-public class SynchronizationHandler implements DocumentRequestHandler {
+public class SynchronizationHandler implements DatabaseRequestHandler {
 
     private final Collection<String> remoteNodes;
 
@@ -27,14 +27,14 @@ public class SynchronizationHandler implements DocumentRequestHandler {
     }
 
     @Override
-    public void handle(DocumentRequest request) {
+    public void handle(DatabaseRequest request) {
         for (String nodeUrl : remoteNodes) {
             executorService.submit(() -> synchroniseNode(nodeUrl, request));
         }
     }
 
-    private void synchroniseNode(String nodeUrl, DocumentRequest request) {
-        HttpEntity<DocumentRequest> entity = new HttpEntity<>(request, headers);
+    private void synchroniseNode(String nodeUrl, DatabaseRequest request) {
+        HttpEntity<DatabaseRequest> entity = new HttpEntity<>(request, headers);
         restTemplate.postForObject(nodeUrl + "/sync", entity, Void.class);
     }
 }

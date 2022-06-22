@@ -8,24 +8,24 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class DefaultDocumentRequestFormatter implements DocumentRequestFormatter {
+public class DefaultDatabaseRequestFormatter implements DatabaseRequestFormatter {
 
     private final IdGenerator idGenerator;
 
-    public DefaultDocumentRequestFormatter(IdGenerator idGenerator) {
+    public DefaultDatabaseRequestFormatter(IdGenerator idGenerator) {
         this.idGenerator = idGenerator;
     }
 
     @Override
-    public DocumentRequest format(DocumentRequest request) {
+    public DatabaseRequest format(DatabaseRequest request) {
         if (request.operation() == DatabaseOperation.ADD_DOCUMENT) {
             List<Map<String, Object>> documents = new ArrayList<>(request.documents());
             documents.forEach(document -> document.put("_id", idGenerator.newId(document)));
-            return DocumentRequest.builder()
+            return DatabaseRequest.builder()
                     .setDatabase(request.database())
                     .setCollection(request.collection())
                     .setOperation(request.operation())
-                    .setDocumentType(request.documentType())
+                    .setDocumentType(request.payloadType())
                     .setCriteria(request.criteria())
                     .setDocuments(documents)
                     .createDocumentRequest();

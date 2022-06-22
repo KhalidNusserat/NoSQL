@@ -3,11 +3,11 @@ package com.atypon.nosql;
 import java.util.Collection;
 import java.util.Map;
 
-public record DocumentRequest(
+public record DatabaseRequest(
         String database,
         String collection,
         DatabaseOperation operation,
-        DocumentType documentType,
+        PayloadType payloadType,
         Map<String, Object> criteria,
         Collection<Map<String, Object>> documents) {
 
@@ -23,7 +23,7 @@ public record DocumentRequest(
 
         private DatabaseOperation operation;
 
-        private DocumentType documentType;
+        private PayloadType payloadType;
 
         private Map<String, Object> criteria;
 
@@ -44,8 +44,8 @@ public record DocumentRequest(
             return this;
         }
 
-        public DocumentRequestBuilder setDocumentType(DocumentType documentType) {
-            this.documentType = documentType;
+        public DocumentRequestBuilder setDocumentType(PayloadType payloadType) {
+            this.payloadType = payloadType;
             return this;
         }
 
@@ -59,8 +59,8 @@ public record DocumentRequest(
             return this;
         }
 
-        public DocumentRequest createDocumentRequest() {
-            return new DocumentRequest(database, collection, operation, documentType, criteria, documents);
+        public DatabaseRequest createDocumentRequest() {
+            return new DatabaseRequest(database, collection, operation, payloadType, criteria, documents);
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.atypon.nosql;
 
-public enum DocumentType {
-    DOCUMENT,
+public enum PayloadType {
+    DOCUMENTS,
     INDEX,
     UPDATE,
     NONE
