@@ -2,7 +2,6 @@ package com.atypon.nosql.database.collection;
 
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentSchema;
-import com.atypon.nosql.database.document.DocumentIdGenerator;
 import com.atypon.nosql.database.index.Index;
 import com.atypon.nosql.database.index.IndexesCollection;
 import com.atypon.nosql.database.index.IndexesCollectionFactory;

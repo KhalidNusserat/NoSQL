@@ -7,12 +7,12 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 
 @Component
-public class Sha256DocumentIdGenerator implements DocumentIdGenerator {
+public class Sha256IdGenerator implements IdGenerator {
     @SneakyThrows
     @Override
-    public String newId(Document document) {
+    public String newId(Object object) {
         return Hashing.sha256()
-                .hashString(document.toString(), StandardCharsets.UTF_8)
+                .hashString(object.toString(), StandardCharsets.UTF_8)
                 .toString();
     }
 }

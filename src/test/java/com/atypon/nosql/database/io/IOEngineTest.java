@@ -1,8 +1,8 @@
 package com.atypon.nosql.database.io;
 
 import com.atypon.nosql.database.document.DocumentFactory;
-import com.atypon.nosql.database.document.DocumentIdGenerator;
-import com.atypon.nosql.database.document.Sha256DocumentIdGenerator;
+import com.atypon.nosql.database.document.IdGenerator;
+import com.atypon.nosql.database.document.Sha256IdGenerator;
 import com.atypon.nosql.database.gsondocument.GsonDocument;
 import com.atypon.nosql.database.gsondocument.GsonDocumentFactory;
 import com.atypon.nosql.database.utils.FileUtils;
@@ -35,7 +35,7 @@ public abstract class IOEngineTest {
         johnObject.addProperty("name", "John");
         johnObject.addProperty("content", "Jo".repeat(10000000));
         john = GsonDocument.fromJsonObject(johnObject);
-        DocumentIdGenerator idGenerator = new Sha256DocumentIdGenerator();
+        IdGenerator idGenerator = new Sha256IdGenerator();
         documentFactory = new GsonDocumentFactory();
     }
 
