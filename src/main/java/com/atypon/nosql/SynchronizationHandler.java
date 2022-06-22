@@ -13,28 +13,28 @@ import java.util.concurrent.Executors;
 @Component
 public class SynchronizationHandler implements DocumentRequestHandler {
 
-    private final Collection<RemoteNode> remoteNodes;
+    private final Collection<String> remoteNodes;
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public SynchronizationHandler(Collection<RemoteNode> remoteNodes) {
+    private final HttpHeaders headers = new HttpHeaders();
+
+    public SynchronizationHandler(Collection<String> remoteNodes) {
         this.remoteNodes = remoteNodes;
+        headers.setContentType(MediaType.APPLICATION_JSON);
     }
 
     @Override
     public void handle(DocumentRequest request) {
-        for (RemoteNode remoteNode : remoteNodes) {
-            executorService.submit(() -> synchroniseNode(remoteNode, request));
+        for (String nodeUrl : remoteNodes) {
+            executorService.submit(() -> synchroniseNode(nodeUrl, request));
         }
     }
 
-    private void synchroniseNode(RemoteNode remoteNode, DocumentRequest request) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBasicAuth("sync", remoteNode.syncPassword());
+    private void synchroniseNode(String nodeUrl, DocumentRequest request) {
         HttpEntity<DocumentRequest> entity = new HttpEntity<>(request, headers);
-        restTemplate.postForObject(remoteNode.url() + "/sync", entity, Void.class);
+        restTemplate.postForObject(nodeUrl + "/sync", entity, Void.class);
     }
 }
