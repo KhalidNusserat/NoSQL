@@ -64,7 +64,8 @@ public class BasicIOEngine implements IOEngine {
     public Path update(Document updatedDocument, Path documentPath) {
         Path updatedDocumentPath = getNewDocumentPath(documentPath.getParent());
         add(updatedDocumentPath);
-        writeAtPath(updatedDocument, updatedDocumentPath);
+        Document oldDocument = read(documentPath).orElseThrow();
+        writeAtPath(oldDocument.overrideFields(updatedDocument), updatedDocumentPath);
         commit(updatedDocumentPath);
         delete(documentPath);
         return updatedDocumentPath;
