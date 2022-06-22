@@ -7,7 +7,7 @@ public interface RequestFactory {
     DocumentRequest addDocuments(
             String database,
             String collection,
-            List<Map<String, Object>> document
+            List<Map<String, Object>> documents
     );
 
     DocumentRequest readDocuments(
