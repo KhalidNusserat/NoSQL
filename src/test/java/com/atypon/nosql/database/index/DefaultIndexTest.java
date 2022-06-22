@@ -1,8 +1,8 @@
 package com.atypon.nosql.database.index;
 
 import com.atypon.nosql.database.document.DocumentFactory;
-import com.atypon.nosql.database.document.DocumentIdGenerator;
-import com.atypon.nosql.database.document.Sha256DocumentIdGenerator;
+import com.atypon.nosql.database.document.IdGenerator;
+import com.atypon.nosql.database.document.Sha256IdGenerator;
 import com.atypon.nosql.database.gsondocument.FieldsDoNotMatchException;
 import com.atypon.nosql.database.gsondocument.GsonDocument;
 import com.atypon.nosql.database.gsondocument.GsonDocumentFactory;
@@ -23,7 +23,7 @@ class DefaultIndexTest {
     private final Path testDirectory = Path.of("./test");
 
     DefaultIndexTest() {
-        DocumentIdGenerator idGenerator = new Sha256DocumentIdGenerator();
+        IdGenerator idGenerator = new Sha256IdGenerator();
         DocumentFactory documentFactory = new GsonDocumentFactory();
     }
 

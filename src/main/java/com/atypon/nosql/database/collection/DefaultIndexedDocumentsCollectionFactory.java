@@ -3,7 +3,6 @@ package com.atypon.nosql.database.collection;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentSchema;
 import com.atypon.nosql.database.document.DocumentSchemaFactory;
-import com.atypon.nosql.database.document.DocumentIdGenerator;
 import com.atypon.nosql.database.index.IndexesCollectionFactory;
 import com.atypon.nosql.database.io.IOEngine;
 import org.springframework.stereotype.Component;

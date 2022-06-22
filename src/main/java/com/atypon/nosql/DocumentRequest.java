@@ -1,17 +1,15 @@
 package com.atypon.nosql;
 
-import com.atypon.nosql.database.document.Document;
-
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
 
 public record DocumentRequest(
         String database,
         String collection,
         DocumentOperation operation,
         DocumentType documentType,
-        Document criteria,
-        Collection<Document> documents) {
+        Map<String, Object> criteria,
+        Collection<Map<String, Object>> documents) {
 
     public static DocumentRequestBuilder builder() {
         return new DocumentRequestBuilder();
@@ -27,9 +25,9 @@ public record DocumentRequest(
 
         private DocumentType documentType;
 
-        private Document criteria;
+        private Map<String, Object> criteria;
 
-        private Collection<Document> documents;
+        private Collection<Map<String, Object>> documents;
 
         public DocumentRequestBuilder setDatabase(String database) {
             this.database = database;
@@ -51,12 +49,12 @@ public record DocumentRequest(
             return this;
         }
 
-        public DocumentRequestBuilder setCriteria(Document criteria) {
+        public DocumentRequestBuilder setCriteria(Map<String, Object> criteria) {
             this.criteria = criteria;
             return this;
         }
 
-        public DocumentRequestBuilder setDocuments(Collection<Document> documents) {
+        public DocumentRequestBuilder setDocuments(Collection<Map<String, Object>> documents) {
             this.documents = documents;
             return this;
         }
