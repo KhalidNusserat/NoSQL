@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class DefaultRequestFactory implements RequestFactory {
+public class DefaultDocumentRequestFactory implements DocumentRequestFactory {
     private final DocumentFactory documentFactory;
 
     private final DocumentIdGenerator idGenerator;
 
-    public DefaultRequestFactory(DocumentFactory documentFactory, DocumentIdGenerator idGenerator) {
+    public DefaultDocumentRequestFactory(DocumentFactory documentFactory, DocumentIdGenerator idGenerator) {
         this.documentFactory = documentFactory;
         this.idGenerator = idGenerator;
     }

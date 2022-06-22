@@ -3,7 +3,7 @@ package com.atypon.nosql;
 import java.util.List;
 import java.util.Map;
 
-public interface RequestFactory {
+public interface DocumentRequestFactory {
     DocumentRequest addDocuments(
             String database,
             String collection,
