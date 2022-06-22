@@ -1,49 +1,12 @@
 package com.atypon.nosql.databaserequest;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public record Payload(Map<String, Object> criteria,
                       List<Map<String, Object>> documents,
                       Map<String, Object> index,
                       Map<String, Object> update) {
-
-    private static final Set<Set<String>> validStates = Set.of(
-            Set.of("documents"),
-            Set.of("criteria"),
-            Set.of("criteria", "update"),
-            Set.of("index"),
-            Set.of()
-    );
-
-    public Payload(
-            Map<String, Object> criteria,
-            List<Map<String, Object>> documents,
-            Map<String, Object> index,
-            Map<String, Object> update) {
-        this.criteria = criteria;
-        this.documents = documents;
-        this.index = index;
-        this.update = update;
-        Set<String> notNullFields = new HashSet<>();
-        if (criteria != null) {
-            notNullFields.add("criteria");
-        }
-        if (documents != null) {
-            notNullFields.add("documents");
-        }
-        if (index != null) {
-            notNullFields.add("index");
-        }
-        if (update != null) {
-            notNullFields.add("update");
-        }
-        if (!validStates.contains(notNullFields)) {
-            throw new RuntimeException("Invalid payload");
-        }
-    }
 
     public static PayloadBuilder builder() {
         return new PayloadBuilder();
