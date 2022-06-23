@@ -1,4 +1,4 @@
-package com.atypon.nosql.io;
+package com.atypon.nosql.storage;
 
 import com.atypon.nosql.collection.StoredDocument;
 import com.atypon.nosql.document.Document;
@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class BasicIOEngine implements IOEngine {
+public class BasicStorageEngine implements StorageEngine {
     private final ExecutorService deleteService = Executors.newCachedThreadPool();
 
     private final Set<Path> uncommittedFiles = new HashSet<>();
@@ -27,7 +27,7 @@ public class BasicIOEngine implements IOEngine {
 
     private final DocumentFactory documentFactory;
 
-    public BasicIOEngine(DocumentFactory documentFactory) {
+    public BasicStorageEngine(DocumentFactory documentFactory) {
         this.documentFactory = documentFactory;
     }
 

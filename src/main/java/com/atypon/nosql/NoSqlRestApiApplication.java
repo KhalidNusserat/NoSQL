@@ -3,9 +3,9 @@ package com.atypon.nosql;
 import com.atypon.nosql.cache.LRUCache;
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentFactory;
-import com.atypon.nosql.io.BasicIOEngine;
-import com.atypon.nosql.io.CachedIOEngine;
-import com.atypon.nosql.io.IOEngine;
+import com.atypon.nosql.storage.BasicStorageEngine;
+import com.atypon.nosql.storage.CachedStorageEngine;
+import com.atypon.nosql.storage.StorageEngine;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -31,9 +31,9 @@ public class NoSqlRestApiApplication {
     }
 
     @Bean
-    public IOEngine ioEngine(DocumentFactory documentFactory) {
+    public StorageEngine ioEngine(DocumentFactory documentFactory) {
         LRUCache<Path, Document> cache = new LRUCache<>(100000);
-        return CachedIOEngine.from(new BasicIOEngine(documentFactory), cache);
+        return CachedStorageEngine.from(new BasicStorageEngine(documentFactory), cache);
     }
 
 //    @Bean

@@ -5,7 +5,7 @@ import com.atypon.nosql.collection.IndexAlreadyExistsException;
 import com.atypon.nosql.collection.NoSuchIndexException;
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentFactory;
-import com.atypon.nosql.io.IOEngine;
+import com.atypon.nosql.storage.StorageEngine;
 import com.atypon.nosql.utils.FileUtils;
 
 import java.nio.file.Path;
@@ -21,15 +21,15 @@ public class DefaultIndexesCollection implements IndexesCollection {
 
     private final DefaultBasicDocumentsCollection indexesCollection;
     
-    private final IOEngine ioEngine;
+    private final StorageEngine storageEngine;
 
     public DefaultIndexesCollection(
             Path indexesDirectory,
-            IOEngine ioEngine,
+            StorageEngine storageEngine,
             DocumentFactory documentFactory) {
         this.indexesDirectory = indexesDirectory;
-        this.ioEngine = ioEngine;
-        indexesCollection = new DefaultBasicDocumentsCollection(indexesDirectory, ioEngine);
+        this.storageEngine = storageEngine;
+        indexesCollection = new DefaultBasicDocumentsCollection(indexesDirectory, storageEngine);
         FileUtils.createDirectories(indexesDirectory);
         loadIndexes();
         createIdIndex(documentFactory);
@@ -38,7 +38,7 @@ public class DefaultIndexesCollection implements IndexesCollection {
     private void loadIndexes() {
         FileUtils.traverseDirectory(indexesDirectory)
                 .filter(FileUtils::isJsonFile)
-                .map(ioEngine::read)
+                .map(storageEngine::read)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .forEach(indexFields -> indexes.put(indexFields, new DefaultIndex(indexFields)));
@@ -54,7 +54,7 @@ public class DefaultIndexesCollection implements IndexesCollection {
     }
 
     private void addDocument(Path documentPath) {
-        ioEngine.read(documentPath).ifPresent(document -> addDocument(document, documentPath));
+        storageEngine.read(documentPath).ifPresent(document -> addDocument(document, documentPath));
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.atypon.nosql.collection;
 
 import com.atypon.nosql.document.Document;
-import com.atypon.nosql.io.IOEngine;
+import com.atypon.nosql.storage.StorageEngine;
 import com.atypon.nosql.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,12 +11,12 @@ import java.util.Optional;
 
 @Slf4j
 public class DefaultBasicDocumentsCollection implements DocumentsCollection {
-    private final IOEngine ioEngine;
+    private final StorageEngine storageEngine;
 
     private final Path documentsPath;
 
-    public DefaultBasicDocumentsCollection(Path collectionPath, IOEngine ioEngine) {
-        this.ioEngine = ioEngine;
+    public DefaultBasicDocumentsCollection(Path collectionPath, StorageEngine storageEngine) {
+        this.storageEngine = storageEngine;
         documentsPath = collectionPath;
         FileUtils.createDirectories(documentsPath);
     }
@@ -25,7 +25,7 @@ public class DefaultBasicDocumentsCollection implements DocumentsCollection {
     public boolean contains(Document documentCriteria) {
         return FileUtils.traverseDirectory(documentsPath)
                 .filter(FileUtils::isJsonFile)
-                .map(ioEngine::read)
+                .map(storageEngine::read)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .anyMatch(documentCriteria::subsetOf);
@@ -35,7 +35,7 @@ public class DefaultBasicDocumentsCollection implements DocumentsCollection {
     public List<Document> getAllThatMatch(Document documentCriteria) {
         return FileUtils.traverseDirectory(documentsPath)
                 .filter(FileUtils::isJsonFile)
-                .map(ioEngine::read)
+                .map(storageEngine::read)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .filter(documentCriteria::subsetOf)
@@ -45,7 +45,7 @@ public class DefaultBasicDocumentsCollection implements DocumentsCollection {
     @Override
     public List<StoredDocument> addDocuments(List<Document> documents) {
         return documents.stream().map(
-                document -> ioEngine.write(document, documentsPath)
+                document -> storageEngine.write(document, documentsPath)
         ).toList();
     }
 
@@ -53,21 +53,21 @@ public class DefaultBasicDocumentsCollection implements DocumentsCollection {
     public List<StoredDocument> updateDocuments(Document documentCriteria, Document updatedDocument) {
         List<Path> matchingDocumentsPaths = getPathsThatMatch(documentCriteria);
         return matchingDocumentsPaths.stream()
-                .map(documentPath -> ioEngine.update(updatedDocument, documentPath))
+                .map(documentPath -> storageEngine.update(updatedDocument, documentPath))
                 .toList();
     }
 
     private List<Path> getPathsThatMatch(Document documentCriteria) {
         return FileUtils.traverseDirectory(documentsPath)
                 .filter(FileUtils::isJsonFile)
-                .filter(path -> ioEngine.read(path).map(documentCriteria::subsetOf).orElseThrow())
+                .filter(path -> storageEngine.read(path).map(documentCriteria::subsetOf).orElseThrow())
                 .toList();
     }
 
     @Override
     public int removeAllThatMatch(Document documentCriteria) {
         List<Path> paths = getPathsThatMatch(documentCriteria);
-        paths.forEach(ioEngine::delete);
+        paths.forEach(storageEngine::delete);
         return paths.size();
     }
 
@@ -75,7 +75,7 @@ public class DefaultBasicDocumentsCollection implements DocumentsCollection {
     public List<Document> getAll() {
         return FileUtils.traverseDirectory(documentsPath)
                 .filter(FileUtils::isJsonFile)
-                .map(ioEngine::read)
+                .map(storageEngine::read)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList();

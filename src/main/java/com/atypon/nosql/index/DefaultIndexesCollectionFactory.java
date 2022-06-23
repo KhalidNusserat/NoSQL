@@ -1,24 +1,24 @@
 package com.atypon.nosql.index;
 
 import com.atypon.nosql.document.DocumentFactory;
-import com.atypon.nosql.io.IOEngine;
+import com.atypon.nosql.storage.StorageEngine;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 
 @Component
 public class DefaultIndexesCollectionFactory implements IndexesCollectionFactory {
-    private final IOEngine ioEngine;
+    private final StorageEngine storageEngine;
 
     private final DocumentFactory documentFactory;
 
-    public DefaultIndexesCollectionFactory(IOEngine ioEngine, DocumentFactory documentFactory) {
-        this.ioEngine = ioEngine;
+    public DefaultIndexesCollectionFactory(StorageEngine storageEngine, DocumentFactory documentFactory) {
+        this.storageEngine = storageEngine;
         this.documentFactory = documentFactory;
     }
 
     @Override
     public IndexesCollection createIndexesCollection(Path indexesDirectory) {
-        return new DefaultIndexesCollection(indexesDirectory, ioEngine, documentFactory);
+        return new DefaultIndexesCollection(indexesDirectory, storageEngine, documentFactory);
     }
 }

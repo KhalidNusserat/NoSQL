@@ -1,4 +1,4 @@
-package com.atypon.nosql.io;
+package com.atypon.nosql.storage;
 
 import com.atypon.nosql.collection.StoredDocument;
 import com.atypon.nosql.document.Document;
@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-public interface IOEngine {
+public interface StorageEngine {
     StoredDocument write(Document document, Path directory);
 
     Optional<Document> read(Path documentPath);

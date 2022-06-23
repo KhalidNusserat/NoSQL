@@ -5,7 +5,7 @@ import com.atypon.nosql.document.DocumentSchema;
 import com.atypon.nosql.index.Index;
 import com.atypon.nosql.index.IndexesCollection;
 import com.atypon.nosql.index.IndexesCollectionFactory;
-import com.atypon.nosql.io.IOEngine;
+import com.atypon.nosql.storage.StorageEngine;
 import com.atypon.nosql.utils.FileUtils;
 import com.google.common.base.Stopwatch;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @Slf4j
 public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollection {
-    private final IOEngine ioEngine;
+    private final StorageEngine storageEngine;
 
     private final DocumentsCollection documentsCollection;
 
@@ -29,7 +29,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
 
     public DefaultIndexedDocumentsCollection(
             Path collectionPath,
-            IOEngine ioEngine,
+            StorageEngine storageEngine,
             BasicDocumentsCollectionFactory documentsCollectionFactory,
             IndexesCollectionFactory indexesCollectionFactory,
             DocumentSchema documentSchema) {
@@ -43,7 +43,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
         schemaDirectory = collectionPath.resolve("schema/");
         FileUtils.createDirectories(documentsDirectory, indexesDirectory, schemaDirectory);
         documentsCollection = documentsCollectionFactory.createCollection(documentsDirectory);
-        this.ioEngine = ioEngine;
+        this.storageEngine = storageEngine;
         this.indexes = indexesCollectionFactory.createIndexesCollection(indexesDirectory);
         this.indexes.populateIndexes(documentsDirectory);
         this.documentSchema = documentSchema;
@@ -57,7 +57,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
 
     private void writeSchema() {
         if (FileUtils.countFiles(schemaDirectory, 1) == 0) {
-            ioEngine.write(documentSchema.getAsDocument(), schemaDirectory);
+            storageEngine.write(documentSchema.getAsDocument(), schemaDirectory);
         }
     }
 
@@ -104,7 +104,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
             Index index = indexes.get(criteriaFields);
             return index.get(documentCriteria.getValuesToMatch(index.getFields()))
                     .stream()
-                    .map(ioEngine::read)
+                    .map(storageEngine::read)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .toList();
@@ -131,7 +131,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
         if (indexes.contains(criteriaFields)) {
             Index index = indexes.get(criteriaFields);
             return index.get(criteriaFields)
-                    .stream().map(documentPath -> ioEngine.update(updateDocument, documentPath))
+                    .stream().map(documentPath -> storageEngine.update(updateDocument, documentPath))
                     .toList();
         } else {
             return documentsCollection.updateDocuments(documentCriteria, updateDocument);
@@ -144,8 +144,8 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
         if (indexes.contains(criteriaFields)) {
             Collection<Path> paths = indexes.get(criteriaFields).get(documentCriteria);
             for (Path path : paths) {
-                ioEngine.read(path).ifPresent(indexes::removeDocument);
-                ioEngine.delete(path);
+                storageEngine.read(path).ifPresent(indexes::removeDocument);
+                storageEngine.delete(path);
             }
             return paths.size();
         } else {

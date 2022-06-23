@@ -1,4 +1,4 @@
-package com.atypon.nosql.io;
+package com.atypon.nosql.storage;
 
 import com.atypon.nosql.cache.Cache;
 import com.atypon.nosql.collection.StoredDocument;
@@ -9,23 +9,23 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
-public class CachedIOEngine implements IOEngine {
-    private final IOEngine ioEngine;
+public class CachedStorageEngine implements StorageEngine {
+    private final StorageEngine storageEngine;
 
     private final Cache<Path, Document> cache;
 
-    private CachedIOEngine(IOEngine ioEngine, Cache<Path, Document> cache) {
-        this.ioEngine = ioEngine;
+    private CachedStorageEngine(StorageEngine storageEngine, Cache<Path, Document> cache) {
+        this.storageEngine = storageEngine;
         this.cache = cache;
     }
 
-    public static CachedIOEngine from(IOEngine IOEngine, Cache<Path, Document> cache) {
-        return new CachedIOEngine(IOEngine, cache);
+    public static CachedStorageEngine from(StorageEngine StorageEngine, Cache<Path, Document> cache) {
+        return new CachedStorageEngine(StorageEngine, cache);
     }
 
     @Override
     public StoredDocument write(Document document, Path directory) {
-        StoredDocument storedDocument = ioEngine.write(document, directory);
+        StoredDocument storedDocument = storageEngine.write(document, directory);
         cache.put(storedDocument.path(), document);
         return storedDocument;
     }
@@ -36,18 +36,18 @@ public class CachedIOEngine implements IOEngine {
         if (cacheResult.isPresent()) {
             return cacheResult;
         } else {
-            return ioEngine.read(documentPath);
+            return storageEngine.read(documentPath);
         }
     }
 
     @Override
     public void delete(Path documentPath) {
-        ioEngine.delete(documentPath);
+        storageEngine.delete(documentPath);
     }
 
     @Override
     public StoredDocument update(Document updatedDocument, Path documentPath) {
-        StoredDocument storedDocument = ioEngine.update(updatedDocument, documentPath);
+        StoredDocument storedDocument = storageEngine.update(updatedDocument, documentPath);
         cache.put(storedDocument.path(), storedDocument.document());
         return storedDocument;
     }
