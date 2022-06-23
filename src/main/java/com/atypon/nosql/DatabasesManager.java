@@ -1,31 +1,32 @@
-package com.atypon.nosql.services;
+package com.atypon.nosql;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
-public interface DatabasesService {
+public interface DatabasesManager {
     void createDatabase(String databaseName);
 
     void removeDatabase(String databaseName);
 
     Collection<String> getDatabasesNames();
 
-    void createDocumentsCollection(
+    void createCollection(
             String databaseName,
             String collectionName,
             Map<String, Object> documentsSchemaMap
     );
 
-    void removeDocumentsCollection(String databaseName, String collectionName);
+    void removeCollection(String databaseName, String collectionName);
 
     Map<String, Object> getDocumentsCollectionSchema(String databaseName, String collectionName);
 
     Collection<String> getCollectionsNames(String databaseName);
 
-    void addDocument(
+    void addDocuments(
             String databaseName,
             String collectionName,
-            Map<String, Object> documentMap
+            List<Map<String, Object>> documentMap
     );
 
     int removeDocuments(
@@ -40,22 +41,24 @@ public interface DatabasesService {
             Map<String, Object> documentCriteriaMap
     );
 
-    void updateDocument(
+    int updateDocuments(
             String databaseName,
             String collectionName,
-            String documentId,
+            Map<String, Object> criteriaMap,
             Map<String, Object> updatedDocumentMap
     );
 
     void createIndex(
             String databaseName,
             String collectionName,
-            Map<String, Object> indexMap);
+            Map<String, Object> indexMap
+    );
 
     void removeIndex(
             String databaseName,
             String collectionName,
-            Map<String, Object> indexMap);
+            Map<String, Object> indexMap
+    );
 
     Collection<Map<String, Object>> getCollectionIndexes(String databaseName, String collectionName);
 }

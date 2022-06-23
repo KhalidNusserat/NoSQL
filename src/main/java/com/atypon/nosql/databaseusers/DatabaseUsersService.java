@@ -1,4 +1,4 @@
-package com.atypon.nosql.services;
+package com.atypon.nosql.databaseusers;
 
 import java.util.Collection;
 import java.util.Map;

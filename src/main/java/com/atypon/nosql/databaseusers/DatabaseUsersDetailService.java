@@ -1,4 +1,4 @@
-package com.atypon.nosql.security;
+package com.atypon.nosql.databaseusers;
 
 import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
 import com.atypon.nosql.database.document.Document;

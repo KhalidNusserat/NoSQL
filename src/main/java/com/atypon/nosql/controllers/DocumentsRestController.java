@@ -1,62 +1,91 @@
 package com.atypon.nosql.controllers;
 
-import com.atypon.nosql.services.DatabasesService;
+import com.atypon.nosql.databaserequest.DatabaseOperation;
+import com.atypon.nosql.databaserequest.DatabaseRequest;
+import com.atypon.nosql.databaserequest.DatabaseRequestFormatter;
+import com.atypon.nosql.databaserequest.Payload;
+import com.atypon.nosql.databaseresponse.DatabaseResponse;
+import com.atypon.nosql.requesthandlers.DatabaseRequestHandler;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
-import java.util.Map;
-
 @RestController
 public class DocumentsRestController {
-    private final DatabasesService databasesService;
 
-    public DocumentsRestController(DatabasesService databasesService) {
-        this.databasesService = databasesService;
+    private final DatabaseRequestHandler requestHandler;
+
+    private final DatabaseRequestFormatter requestFormatter;
+
+    public DocumentsRestController(
+            @Qualifier("defaultHandler") DatabaseRequestHandler requestHandler,
+            DatabaseRequestFormatter requestFormatter
+    ) {
+        this.requestHandler = requestHandler;
+        this.requestFormatter = requestFormatter;
     }
 
     @GetMapping("/databases/{database}/collections/{collection}/documents")
-    public ResponseEntity<Collection<Map<String, Object>>> getDocumentsThatMatch(
-            @PathVariable("database") String databaseName,
-            @PathVariable("collection") String collectionName,
-            @RequestBody Map<String, Object> documentCriteriaMap
-    ) {
-        Collection<Map<String, Object>> result = databasesService.getDocuments(
-                databaseName,
-                collectionName,
-                documentCriteriaMap
-        );
-        return ResponseEntity.ok(result);
+    public ResponseEntity<DatabaseResponse> readDocuments(
+            @PathVariable String database,
+            @PathVariable String collection,
+            @RequestBody Payload payload
+            ) {
+        DatabaseRequest request = DatabaseRequest.builder()
+                .setDatabase(database)
+                .setCollection(collection)
+                .setOperation(DatabaseOperation.READ_DOCUMENTS)
+                .setPayload(payload)
+                .createDocumentRequest();
+        request = requestFormatter.format(request);
+        return ResponseEntity.ok(requestHandler.handle(request));
     }
 
     @PostMapping("/databases/{database}/collections/{collection}/documents")
-    public ResponseEntity<String> addDocument(
-            @PathVariable("database") String databaseName,
-            @PathVariable("collection") String collectionName,
-            @RequestBody Map<String, Object> documentMap
+    public ResponseEntity<DatabaseResponse> addDocuments(
+            @PathVariable String database,
+            @PathVariable String collection,
+            @RequestBody Payload payload
     ) {
-        databasesService.addDocument(databaseName, collectionName, documentMap);
-        return ResponseEntity.ok("Added [1] document");
+        DatabaseRequest request = DatabaseRequest.builder()
+                .setDatabase(database)
+                .setCollection(collection)
+                .setOperation(DatabaseOperation.ADD_DOCUMENT)
+                .setPayload(payload)
+                .createDocumentRequest();
+        request = requestFormatter.format(request);
+        return ResponseEntity.ok(requestHandler.handle(request));
     }
 
     @DeleteMapping("/databases/{database}/collections/{collection}/documents")
-    public ResponseEntity<String> deleteDocuments(
-            @PathVariable("database") String databaseName,
-            @PathVariable("collection") String collectionName,
-            @RequestBody Map<String, Object> documentCriteriaMap
+    public ResponseEntity<DatabaseResponse> removeDocuments(
+            @PathVariable String database,
+            @PathVariable String collection,
+            @RequestBody Payload payload
     ) {
-        int deletedCount = databasesService.removeDocuments(databaseName, collectionName, documentCriteriaMap);
-        return ResponseEntity.ok("Deleted [" + deletedCount + "] documents");
+        DatabaseRequest request = DatabaseRequest.builder()
+                .setDatabase(database)
+                .setCollection(collection)
+                .setOperation(DatabaseOperation.REMOVE_DOCUMENTS)
+                .setPayload(payload)
+                .createDocumentRequest();
+        request = requestFormatter.format(request);
+        return ResponseEntity.ok(requestHandler.handle(request));
     }
 
-    @PutMapping("/databases/{database}/collections/{collection}/documents/{documentId}")
-    public ResponseEntity<String> updateDocument(
-            @PathVariable("database") String databaseName,
-            @PathVariable("collection") String collectionName,
-            @PathVariable("documentId") String documentId,
-            @RequestBody Map<String, Object> updatedDocumentMap
+    @PutMapping("/databases/{database}/collections/{collection}/documents")
+    public ResponseEntity<DatabaseResponse> updateDocuments(
+            @PathVariable String database,
+            @PathVariable String collection,
+            @RequestBody Payload payload
     ) {
-        databasesService.updateDocument(databaseName, collectionName, documentId, updatedDocumentMap);
-        return ResponseEntity.ok("Updated [1] document");
+        DatabaseRequest request = DatabaseRequest.builder()
+                .setDatabase(database)
+                .setCollection(collection)
+                .setOperation(DatabaseOperation.UPDATE_DOCUMENTS)
+                .setPayload(payload)
+                .createDocumentRequest();
+        request = requestFormatter.format(request);
+        return ResponseEntity.ok(requestHandler.handle(request));
     }
 }

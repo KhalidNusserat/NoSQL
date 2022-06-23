@@ -1,6 +1,7 @@
 package com.atypon.nosql.database.io;
 
 import com.atypon.nosql.database.cache.Cache;
+import com.atypon.nosql.database.collection.StoredDocument;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.utils.FileUtils;
 
@@ -23,10 +24,10 @@ public class CachedIOEngine implements IOEngine {
     }
 
     @Override
-    public Path write(Document document, Path directory) {
-        Path filepath = ioEngine.write(document, directory);
-        cache.put(filepath, document);
-        return filepath;
+    public StoredDocument write(Document document, Path directory) {
+        StoredDocument storedDocument = ioEngine.write(document, directory);
+        cache.put(storedDocument.path(), document);
+        return storedDocument;
     }
 
     @Override
@@ -45,10 +46,10 @@ public class CachedIOEngine implements IOEngine {
     }
 
     @Override
-    public Path update(Document updatedDocument, Path documentPath) {
-        Path filepath = ioEngine.update(updatedDocument, documentPath);
-        cache.put(filepath, updatedDocument);
-        return filepath;
+    public StoredDocument update(Document updatedDocument, Path documentPath) {
+        StoredDocument storedDocument = ioEngine.update(updatedDocument, documentPath);
+        cache.put(storedDocument.path(), updatedDocument);
+        return storedDocument;
     }
 
     @Override

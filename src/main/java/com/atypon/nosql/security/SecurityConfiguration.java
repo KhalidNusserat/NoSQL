@@ -1,9 +1,6 @@
 package com.atypon.nosql.security;
 
-import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
-import com.atypon.nosql.database.collection.IndexedDocumentsCollectionFactory;
-import com.atypon.nosql.database.document.Document;
-import com.atypon.nosql.database.document.DocumentFactory;
+import com.atypon.nosql.databaseusers.DatabaseUsersDetailService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -13,10 +10,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
 
 @Configuration
 @EnableWebSecurity

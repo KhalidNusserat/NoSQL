@@ -1,36 +1,55 @@
 package com.atypon.nosql.controllers;
 
-import com.atypon.nosql.services.DatabasesService;
+import com.atypon.nosql.databaserequest.DatabaseOperation;
+import com.atypon.nosql.databaserequest.DatabaseRequest;
+import com.atypon.nosql.databaserequest.DatabaseRequestFormatter;
+import com.atypon.nosql.databaseresponse.DatabaseResponse;
+import com.atypon.nosql.requesthandlers.DatabaseRequestHandler;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
-
 @RestController
 public class DatabasesRestController {
-    private final DatabasesService databasesService;
 
-    public DatabasesRestController(DatabasesService databasesService) {
-        this.databasesService = databasesService;
+    private final DatabaseRequestHandler requestHandler;
+
+    private final DatabaseRequestFormatter requestFormatter;
+
+    public DatabasesRestController(
+            @Qualifier("defaultHandler") DatabaseRequestHandler requestHandler,
+            DatabaseRequestFormatter requestFormatter
+    ) {
+        this.requestHandler = requestHandler;
+        this.requestFormatter = requestFormatter;
     }
 
     @GetMapping("/databases")
-    public ResponseEntity<Collection<String>> getDatabases() {
-        return ResponseEntity.ok(databasesService.getDatabasesNames());
+    public ResponseEntity<DatabaseResponse> getDatabases() {
+        DatabaseRequest request = DatabaseRequest.builder()
+                .setOperation(DatabaseOperation.GET_DATABASES)
+                .createDocumentRequest();
+        request = requestFormatter.format(request);
+        return ResponseEntity.ok(requestHandler.handle(request));
     }
 
     @PostMapping("/databases/{database}")
-    public ResponseEntity<String> createDatabase(
-            @PathVariable("database") String databaseName,
-            @RequestHeader("Authorization") String auth) {
-        System.out.println("AUTH: " + auth);
-        databasesService.createDatabase(databaseName);
-        return ResponseEntity.ok("Database created: " + databaseName);
+    public ResponseEntity<DatabaseResponse> createDatabase(@PathVariable String database) {
+        DatabaseRequest request = DatabaseRequest.builder()
+                .setDatabase(database)
+                .setOperation(DatabaseOperation.CREATE_DATABASE)
+                .createDocumentRequest();
+        request = requestFormatter.format(request);
+        return ResponseEntity.ok(requestHandler.handle(request));
     }
 
     @DeleteMapping("/databases/{database}")
-    public ResponseEntity<String> deleteDatabase(@PathVariable("database") String databaseName) {
-        databasesService.removeDatabase(databaseName);
-        return ResponseEntity.ok("Database removed: " + databaseName);
+    public ResponseEntity<DatabaseResponse> removeDatabase(@PathVariable String database) {
+        DatabaseRequest request = DatabaseRequest.builder()
+                .setDatabase(database)
+                .setOperation(DatabaseOperation.REMOVE_DATABASE)
+                .createDocumentRequest();
+        request = requestFormatter.format(request);
+        return ResponseEntity.ok(requestHandler.handle(request));
     }
 }

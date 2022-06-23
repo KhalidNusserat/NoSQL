@@ -1,4 +1,4 @@
-package com.atypon.nosql.services;
+package com.atypon.nosql;
 
 import com.atypon.nosql.controllers.NoSuchDatabaseException;
 import com.atypon.nosql.database.Database;
@@ -7,18 +7,17 @@ import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
 import com.atypon.nosql.database.utils.FileUtils;
-import com.atypon.nosql.synchronisation.SynchronisationService;
-import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Service
-public class DefaultDatabasesService implements DatabasesService {
+@Component
+public class DefaultDatabasesManager implements DatabasesManager {
     private final Path databasesDirectory;
 
     private final Map<String, Database> databases = new ConcurrentHashMap<>();
@@ -27,26 +26,18 @@ public class DefaultDatabasesService implements DatabasesService {
 
     private final DocumentFactory documentFactory;
 
-    private final DocumentTranslator documentTranslator;
-
-    private final SynchronisationService synchronisationService;
-
-    public DefaultDatabasesService(
+    public DefaultDatabasesManager(
             Path databasesDirectory,
             DatabaseFactory databaseFactory,
-            DocumentFactory documentFactory,
-            DocumentTranslator documentTranslator,
-            SynchronisationService synchronisationService) {
+            DocumentFactory documentFactory) {
         this.databasesDirectory = databasesDirectory;
         this.databaseFactory = databaseFactory;
         this.documentFactory = documentFactory;
-        this.documentTranslator = documentTranslator;
-        this.synchronisationService = synchronisationService;
         FileUtils.createDirectories(databasesDirectory);
         loadDatabases();
     }
 
-    public void loadDatabases() {
+    private void loadDatabases() {
         FileUtils.traverseDirectory(databasesDirectory)
                 .filter(path -> Files.isDirectory(path) && !path.equals(databasesDirectory))
                 .forEach(this::loadDatabase);
@@ -61,12 +52,13 @@ public class DefaultDatabasesService implements DatabasesService {
     public void createDatabase(String databaseName) {
         Path databaseDirectory = databasesDirectory.resolve(databaseName + "/");
         databases.put(databaseName, databaseFactory.create(databaseDirectory));
-        synchronisationService
-                .newInstance()
-                .method(HttpMethod.POST)
-                .url("/databases/{database}")
-                .parameters(databaseName)
-                .synchronise();
+    }
+
+    @Override
+    public void removeDatabase(String databaseName) {
+        checkDatabaseExists(databaseName);
+        databases.get(databaseName).deleteDatabase();
+        databases.remove(databaseName);
     }
 
     private void checkDatabaseExists(String database) {
@@ -76,51 +68,25 @@ public class DefaultDatabasesService implements DatabasesService {
     }
 
     @Override
-    public void removeDatabase(String databaseName) {
-        checkDatabaseExists(databaseName);
-        databases.get(databaseName).deleteDatabase();
-        databases.remove(databaseName);
-        synchronisationService
-                .newInstance()
-                .method(HttpMethod.DELETE)
-                .url("/databases/{database}")
-                .parameters(databaseName)
-                .synchronise();
-    }
-
-    @Override
     public Collection<String> getDatabasesNames() {
         return databases.keySet();
     }
 
     @Override
-    public void createDocumentsCollection(
+    public void createCollection(
             String databaseName,
             String collectionName,
             Map<String, Object> documentsSchema) {
         checkDatabaseExists(databaseName);
         Database database = databases.get(databaseName);
         database.createCollection(collectionName, documentFactory.createFromMap(documentsSchema));
-        synchronisationService
-                .newInstance()
-                .method(HttpMethod.POST)
-                .requestBody(documentsSchema)
-                .url("/databases/{database}/collections/{collection}")
-                .parameters(databaseName, collectionName)
-                .synchronise();
     }
 
     @Override
-    public void removeDocumentsCollection(String databaseName, String collectionName) {
+    public void removeCollection(String databaseName, String collectionName) {
         checkDatabaseExists(databaseName);
         Database database = databases.get(databaseName);
         database.removeCollection(collectionName);
-        synchronisationService
-                .newInstance()
-                .method(HttpMethod.DELETE)
-                .url("/databases/{database}/collections/{collection}")
-                .parameters(databaseName, collectionName)
-                .synchronise();
     }
 
     @Override
@@ -139,17 +105,13 @@ public class DefaultDatabasesService implements DatabasesService {
     }
 
     @Override
-    public void addDocument(String databaseName, String collectionName, Map<String, Object> documentMap) {
+    public void addDocuments(
+            String databaseName,
+            String collectionName,
+            List<Map<String, Object>> documentsMaps) {
         IndexedDocumentsCollection documentsCollection = getDocumentsCollection(databaseName, collectionName);
-        Document document = documentTranslator.translate(documentMap);
-        documentsCollection.addDocument(document);
-        synchronisationService
-                .newInstance()
-                .method(HttpMethod.POST)
-                .requestBody(document.getAsMap())
-                .url("/databases/{database}/collections/{collection}/documents")
-                .parameters(databaseName, collectionName)
-                .synchronise();
+        List<Document> documents = documentsMaps.stream().map(documentFactory::createFromMap).toList();
+        documentsCollection.addDocuments(documents);
     }
 
     private IndexedDocumentsCollection getDocumentsCollection(String databaseName, String collectionName) {
@@ -165,19 +127,11 @@ public class DefaultDatabasesService implements DatabasesService {
             Map<String, Object> documentCriteriaMap) {
         IndexedDocumentsCollection documentsCollection = getDocumentsCollection(databaseName, collectionName);
         Document documentCriteria = documentFactory.createFromMap(documentCriteriaMap);
-        int removedCount = documentsCollection.removeAllThatMatch(documentCriteria);
-        synchronisationService
-                .newInstance()
-                .method(HttpMethod.DELETE)
-                .requestBody(documentCriteriaMap)
-                .url("/databases/{database}/collections/{collection}/documents")
-                .parameters(databaseName, collectionName)
-                .synchronise();
-        return removedCount;
+        return documentsCollection.removeAllThatMatch(documentCriteria);
     }
 
     @Override
-    public Collection<Map<String, Object>> getDocuments(
+    public List<Map<String, Object>> getDocuments(
             String databaseName,
             String collectionName,
             Map<String, Object> documentCriteriaMap) {
@@ -186,26 +140,19 @@ public class DefaultDatabasesService implements DatabasesService {
         return documentsToMaps(documentsCollection.getAllThatMatch(documentCriteria));
     }
 
-    private Collection<Map<String, Object>> documentsToMaps(Collection<Document> documents) {
+    private List<Map<String, Object>> documentsToMaps(Collection<Document> documents) {
         return documents.stream().map(Document::getAsMap).toList();
     }
 
-    public void updateDocument(
+    public int updateDocuments(
             String databaseName,
             String collectionName,
-            String documentId,
+            Map<String, Object> criteriaMap,
             Map<String, Object> updatedDocumentMap) {
         IndexedDocumentsCollection documentsCollection = getDocumentsCollection(databaseName, collectionName);
-        Document documentCriteria = documentFactory.createFromMap(Map.of("_id", documentId));
-        Document updatedDocument = documentTranslator.translate(updatedDocumentMap);
-        documentsCollection.updateDocument(documentCriteria, updatedDocument);
-        synchronisationService
-                .newInstance()
-                .method(HttpMethod.PUT)
-                .requestBody(updatedDocument.getAsMap())
-                .url("/databases/{database}/collections/{collection}/documents/{documentId}")
-                .parameters(databaseName, collectionName, documentId)
-                .synchronise();
+        Document documentCriteria = documentFactory.createFromMap(criteriaMap);
+        Document updatedDocument = documentFactory.createFromMap(updatedDocumentMap);
+        return documentsCollection.updateDocuments(documentCriteria, updatedDocument).size();
     }
 
     @Override
@@ -213,13 +160,6 @@ public class DefaultDatabasesService implements DatabasesService {
         IndexedDocumentsCollection documentsCollection = getDocumentsCollection(databaseName, collectionName);
         Document indexDocument = documentFactory.createFromMap(indexMap);
         documentsCollection.createIndex(indexDocument);
-        synchronisationService
-                .newInstance()
-                .method(HttpMethod.POST)
-                .requestBody(indexMap)
-                .url("/databases/{database}/collections/{collection}/indexes")
-                .parameters(databaseName, collectionName)
-                .synchronise();
     }
 
     @Override
@@ -227,13 +167,6 @@ public class DefaultDatabasesService implements DatabasesService {
         IndexedDocumentsCollection documentsCollection = getDocumentsCollection(databaseName, collectionName);
         Document indexDocument = documentFactory.createFromMap(indexMap);
         documentsCollection.removeIndex(indexDocument);
-        synchronisationService
-                .newInstance()
-                .method(HttpMethod.DELETE)
-                .requestBody(indexMap)
-                .url("/databases/{database}/collections/{collection}/indexes")
-                .parameters(databaseName, collectionName)
-                .synchronise();
     }
 
     @Override

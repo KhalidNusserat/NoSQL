@@ -1,6 +1,7 @@
 package com.atypon.nosql.requesthandlers;
 
 import com.atypon.nosql.databaserequest.DatabaseRequest;
+import com.atypon.nosql.databaseresponse.DatabaseResponse;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -28,10 +29,11 @@ public class SynchronizationHandler implements DatabaseRequestHandler {
     }
 
     @Override
-    public void handle(DatabaseRequest request) {
+    public DatabaseResponse handle(DatabaseRequest request) {
         for (String nodeUrl : remoteNodes) {
             executorService.submit(() -> synchroniseNode(nodeUrl, request));
         }
+        return DatabaseResponse.createDatabaseResponse("Synchronised successfully", null);
     }
 
     private void synchroniseNode(String nodeUrl, DatabaseRequest request) {

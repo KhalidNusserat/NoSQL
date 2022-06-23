@@ -1,5 +1,6 @@
 package com.atypon.nosql.database.io;
 
+import com.atypon.nosql.database.collection.StoredDocument;
 import com.atypon.nosql.database.document.Document;
 import com.atypon.nosql.database.document.DocumentFactory;
 import com.atypon.nosql.database.utils.FileUtils;
@@ -31,10 +32,10 @@ public class BasicIOEngine implements IOEngine {
     }
 
     @Override
-    public Path write(Document document, Path directoryPath) {
+    public StoredDocument write(Document document, Path directoryPath) {
         Path documentPath = getNewDocumentPath(directoryPath);
         writeAtPath(document, documentPath);
-        return documentPath;
+        return StoredDocument.createStoredDocument(document, documentPath);
     }
 
     private Path getNewDocumentPath(Path directoryPath) {
@@ -61,14 +62,15 @@ public class BasicIOEngine implements IOEngine {
     }
 
     @Override
-    public Path update(Document updatedDocument, Path documentPath) {
+    public StoredDocument update(Document update, Path documentPath) {
         Path updatedDocumentPath = getNewDocumentPath(documentPath.getParent());
         add(updatedDocumentPath);
         Document oldDocument = read(documentPath).orElseThrow();
-        writeAtPath(oldDocument.overrideFields(updatedDocument), updatedDocumentPath);
+        Document updatedDocument = oldDocument.overrideFields(update);
+        writeAtPath(updatedDocument, updatedDocumentPath);
         commit(updatedDocumentPath);
         delete(documentPath);
-        return updatedDocumentPath;
+        return StoredDocument.createStoredDocument(updatedDocument, updatedDocumentPath);
     }
 
     private void add(Path path) {

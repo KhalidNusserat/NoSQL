@@ -2,19 +2,18 @@ package com.atypon.nosql.database.collection;
 
 import com.atypon.nosql.database.document.Document;
 
-import java.nio.file.Path;
 import java.util.List;
 
 public interface DocumentsCollection {
     boolean contains(Document matchDocument);
 
-    List<Document> getAllThatMatch(Document matchDocument);
+    List<Document> getAllThatMatch(Document documentCriteria);
 
-    Path addDocument(Document document);
+    List<StoredDocument> addDocuments(List<Document> documents);
 
-    Path updateDocument(Document documentCriteria, Document updatedDocument);
+    List<StoredDocument> updateDocuments(Document documentCriteria, Document updatedDocument);
 
-    int removeAllThatMatch(Document matchDocument);
+    int removeAllThatMatch(Document documentCriteria);
 
     List<Document> getAll();
 }

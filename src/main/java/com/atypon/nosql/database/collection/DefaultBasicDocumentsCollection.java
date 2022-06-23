@@ -43,29 +43,18 @@ public class DefaultBasicDocumentsCollection implements DocumentsCollection {
     }
 
     @Override
-    public Path addDocument(Document addedDocument) {
-        return ioEngine.write(addedDocument, documentsPath);
+    public List<StoredDocument> addDocuments(List<Document> documents) {
+        return documents.stream().map(
+                document -> ioEngine.write(document, documentsPath)
+        ).toList();
     }
 
     @Override
-    public Path updateDocument(Document documentCriteria, Document updatedDocument) {
+    public List<StoredDocument> updateDocuments(Document documentCriteria, Document updatedDocument) {
         List<Path> matchingDocumentsPaths = getPathsThatMatch(documentCriteria);
-        if (matchingDocumentsPaths.size() > 1) {
-            log.error(
-                    "More than one document matched: \"{}\" matched [{}] documents, expected [1]",
-                    documentCriteria,
-                    matchingDocumentsPaths.size()
-            );
-            throw new MultipleFilesMatchedException(matchingDocumentsPaths.size());
-        } else if (matchingDocumentsPaths.size() == 0) {
-            log.error(
-                    "No documents matched: \"{}\" matched [0] documents, expected [1]",
-                    documentCriteria
-            );
-            throw new NoSuchDocumentException(documentCriteria);
-        } else {
-            return ioEngine.update(updatedDocument, matchingDocumentsPaths.get(0));
-        }
+        return matchingDocumentsPaths.stream()
+                .map(documentPath -> ioEngine.update(updatedDocument, documentPath))
+                .toList();
     }
 
     private List<Path> getPathsThatMatch(Document documentCriteria) {

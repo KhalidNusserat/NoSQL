@@ -49,7 +49,7 @@ public class DefaultIndexesCollection implements IndexesCollection {
         Index idIndex = new DefaultIndex(idIndexFields);
         if (!indexes.containsKey(idIndexFields)) {
             indexes.put(idIndexFields, idIndex);
-            indexesCollection.addDocument(idIndexFields);
+            indexesCollection.addDocuments(List.of(idIndexFields));
         }
     }
 
@@ -63,7 +63,7 @@ public class DefaultIndexesCollection implements IndexesCollection {
             throw new IndexAlreadyExistsException(indexFields);
         }
         indexes.put(indexFields, new DefaultIndex(indexFields));
-        indexesCollection.addDocument(indexFields);
+        indexesCollection.addDocuments(List.of(indexFields));
     }
 
     @Override
