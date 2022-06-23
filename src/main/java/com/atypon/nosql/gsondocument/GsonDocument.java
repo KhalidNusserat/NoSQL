@@ -2,11 +2,7 @@ package com.atypon.nosql.gsondocument;
 
 import com.atypon.nosql.document.Document;
 import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import lombok.extern.slf4j.Slf4j;
+import com.google.gson.*;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -15,7 +11,7 @@ import java.util.Objects;
 public class GsonDocument implements Document {
     final JsonObject object;
 
-    private final static Gson gson = new Gson();
+    private final static Gson gson = new GsonBuilder().serializeNulls().create();
 
     private final static Type mapType = new TypeToken<Map<String, Object>>() {
     }.getType();
