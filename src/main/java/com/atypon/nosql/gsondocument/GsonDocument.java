@@ -128,7 +128,7 @@ public class GsonDocument implements Document {
             JsonElement element = entry.getValue();
             if (element.isJsonObject()) {
                 JsonObject object = element.getAsJsonObject();
-                result.add(field, mergeObjects(object, firstObject.get(field).getAsJsonObject()));
+                result.add(field, mergeObjects(firstObject.get(field).getAsJsonObject(), object));
             } else {
                 result.add(field, element);
             }

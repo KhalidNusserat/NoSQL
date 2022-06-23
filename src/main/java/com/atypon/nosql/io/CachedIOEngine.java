@@ -48,7 +48,7 @@ public class CachedIOEngine implements IOEngine {
     @Override
     public StoredDocument update(Document updatedDocument, Path documentPath) {
         StoredDocument storedDocument = ioEngine.update(updatedDocument, documentPath);
-        cache.put(storedDocument.path(), updatedDocument);
+        cache.put(storedDocument.path(), storedDocument.document());
         return storedDocument;
     }
 
