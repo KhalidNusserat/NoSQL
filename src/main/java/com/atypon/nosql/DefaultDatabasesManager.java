@@ -1,12 +1,10 @@
 package com.atypon.nosql;
 
 import com.atypon.nosql.controllers.NoSuchDatabaseException;
-import com.atypon.nosql.database.Database;
-import com.atypon.nosql.database.DatabaseFactory;
-import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
-import com.atypon.nosql.database.document.Document;
-import com.atypon.nosql.database.document.DocumentFactory;
-import com.atypon.nosql.database.utils.FileUtils;
+import com.atypon.nosql.collection.IndexedDocumentsCollection;
+import com.atypon.nosql.document.Document;
+import com.atypon.nosql.document.DocumentFactory;
+import com.atypon.nosql.utils.FileUtils;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;

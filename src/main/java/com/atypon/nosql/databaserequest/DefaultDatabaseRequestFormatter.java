@@ -1,6 +1,6 @@
 package com.atypon.nosql.databaserequest;
 
-import com.atypon.nosql.database.document.IdGenerator;
+import com.atypon.nosql.document.IdGenerator;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

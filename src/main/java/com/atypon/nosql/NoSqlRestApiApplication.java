@@ -1,11 +1,11 @@
 package com.atypon.nosql;
 
-import com.atypon.nosql.database.cache.LRUCache;
-import com.atypon.nosql.database.document.Document;
-import com.atypon.nosql.database.document.DocumentFactory;
-import com.atypon.nosql.database.io.BasicIOEngine;
-import com.atypon.nosql.database.io.CachedIOEngine;
-import com.atypon.nosql.database.io.IOEngine;
+import com.atypon.nosql.cache.LRUCache;
+import com.atypon.nosql.document.Document;
+import com.atypon.nosql.document.DocumentFactory;
+import com.atypon.nosql.io.BasicIOEngine;
+import com.atypon.nosql.io.CachedIOEngine;
+import com.atypon.nosql.io.IOEngine;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

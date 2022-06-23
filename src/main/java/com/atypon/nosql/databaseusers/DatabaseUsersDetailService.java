@@ -1,8 +1,8 @@
 package com.atypon.nosql.databaseusers;
 
-import com.atypon.nosql.database.collection.IndexedDocumentsCollection;
-import com.atypon.nosql.database.document.Document;
-import com.atypon.nosql.database.document.DocumentFactory;
+import com.atypon.nosql.collection.IndexedDocumentsCollection;
+import com.atypon.nosql.document.Document;
+import com.atypon.nosql.document.DocumentFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
