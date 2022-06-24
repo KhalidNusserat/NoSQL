@@ -25,7 +25,8 @@ public class CreateIndexHandler implements DatabaseRequestHandler {
         databasesManager.createIndex(
                 request.database(),
                 request.collection(),
-                payload.index()
+                payload.index(),
+                payload.uniqueIndex()
         );
         return DatabaseResponse.createDatabaseResponse(
                 String.format(

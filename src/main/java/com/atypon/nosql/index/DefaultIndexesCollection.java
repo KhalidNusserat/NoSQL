@@ -19,16 +19,22 @@ public class DefaultIndexesCollection implements IndexesCollection {
     
     private final Map<Document, Index> indexes = new ConcurrentHashMap<>();
 
+    private final Map<Document, Path> indexesPaths = new ConcurrentHashMap<>();
+
     private final DefaultBasicDocumentsCollection indexesCollection;
     
     private final StorageEngine storageEngine;
 
+    private final IndexDocumentConverter indexDocumentConverter;
+
     public DefaultIndexesCollection(
             Path indexesDirectory,
             StorageEngine storageEngine,
-            DocumentFactory documentFactory) {
+            DocumentFactory documentFactory,
+            IndexDocumentConverter indexDocumentConverter) {
         this.indexesDirectory = indexesDirectory;
         this.storageEngine = storageEngine;
+        this.indexDocumentConverter = indexDocumentConverter;
         indexesCollection = new DefaultBasicDocumentsCollection(indexesDirectory, storageEngine);
         FileUtils.createDirectories(indexesDirectory);
         loadIndexes();
@@ -38,32 +44,34 @@ public class DefaultIndexesCollection implements IndexesCollection {
     private void loadIndexes() {
         FileUtils.traverseDirectory(indexesDirectory)
                 .filter(FileUtils::isJsonFile)
-                .map(storageEngine::read)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .forEach(indexFields -> indexes.put(indexFields, new DefaultIndex(indexFields)));
+                .forEach(this::loadIndex);
+
+    }
+
+    private void loadIndex(Path indexPath) {
+        Optional<Document> indexDocument = storageEngine.read(indexPath);
+        if (indexDocument.isPresent()) {
+            Index index = indexDocumentConverter.toIndex(indexDocument.get());
+            indexes.put(index.getFields(), index);
+            indexesPaths.put(index.getFields(), indexPath);
+        }
     }
 
     private void createIdIndex(DocumentFactory documentFactory) {
         Document idIndexFields = documentFactory.createFromString("{_id: null}");
-        Index idIndex = new DefaultIndex(idIndexFields);
         if (!indexes.containsKey(idIndexFields)) {
-            indexes.put(idIndexFields, idIndex);
-            indexesCollection.addDocuments(List.of(idIndexFields));
+            createIndex(idIndexFields, true);
         }
-    }
-
-    private void addDocument(Path documentPath) {
-        storageEngine.read(documentPath).ifPresent(document -> addDocument(document, documentPath));
     }
 
     @Override
-    public void createIndex(Document indexFields) {
+    public void createIndex(Document indexFields, boolean unqiue) {
         if (indexes.containsKey(indexFields)) {
             throw new IndexAlreadyExistsException(indexFields);
         }
-        indexes.put(indexFields, new DefaultIndex(indexFields));
-        indexesCollection.addDocuments(List.of(indexFields));
+        DefaultIndex index = new DefaultIndex(indexFields, unqiue);
+        indexes.put(indexFields, index);
+        indexesCollection.addDocuments(List.of(indexDocumentConverter.toDocument(index)));
     }
 
     @Override
@@ -89,13 +97,21 @@ public class DefaultIndexesCollection implements IndexesCollection {
     public void addDocument(Document document, Path documentPath) {
         for (Index index : indexes.values()) {
             index.add(document, documentPath);
+            updateStoredIndex(index);
         }
+    }
+
+    private void updateStoredIndex(Index index) {
+        Document updatedIndexDocument = indexDocumentConverter.toDocument(index);
+        Document fields = index.getFields();
+        storageEngine.update(updatedIndexDocument, indexesPaths.get(fields));
     }
 
     @Override
     public void removeDocument(Document document) {
         for (Index index : indexes.values()) {
             index.remove(document);
+            updateStoredIndex(index);
         }
     }
 
@@ -108,6 +124,10 @@ public class DefaultIndexesCollection implements IndexesCollection {
     public void populateIndexes(Path documentsDirectory) {
         FileUtils.traverseDirectory(documentsDirectory)
                 .filter(FileUtils::isJsonFile)
-                .forEach(this::addDocument);
+                .forEach(this::addDocumentToIndexes);
+    }
+
+    private void addDocumentToIndexes(Path documentPath) {
+        storageEngine.read(documentPath).ifPresent(document -> addDocument(document, documentPath));
     }
 }

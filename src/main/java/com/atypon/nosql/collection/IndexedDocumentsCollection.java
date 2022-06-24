@@ -5,7 +5,7 @@ import com.atypon.nosql.document.Document;
 import java.util.Collection;
 
 public interface IndexedDocumentsCollection extends DocumentsCollection {
-    void createIndex(Document indexDocument);
+    void createIndex(Document indexDocument, boolean unique);
 
     void removeIndex(Document indexDocument);
 

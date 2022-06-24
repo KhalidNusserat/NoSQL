@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 public interface IndexesCollection {
-    void createIndex(Document indexFields);
+    void createIndex(Document indexFields, boolean unqiue);
 
     void removeIndex(Document indexFields);
 

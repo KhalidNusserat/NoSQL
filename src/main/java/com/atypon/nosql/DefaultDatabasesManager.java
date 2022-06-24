@@ -155,10 +155,10 @@ public class DefaultDatabasesManager implements DatabasesManager {
     }
 
     @Override
-    public void createIndex(String databaseName, String collectionName, Map<String, Object> indexMap) {
+    public void createIndex(String databaseName, String collectionName, Map<String, Object> indexMap, boolean unique) {
         IndexedDocumentsCollection documentsCollection = getDocumentsCollection(databaseName, collectionName);
         Document indexDocument = documentFactory.createFromMap(indexMap);
-        documentsCollection.createIndex(indexDocument);
+        documentsCollection.createIndex(indexDocument, unique);
     }
 
     @Override

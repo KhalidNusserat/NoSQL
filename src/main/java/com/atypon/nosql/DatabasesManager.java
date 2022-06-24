@@ -51,7 +51,8 @@ public interface DatabasesManager {
     void createIndex(
             String databaseName,
             String collectionName,
-            Map<String, Object> indexMap
+            Map<String, Object> indexMap,
+            boolean unique
     );
 
     void removeIndex(

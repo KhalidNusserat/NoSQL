@@ -62,8 +62,8 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
     }
 
     @Override
-    public void createIndex(Document indexFields) {
-        indexes.createIndex(indexFields);
+    public void createIndex(Document indexFields, boolean unique) {
+        indexes.createIndex(indexFields, unique);
     }
 
     @Override
