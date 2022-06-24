@@ -15,19 +15,14 @@ import java.nio.file.Path;
 import java.util.List;
 
 @SpringBootApplication
-public class NoSqlRestApiApplication {
+public class DatabaseApplication {
     public static void main(String[] args) {
-        SpringApplication.run(NoSqlRestApiApplication.class, args);
+        SpringApplication.run(DatabaseApplication.class, args);
     }
 
     @Bean
     public Path databasesDirectory() {
         return Path.of("./db/databases");
-    }
-
-    @Bean
-    public Path usersDirectory() {
-        return Path.of("./db/users");
     }
 
     @Bean
