@@ -1,4 +1,4 @@
-package com.atypon.nosql;
+package com.atypon.nosql.database;
 
 import com.atypon.nosql.collection.IndexedDocumentsCollectionFactory;
 import org.springframework.stereotype.Component;
