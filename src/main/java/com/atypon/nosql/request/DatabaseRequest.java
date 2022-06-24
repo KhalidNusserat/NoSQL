@@ -1,4 +1,4 @@
-package com.atypon.nosql.databaserequest;
+package com.atypon.nosql.request;
 
 public record DatabaseRequest(String database, String collection, DatabaseOperation operation, Payload payload) {
 

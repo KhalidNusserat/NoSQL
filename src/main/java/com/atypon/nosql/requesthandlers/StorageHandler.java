@@ -1,8 +1,8 @@
 package com.atypon.nosql.requesthandlers;
 
-import com.atypon.nosql.databaserequest.DatabaseOperation;
-import com.atypon.nosql.databaserequest.DatabaseRequest;
-import com.atypon.nosql.databaseresponse.DatabaseResponse;
+import com.atypon.nosql.request.DatabaseOperation;
+import com.atypon.nosql.request.DatabaseRequest;
+import com.atypon.nosql.response.DatabaseResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

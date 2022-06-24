@@ -1,4 +1,4 @@
-package com.atypon.nosql.databaserequest;
+package com.atypon.nosql.request;
 
 public enum DatabaseOperation {
     ADD_DOCUMENT,

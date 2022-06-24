@@ -1,6 +1,6 @@
 package com.atypon.nosql.security;
 
-import com.atypon.nosql.databaseusers.DatabaseUsersDetailService;
+import com.atypon.nosql.users.DatabaseUsersDetailService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;

@@ -1,4 +1,4 @@
-package com.atypon.nosql.databaseresponse;
+package com.atypon.nosql.response;
 
 import java.util.Collection;
 import java.util.Map;

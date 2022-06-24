@@ -1,4 +1,4 @@
-package com.atypon.nosql.databaserequest;
+package com.atypon.nosql.request;
 
 import com.atypon.nosql.document.IdGenerator;
 import org.springframework.stereotype.Component;

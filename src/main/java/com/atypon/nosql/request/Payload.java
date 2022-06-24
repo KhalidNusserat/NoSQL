@@ -1,4 +1,4 @@
-package com.atypon.nosql.databaserequest;
+package com.atypon.nosql.request;
 
 import java.util.List;
 import java.util.Map;
