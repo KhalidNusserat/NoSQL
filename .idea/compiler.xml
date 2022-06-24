@@ -3,7 +3,7 @@
   <component name="CompilerConfiguration">
     <excludeFromCompile>
       <directory url="file://$PROJECT_DIR$/src/main/java/com/atypon/nosql/security" includeSubdirectories="true" />
-      <directory url="file://$PROJECT_DIR$/src/main/java/com/atypon/nosql/databaseusers" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/src/main/java/com/atypon/nosql/users" includeSubdirectories="true" />
     </excludeFromCompile>
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
