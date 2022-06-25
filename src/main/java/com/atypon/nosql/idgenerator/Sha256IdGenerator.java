@@ -1,4 +1,4 @@
-package com.atypon.nosql.document;
+package com.atypon.nosql.idgenerator;
 
 import com.google.common.hash.Hashing;
 import lombok.SneakyThrows;
@@ -11,8 +11,9 @@ public class Sha256IdGenerator implements IdGenerator {
     @SneakyThrows
     @Override
     public String newId(Object object) {
+        String time = Long.toString(System.currentTimeMillis());
         return Hashing.sha256()
-                .hashString(object.toString(), StandardCharsets.UTF_8)
+                .hashString(object.toString() + time, StandardCharsets.UTF_8)
                 .toString();
     }
 }

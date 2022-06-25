@@ -1,6 +1,6 @@
 package com.atypon.nosql.request;
 
-import com.atypon.nosql.document.IdGenerator;
+import com.atypon.nosql.idgenerator.IdGenerator;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -31,10 +31,10 @@ public class DefaultDatabaseRequestFormatter implements DatabaseRequestFormatter
                 .setDocuments(documents)
                 .createPayload();
         return DatabaseRequest.builder()
-                .setDatabase(request.database())
-                .setCollection(request.collection())
-                .setOperation(DatabaseOperation.ADD_DOCUMENT)
-                .setPayload(updatedPayload)
-                .createDocumentRequest();
+                .database(request.database())
+                .collection(request.collection())
+                .operation(DatabaseOperation.ADD_DOCUMENT)
+                .payload(updatedPayload)
+                .build();
     }
 }
