@@ -32,11 +32,11 @@ public class DocumentsRestController {
             @RequestBody Payload payload
             ) {
         DatabaseRequest request = DatabaseRequest.builder()
-                .setDatabase(database)
-                .setCollection(collection)
-                .setOperation(DatabaseOperation.READ_DOCUMENTS)
-                .setPayload(payload)
-                .createDocumentRequest();
+                .database(database)
+                .collection(collection)
+                .operation(DatabaseOperation.READ_DOCUMENTS)
+                .payload(payload)
+                .build();
         request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
@@ -48,11 +48,11 @@ public class DocumentsRestController {
             @RequestBody Payload payload
     ) {
         DatabaseRequest request = DatabaseRequest.builder()
-                .setDatabase(database)
-                .setCollection(collection)
-                .setOperation(DatabaseOperation.ADD_DOCUMENT)
-                .setPayload(payload)
-                .createDocumentRequest();
+                .database(database)
+                .collection(collection)
+                .operation(DatabaseOperation.ADD_DOCUMENT)
+                .payload(payload)
+                .build();
         request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
@@ -64,11 +64,11 @@ public class DocumentsRestController {
             @RequestBody Payload payload
     ) {
         DatabaseRequest request = DatabaseRequest.builder()
-                .setDatabase(database)
-                .setCollection(collection)
-                .setOperation(DatabaseOperation.REMOVE_DOCUMENTS)
-                .setPayload(payload)
-                .createDocumentRequest();
+                .database(database)
+                .collection(collection)
+                .operation(DatabaseOperation.REMOVE_DOCUMENTS)
+                .payload(payload)
+                .build();
         request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
@@ -80,11 +80,11 @@ public class DocumentsRestController {
             @RequestBody Payload payload
     ) {
         DatabaseRequest request = DatabaseRequest.builder()
-                .setDatabase(database)
-                .setCollection(collection)
-                .setOperation(DatabaseOperation.UPDATE_DOCUMENTS)
-                .setPayload(payload)
-                .createDocumentRequest();
+                .database(database)
+                .collection(collection)
+                .operation(DatabaseOperation.UPDATE_DOCUMENTS)
+                .payload(payload)
+                .build();
         request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }

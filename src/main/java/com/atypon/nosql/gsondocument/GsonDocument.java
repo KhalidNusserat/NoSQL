@@ -141,9 +141,4 @@ public class GsonDocument implements Document {
     public Map<String, Object> getAsMap() {
         return gson.fromJson(object, mapType);
     }
-
-    @Override
-    public boolean containsField(String field) {
-        return object.has(field);
-    }
 }

@@ -31,10 +31,10 @@ public class IndexesRestController {
             @PathVariable String collection
     ) {
         DatabaseRequest request = DatabaseRequest.builder()
-                .setDatabase(database)
-                .setCollection(collection)
-                .setOperation(DatabaseOperation.GET_INDEXES)
-                .createDocumentRequest();
+                .database(database)
+                .collection(collection)
+                .operation(DatabaseOperation.GET_INDEXES)
+                .build();
         request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
@@ -46,11 +46,11 @@ public class IndexesRestController {
             @RequestBody Payload payload
     ) {
         DatabaseRequest request = DatabaseRequest.builder()
-                .setDatabase(database)
-                .setCollection(collection)
-                .setOperation(DatabaseOperation.CREATE_INDEX)
-                .setPayload(payload)
-                .createDocumentRequest();
+                .database(database)
+                .collection(collection)
+                .operation(DatabaseOperation.CREATE_INDEX)
+                .payload(payload)
+                .build();
         request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
@@ -62,11 +62,11 @@ public class IndexesRestController {
             @RequestBody Payload payload
     ) {
         DatabaseRequest request = DatabaseRequest.builder()
-                .setDatabase(database)
-                .setCollection(collection)
-                .setOperation(DatabaseOperation.REMOVE_INDEX)
-                .setPayload(payload)
-                .createDocumentRequest();
+                .database(database)
+                .collection(collection)
+                .operation(DatabaseOperation.REMOVE_INDEX)
+                .payload(payload)
+                .build();
         request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }

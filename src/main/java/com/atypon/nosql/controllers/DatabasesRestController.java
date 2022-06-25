@@ -27,8 +27,8 @@ public class DatabasesRestController {
     @GetMapping("/databases")
     public ResponseEntity<DatabaseResponse> getDatabases() {
         DatabaseRequest request = DatabaseRequest.builder()
-                .setOperation(DatabaseOperation.GET_DATABASES)
-                .createDocumentRequest();
+                .operation(DatabaseOperation.GET_DATABASES)
+                .build();
         request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
@@ -36,9 +36,9 @@ public class DatabasesRestController {
     @PostMapping("/databases/{database}")
     public ResponseEntity<DatabaseResponse> createDatabase(@PathVariable String database) {
         DatabaseRequest request = DatabaseRequest.builder()
-                .setDatabase(database)
-                .setOperation(DatabaseOperation.CREATE_DATABASE)
-                .createDocumentRequest();
+                .database(database)
+                .operation(DatabaseOperation.CREATE_DATABASE)
+                .build();
         request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
@@ -46,9 +46,9 @@ public class DatabasesRestController {
     @DeleteMapping("/databases/{database}")
     public ResponseEntity<DatabaseResponse> removeDatabase(@PathVariable String database) {
         DatabaseRequest request = DatabaseRequest.builder()
-                .setDatabase(database)
-                .setOperation(DatabaseOperation.REMOVE_DATABASE)
-                .createDocumentRequest();
+                .database(database)
+                .operation(DatabaseOperation.REMOVE_DATABASE)
+                .build();
         request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }

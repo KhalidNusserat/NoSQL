@@ -28,9 +28,9 @@ public class CollectionsRestController {
     @GetMapping("/databases/{database}/collections")
     public ResponseEntity<DatabaseResponse> getCollections(@PathVariable String database) {
         DatabaseRequest request = DatabaseRequest.builder()
-                .setDatabase(database)
-                .setOperation(DatabaseOperation.GET_COLLECTIONS)
-                .createDocumentRequest();
+                .database(database)
+                .operation(DatabaseOperation.GET_COLLECTIONS)
+                .build();
         request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
@@ -42,11 +42,11 @@ public class CollectionsRestController {
             @RequestBody Payload payload
     ) {
         DatabaseRequest request = DatabaseRequest.builder()
-                .setDatabase(database)
-                .setCollection(collection)
-                .setOperation(DatabaseOperation.CREATE_COLLECTION)
-                .setPayload(payload)
-                .createDocumentRequest();
+                .database(database)
+                .collection(collection)
+                .operation(DatabaseOperation.CREATE_COLLECTION)
+                .payload(payload)
+                .build();
         request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
@@ -57,10 +57,10 @@ public class CollectionsRestController {
             @PathVariable String collection
     ) {
         DatabaseRequest request = DatabaseRequest.builder()
-                .setDatabase(database)
-                .setCollection(collection)
-                .setOperation(DatabaseOperation.REMOVE_COLLECTION)
-                .createDocumentRequest();
+                .database(database)
+                .collection(collection)
+                .operation(DatabaseOperation.REMOVE_COLLECTION)
+                .build();
         request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
