@@ -121,6 +121,11 @@ public class DefaultIndexesCollection implements IndexesCollection {
                 .forEach(this::addDocumentToIndexes);
     }
 
+    @Override
+    public boolean checkUniqueConstraint(Document document) {
+        return indexes.values().stream().allMatch(index -> index.checkUniqueConstraint(document));
+    }
+
     private void addDocumentToIndexes(Path documentPath) {
         storageEngine.readDocument(documentPath).ifPresent(document -> addDocument(document, documentPath));
     }

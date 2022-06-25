@@ -1,32 +1,33 @@
 package com.atypon.nosql.metadata;
 
-import com.atypon.nosql.database.Database;
-import com.atypon.nosql.database.DatabaseFactory;
+import com.atypon.nosql.DatabasesManager;
 import com.atypon.nosql.document.Document;
-import com.atypon.nosql.document.DocumentFactory;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class DefaultMetadataDatabase implements MetadataDatabase {
 
-    private final Database metadataDatabase;
+    private final DatabasesManager databasesManager;
 
-    public DefaultMetadataDatabase(
-            DatabaseFactory databaseFactory,
-            Path databasesDirectory,
-            DocumentFactory documentFactory) {
-        Path metadataDatabaseDirectory = databasesDirectory.resolve("metadata/");
-        metadataDatabase = databaseFactory.create(metadataDatabaseDirectory);
-        createUsersCollection(documentFactory);
+    public DefaultMetadataDatabase(DatabasesManager databasesManager) {
+        this.databasesManager = databasesManager;
+        databasesManager.createDatabase("metadata");
+        createUsersCollection();
     }
 
-    private void createUsersCollection(DocumentFactory documentFactory) {
-        if (!metadataDatabase.containsCollection("users")) {
-            String userSchemaString = "{username: \"string\", password: \"string\"}";
-            Document usersSchema = documentFactory.createFromString(userSchemaString);
-            metadataDatabase.createCollection("users", usersSchema);
+    private void createUsersCollection() {
+        if (!databasesManager.getCollectionsNames("metadata").contains("users")) {
+            Map<String, Object> usersSchema = Map.of(
+                    "username", "string",
+                    "password", "string"
+            );
+            Map<String, Object> usernameIndex = new HashMap<>();
+            usernameIndex.put("username", null);
+            databasesManager.createCollection("metadata", "users", usersSchema);
+            databasesManager.createIndex("metadata", "users", usernameIndex, true);
         }
     }
 }

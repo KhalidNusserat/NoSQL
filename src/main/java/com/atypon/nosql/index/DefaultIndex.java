@@ -27,15 +27,9 @@ public class DefaultIndex implements Index {
     public void add(Document document, Path documentPath) {
         Document values = document.getValuesToMatch(fields);
         String documentPathString = documentPath.toString();
+        pathToValues.put(documentPathString, values);
         if (unique) {
-            if (!addedValues.contains(values)) {
-                pathToValues.put(documentPathString, values);
-                addedValues.add(values);
-            } else {
-                throw new UniqueIndexViolationException();
-            }
-        } else {
-            pathToValues.put(documentPathString, values);
+            addedValues.add(values);
         }
     }
 
@@ -59,5 +53,14 @@ public class DefaultIndex implements Index {
     @Override
     public Document getFields() {
         return fields;
+    }
+
+    @Override
+    public boolean checkUniqueConstraint(Document document) {
+        if (unique) {
+            return !addedValues.contains(document.getValuesToMatch(fields));
+        } else {
+            return true;
+        }
     }
 }

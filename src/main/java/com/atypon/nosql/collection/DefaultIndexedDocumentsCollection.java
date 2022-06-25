@@ -5,6 +5,7 @@ import com.atypon.nosql.document.DocumentSchema;
 import com.atypon.nosql.index.Index;
 import com.atypon.nosql.index.IndexesCollection;
 import com.atypon.nosql.index.IndexesCollectionFactory;
+import com.atypon.nosql.index.UniqueIndexViolationException;
 import com.atypon.nosql.storage.StorageEngine;
 import com.atypon.nosql.utils.FileUtils;
 import com.google.common.base.Stopwatch;
@@ -115,6 +116,9 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
 
     @Override
     public List<Stored<Document>> addDocuments(List<Document> documents) {
+        if (!documents.stream().allMatch(indexes::checkUniqueConstraint)) {
+            throw new UniqueIndexViolationException();
+        }
         List<Stored<Document>> addedDocumentPaths = documentsCollection.addDocuments(documents);
         addedDocumentPaths.forEach(
                 storedDocument -> indexes.addDocument(

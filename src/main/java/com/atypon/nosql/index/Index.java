@@ -15,4 +15,6 @@ public interface Index {
     boolean contains(Document matchDocument);
 
     Document getFields();
+
+    boolean checkUniqueConstraint(Document document);
 }

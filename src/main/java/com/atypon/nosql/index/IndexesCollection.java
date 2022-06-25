@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 public interface IndexesCollection {
-    void createIndex(Document indexFields, boolean unqiue);
+    void createIndex(Document indexFields, boolean unique);
 
     void removeIndex(Document indexFields);
 
@@ -21,4 +21,6 @@ public interface IndexesCollection {
     boolean contains(Document indexFields);
 
     void populateIndexes(Path documentsDirectory);
+
+    boolean checkUniqueConstraint(Document document);
 }
