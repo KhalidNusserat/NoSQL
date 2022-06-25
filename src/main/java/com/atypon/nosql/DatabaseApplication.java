@@ -3,6 +3,7 @@ package com.atypon.nosql;
 import com.atypon.nosql.cache.LRUCache;
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentFactory;
+import com.atypon.nosql.index.Index;
 import com.atypon.nosql.storage.BasicStorageEngine;
 import com.atypon.nosql.storage.CachedStorageEngine;
 import com.atypon.nosql.storage.StorageEngine;
@@ -27,8 +28,13 @@ public class DatabaseApplication {
 
     @Bean
     public StorageEngine ioEngine(DocumentFactory documentFactory) {
-        LRUCache<Path, Document> cache = new LRUCache<>(100000);
-        return CachedStorageEngine.from(new BasicStorageEngine(documentFactory), cache);
+        LRUCache<Path, Document> documentCache = new LRUCache<>(100000);
+        LRUCache<Path, Index> indexCache = new LRUCache<>(1000);
+        return CachedStorageEngine.builder()
+                .documentCache(documentCache)
+                .indexCache(indexCache)
+                .storageEngine(new BasicStorageEngine(documentFactory))
+                .build();
     }
 
 //    @Bean

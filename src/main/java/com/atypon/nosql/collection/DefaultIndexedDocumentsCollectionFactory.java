@@ -46,7 +46,7 @@ public class DefaultIndexedDocumentsCollectionFactory implements IndexedDocument
     @Override
     public IndexedDocumentsCollection createCollection(Path collectionPath) {
         Path schemaDirectory = collectionPath.resolve("schema/");
-        List<Document> schemaDocuments = storageEngine.readDirectory(schemaDirectory);
+        List<Document> schemaDocuments = storageEngine.readDocumentsDirectory(schemaDirectory);
         if (schemaDocuments.size() == 0) {
             throw new SchemaNotFoundException();
         } else if (schemaDocuments.size() > 1) {

@@ -19,45 +19,43 @@ public class DefaultIndexesCollection implements IndexesCollection {
     
     private final Map<Document, Index> indexes = new ConcurrentHashMap<>();
 
-    private final Map<Document, Path> indexesPaths = new ConcurrentHashMap<>();
-
-    private final DefaultBasicDocumentsCollection indexesCollection;
-    
     private final StorageEngine storageEngine;
 
-    private final IndexDocumentConverter indexDocumentConverter;
+    private final DefaultBasicDocumentsCollection indexesCollection;
+
+    private final DocumentFactory documentFactory;
 
     public DefaultIndexesCollection(
             Path indexesDirectory,
             StorageEngine storageEngine,
-            DocumentFactory documentFactory,
-            IndexDocumentConverter indexDocumentConverter) {
+            DocumentFactory documentFactory) {
         this.indexesDirectory = indexesDirectory;
         this.storageEngine = storageEngine;
-        this.indexDocumentConverter = indexDocumentConverter;
+        this.documentFactory = documentFactory;
         indexesCollection = new DefaultBasicDocumentsCollection(indexesDirectory, storageEngine);
         FileUtils.createDirectories(indexesDirectory);
         loadIndexes();
-        createIdIndex(documentFactory);
+        createIdIndex();
     }
 
     private void loadIndexes() {
         FileUtils.traverseDirectory(indexesDirectory)
                 .filter(FileUtils::isJsonFile)
                 .forEach(this::loadIndex);
-
     }
 
+    @SuppressWarnings("unchecked")
     private void loadIndex(Path indexPath) {
-        Optional<Document> indexDocument = storageEngine.read(indexPath);
-        if (indexDocument.isPresent()) {
-            Index index = indexDocumentConverter.toIndex(indexDocument.get());
-            indexes.put(index.getFields(), index);
-            indexesPaths.put(index.getFields(), indexPath);
+        Optional<Document> optionalIndexProperties = storageEngine.readDocument(indexPath);
+        if (optionalIndexProperties.isPresent()) {
+            Map<String, Object> indexProperties = optionalIndexProperties.get().getAsMap();
+            boolean unique = (boolean) indexProperties.get("unique");
+            Document indexFields = documentFactory.createFromMap((Map<String, Object>) indexProperties.get("fields"));
+            indexes.put(indexFields, new DefaultIndex(indexFields, unique));
         }
     }
 
-    private void createIdIndex(DocumentFactory documentFactory) {
+    private void createIdIndex() {
         Document idIndexFields = documentFactory.createFromString("{_id: null}");
         if (!indexes.containsKey(idIndexFields)) {
             createIndex(idIndexFields, true);
@@ -65,13 +63,17 @@ public class DefaultIndexesCollection implements IndexesCollection {
     }
 
     @Override
-    public void createIndex(Document indexFields, boolean unqiue) {
+    public void createIndex(Document indexFields, boolean unique) {
         if (indexes.containsKey(indexFields)) {
             throw new IndexAlreadyExistsException(indexFields);
         }
-        DefaultIndex index = new DefaultIndex(indexFields, unqiue);
+        DefaultIndex index = new DefaultIndex(indexFields, unique);
         indexes.put(indexFields, index);
-        indexesCollection.addDocuments(List.of(indexDocumentConverter.toDocument(index)));
+        Document indexProperties = documentFactory.createFromMap(
+                Map.of("unique", unique,
+                        "fields", indexFields.getAsMap())
+        );
+        indexesCollection.addDocuments(List.of(indexProperties));
     }
 
     @Override
@@ -79,8 +81,8 @@ public class DefaultIndexesCollection implements IndexesCollection {
         if (!indexes.containsKey(indexFields)) {
             throw new NoSuchIndexException(indexFields);
         }
-        indexes.remove(indexFields);
-        indexesCollection.removeAllThatMatch(indexFields);
+        Document criteria = documentFactory.createFromMap(Map.of("fields", indexFields.getAsMap()));
+        indexesCollection.removeAllThatMatch(criteria);
     }
 
     @Override
@@ -97,21 +99,13 @@ public class DefaultIndexesCollection implements IndexesCollection {
     public void addDocument(Document document, Path documentPath) {
         for (Index index : indexes.values()) {
             index.add(document, documentPath);
-            updateStoredIndex(index);
         }
-    }
-
-    private void updateStoredIndex(Index index) {
-        Document updatedIndexDocument = indexDocumentConverter.toDocument(index);
-        Document fields = index.getFields();
-        storageEngine.update(updatedIndexDocument, indexesPaths.get(fields));
     }
 
     @Override
     public void removeDocument(Document document) {
         for (Index index : indexes.values()) {
             index.remove(document);
-            updateStoredIndex(index);
         }
     }
 
@@ -128,6 +122,6 @@ public class DefaultIndexesCollection implements IndexesCollection {
     }
 
     private void addDocumentToIndexes(Path documentPath) {
-        storageEngine.read(documentPath).ifPresent(document -> addDocument(document, documentPath));
+        storageEngine.readDocument(documentPath).ifPresent(document -> addDocument(document, documentPath));
     }
 }

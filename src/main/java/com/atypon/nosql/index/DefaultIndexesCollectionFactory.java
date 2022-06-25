@@ -13,19 +13,15 @@ public class DefaultIndexesCollectionFactory implements IndexesCollectionFactory
 
     private final DocumentFactory documentFactory;
 
-    private final IndexDocumentConverter indexDocumentConverter;
-
     public DefaultIndexesCollectionFactory(
             StorageEngine storageEngine,
-            DocumentFactory documentFactory,
-            IndexDocumentConverter indexDocumentConverter) {
+            DocumentFactory documentFactory) {
         this.storageEngine = storageEngine;
         this.documentFactory = documentFactory;
-        this.indexDocumentConverter = indexDocumentConverter;
     }
 
     @Override
     public IndexesCollection createIndexesCollection(Path indexesDirectory) {
-        return new DefaultIndexesCollection(indexesDirectory, storageEngine, documentFactory, indexDocumentConverter);
+        return new DefaultIndexesCollection(indexesDirectory, storageEngine, documentFactory);
     }
 }

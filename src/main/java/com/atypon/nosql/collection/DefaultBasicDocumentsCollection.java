@@ -25,7 +25,7 @@ public class DefaultBasicDocumentsCollection implements DocumentsCollection {
     public boolean contains(Document documentCriteria) {
         return FileUtils.traverseDirectory(documentsPath)
                 .filter(FileUtils::isJsonFile)
-                .map(storageEngine::read)
+                .map(storageEngine::readDocument)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .anyMatch(documentCriteria::subsetOf);
@@ -35,7 +35,7 @@ public class DefaultBasicDocumentsCollection implements DocumentsCollection {
     public List<Document> getAllThatMatch(Document documentCriteria) {
         return FileUtils.traverseDirectory(documentsPath)
                 .filter(FileUtils::isJsonFile)
-                .map(storageEngine::read)
+                .map(storageEngine::readDocument)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .filter(documentCriteria::subsetOf)
@@ -43,31 +43,31 @@ public class DefaultBasicDocumentsCollection implements DocumentsCollection {
     }
 
     @Override
-    public List<StoredDocument> addDocuments(List<Document> documents) {
+    public List<Stored<Document>> addDocuments(List<Document> documents) {
         return documents.stream().map(
-                document -> storageEngine.write(document, documentsPath)
+                document -> storageEngine.writeDocument(document, documentsPath)
         ).toList();
     }
 
     @Override
-    public List<StoredDocument> updateDocuments(Document documentCriteria, Document updatedDocument) {
+    public List<Stored<Document>> updateDocuments(Document documentCriteria, Document updatedDocument) {
         List<Path> matchingDocumentsPaths = getPathsThatMatch(documentCriteria);
         return matchingDocumentsPaths.stream()
-                .map(documentPath -> storageEngine.update(updatedDocument, documentPath))
+                .map(documentPath -> storageEngine.updateDocument(updatedDocument, documentPath))
                 .toList();
     }
 
     private List<Path> getPathsThatMatch(Document documentCriteria) {
         return FileUtils.traverseDirectory(documentsPath)
                 .filter(FileUtils::isJsonFile)
-                .filter(path -> storageEngine.read(path).map(documentCriteria::subsetOf).orElseThrow())
+                .filter(path -> storageEngine.readDocument(path).map(documentCriteria::subsetOf).orElseThrow())
                 .toList();
     }
 
     @Override
     public int removeAllThatMatch(Document documentCriteria) {
         List<Path> paths = getPathsThatMatch(documentCriteria);
-        paths.forEach(storageEngine::delete);
+        paths.forEach(storageEngine::deleteFile);
         return paths.size();
     }
 
@@ -75,7 +75,7 @@ public class DefaultBasicDocumentsCollection implements DocumentsCollection {
     public List<Document> getAll() {
         return FileUtils.traverseDirectory(documentsPath)
                 .filter(FileUtils::isJsonFile)
-                .map(storageEngine::read)
+                .map(storageEngine::readDocument)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList();

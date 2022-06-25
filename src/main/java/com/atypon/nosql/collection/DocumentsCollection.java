@@ -9,9 +9,9 @@ public interface DocumentsCollection {
 
     List<Document> getAllThatMatch(Document documentCriteria);
 
-    List<StoredDocument> addDocuments(List<Document> documents);
+    List<Stored<Document>> addDocuments(List<Document> documents);
 
-    List<StoredDocument> updateDocuments(Document documentCriteria, Document updatedDocument);
+    List<Stored<Document>> updateDocuments(Document documentCriteria, Document updatedDocument);
 
     int removeAllThatMatch(Document documentCriteria);
 

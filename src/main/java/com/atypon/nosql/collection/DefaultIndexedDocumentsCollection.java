@@ -57,7 +57,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
 
     private void writeSchema() {
         if (FileUtils.countFiles(schemaDirectory, 1) == 0) {
-            storageEngine.write(documentSchema.getAsDocument(), schemaDirectory);
+            storageEngine.writeDocument(documentSchema.getAsDocument(), schemaDirectory);
         }
     }
 
@@ -104,7 +104,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
             Index index = indexes.get(criteriaFields);
             return index.get(documentCriteria.getValuesToMatch(index.getFields()))
                     .stream()
-                    .map(storageEngine::read)
+                    .map(storageEngine::readDocument)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .toList();
@@ -114,11 +114,11 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
     }
 
     @Override
-    public List<StoredDocument> addDocuments(List<Document> documents) {
-        List<StoredDocument> addedDocumentPaths = documentsCollection.addDocuments(documents);
+    public List<Stored<Document>> addDocuments(List<Document> documents) {
+        List<Stored<Document>> addedDocumentPaths = documentsCollection.addDocuments(documents);
         addedDocumentPaths.forEach(
                 storedDocument -> indexes.addDocument(
-                        storedDocument.document(),
+                        storedDocument.object(),
                         storedDocument.path()
                 )
         );
@@ -126,12 +126,12 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
     }
 
     @Override
-    public List<StoredDocument> updateDocuments(Document documentCriteria, Document updateDocument) {
+    public List<Stored<Document>> updateDocuments(Document documentCriteria, Document updateDocument) {
         Document criteriaFields = documentCriteria.getFields();
         if (indexes.contains(criteriaFields)) {
             Index index = indexes.get(criteriaFields);
             return index.get(criteriaFields)
-                    .stream().map(documentPath -> storageEngine.update(updateDocument, documentPath))
+                    .stream().map(documentPath -> storageEngine.updateDocument(updateDocument, documentPath))
                     .toList();
         } else {
             return documentsCollection.updateDocuments(documentCriteria, updateDocument);
@@ -144,8 +144,8 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
         if (indexes.contains(criteriaFields)) {
             Collection<Path> paths = indexes.get(criteriaFields).get(documentCriteria);
             for (Path path : paths) {
-                storageEngine.read(path).ifPresent(indexes::removeDocument);
-                storageEngine.delete(path);
+                storageEngine.readDocument(path).ifPresent(indexes::removeDocument);
+                storageEngine.deleteFile(path);
             }
             return paths.size();
         } else {
