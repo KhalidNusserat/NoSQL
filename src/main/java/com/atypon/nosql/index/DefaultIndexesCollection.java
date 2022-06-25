@@ -48,7 +48,7 @@ public class DefaultIndexesCollection implements IndexesCollection {
     private void loadIndex(Path indexPath) {
         Optional<Document> optionalIndexProperties = storageEngine.readDocument(indexPath);
         if (optionalIndexProperties.isPresent()) {
-            Map<String, Object> indexProperties = optionalIndexProperties.get().getAsMap();
+            Map<String, Object> indexProperties = optionalIndexProperties.get().toMap();
             boolean unique = (boolean) indexProperties.get("unique");
             Document indexFields = documentFactory.createFromMap((Map<String, Object>) indexProperties.get("fields"));
             indexes.put(indexFields, new DefaultIndex(indexFields, unique));
@@ -71,7 +71,7 @@ public class DefaultIndexesCollection implements IndexesCollection {
         indexes.put(indexFields, index);
         Document indexProperties = documentFactory.createFromMap(
                 Map.of("unique", unique,
-                        "fields", indexFields.getAsMap())
+                        "fields", indexFields.toMap())
         );
         indexesCollection.addDocuments(List.of(indexProperties));
     }
@@ -81,7 +81,7 @@ public class DefaultIndexesCollection implements IndexesCollection {
         if (!indexes.containsKey(indexFields)) {
             throw new NoSuchIndexException(indexFields);
         }
-        Document criteria = documentFactory.createFromMap(Map.of("fields", indexFields.getAsMap()));
+        Document criteria = documentFactory.createFromMap(Map.of("fields", indexFields.toMap()));
         indexesCollection.removeAllThatMatch(criteria);
     }
 

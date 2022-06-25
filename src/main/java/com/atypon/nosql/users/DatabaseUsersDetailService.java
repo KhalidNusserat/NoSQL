@@ -46,7 +46,7 @@ public class DatabaseUsersDetailService implements UserDetailsService {
             );
             throw new UsernameNotFoundException("Username not found: " + username);
         }
-        Map<String, Object> userDocument = matchedUsers.get(0).getAsMap();
+        Map<String, Object> userDocument = matchedUsers.get(0).toMap();
         String password = (String) userDocument.get("password");
         List<String> roles = (List<String>) userDocument.get("roles");
         return DatabaseUser.builder()

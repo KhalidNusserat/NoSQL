@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class GsonDocument implements Document {
+
     final JsonObject object;
 
     private final static Gson gson = new GsonBuilder().serializeNulls().create();
@@ -20,12 +21,17 @@ public class GsonDocument implements Document {
         this.object = object.deepCopy();
     }
 
-    public static GsonDocument fromString(String src) {
+    public static GsonDocument fromJson(String src) {
         return new GsonDocument(gson.fromJson(src, JsonObject.class));
     }
 
     public static GsonDocument fromMap(Map<String, Object> map) {
         return new GsonDocument(gson.toJsonTree(map).getAsJsonObject());
+    }
+
+    public static GsonDocument fromObject(Object object) {
+        JsonObject jsonObject = gson.toJsonTree(object).getAsJsonObject();
+        return new GsonDocument(jsonObject);
     }
 
     @Override
@@ -138,7 +144,12 @@ public class GsonDocument implements Document {
     }
 
     @Override
-    public Map<String, Object> getAsMap() {
+    public Map<String, Object> toMap() {
         return gson.fromJson(object, mapType);
+    }
+
+    @Override
+    public <T> T toObject(Class<T> classOfObject) {
+        return gson.fromJson(object, classOfObject);
     }
 }

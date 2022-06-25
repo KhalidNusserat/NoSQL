@@ -11,7 +11,7 @@ public class GsonDocumentFactory implements DocumentFactory {
 
     @Override
     public GsonDocument createFromString(String src) {
-        return GsonDocument.fromString(src);
+        return GsonDocument.fromJson(src);
     }
 
     @Override

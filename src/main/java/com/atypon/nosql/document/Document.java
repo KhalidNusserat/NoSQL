@@ -12,5 +12,7 @@ public interface Document {
 
     Document overrideFields(Document newFieldsValues);
 
-    Map<String, Object> getAsMap();
+    Map<String, Object> toMap();
+
+    <T> T toObject(Class<T> classOfObject);
 }

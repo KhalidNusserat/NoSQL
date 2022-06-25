@@ -93,7 +93,7 @@ public class DefaultDatabasesManager implements DatabasesManager {
         checkDatabaseExists(databaseName);
         Database database = databases.get(databaseName);
         IndexedDocumentsCollection documentsCollection = database.get(collectionName);
-        return documentsCollection.getSchema().getAsMap();
+        return documentsCollection.getSchema().toMap();
     }
 
     @Override
@@ -140,7 +140,7 @@ public class DefaultDatabasesManager implements DatabasesManager {
     }
 
     private List<Map<String, Object>> documentsToMaps(Collection<Document> documents) {
-        return documents.stream().map(Document::getAsMap).toList();
+        return documents.stream().map(Document::toMap).toList();
     }
 
     public int updateDocuments(
