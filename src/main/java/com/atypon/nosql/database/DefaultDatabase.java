@@ -80,4 +80,9 @@ public class DefaultDatabase implements Database {
             removeCollection(collection);
         }
     }
+
+    @Override
+    public boolean containsCollection(String collection) {
+        return documentsCollections.containsKey(collection);
+    }
 }

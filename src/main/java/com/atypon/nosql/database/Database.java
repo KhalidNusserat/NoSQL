@@ -15,4 +15,6 @@ public interface Database {
     Collection<String> getCollectionsNames();
 
     void deleteDatabase();
+
+    boolean containsCollection(String collection);
 }

@@ -41,7 +41,8 @@ public class DefaultIndex implements Index {
 
     @Override
     public void remove(Document document) {
-        pathToValues.removeByValue(document.getValuesToMatch(fields));
+        Document values = document.getValuesToMatch(fields);
+        pathToValues.removeByValues(values);
     }
 
     @Override

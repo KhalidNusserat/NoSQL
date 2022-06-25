@@ -51,7 +51,7 @@ public class ReversedHashMap<K, V> implements ReversedMap<K, V> {
     }
 
     @Override
-    public void removeByValue(V value) {
+    public void removeByValues(V value) {
         lock.writeLock().lock();
         for (K key : valueToKeys.get(value)) {
             keyToValue.remove(key);

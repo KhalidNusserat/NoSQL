@@ -9,7 +9,7 @@ public interface ReversedMap<K, V> {
 
     void removeByKey(K key);
 
-    void removeByValue(V value);
+    void removeByValues(V value);
 
     void clear();
 

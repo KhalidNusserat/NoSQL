@@ -23,8 +23,10 @@ public class DefaultMetadataDatabase implements MetadataDatabase {
     }
 
     private void createUsersCollection(DocumentFactory documentFactory) {
-        String userSchemaString = "{username: \"string\", password: \"string\"}";
-        Document usersSchema = documentFactory.createFromString(userSchemaString);
-        metadataDatabase.createCollection("users", usersSchema);
+        if (!metadataDatabase.containsCollection("users")) {
+            String userSchemaString = "{username: \"string\", password: \"string\"}";
+            Document usersSchema = documentFactory.createFromString(userSchemaString);
+            metadataDatabase.createCollection("users", usersSchema);
+        }
     }
 }
