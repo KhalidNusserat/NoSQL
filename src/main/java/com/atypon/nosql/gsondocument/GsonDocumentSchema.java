@@ -10,7 +10,7 @@ import com.google.gson.JsonObject;
 
 import java.util.regex.Pattern;
 
-public class GsonDocumentSchema implements DocumentSchema {
+public class GsonDocumentSchema extends DocumentSchema {
 
     private final GsonDocument schemaDocument;
 

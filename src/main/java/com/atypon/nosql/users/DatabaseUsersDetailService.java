@@ -30,7 +30,7 @@ public class DatabaseUsersDetailService implements UserDetailsService {
     @SuppressWarnings("unchecked")
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         String usernameCriteriaString = String.format("{username: %s}", username);
-        Document usernameCriteria = documentFactory.createFromString(usernameCriteriaString);
+        Document usernameCriteria = documentFactory.createFromJson(usernameCriteriaString);
         List<Document> matchedUsers = usersCollection.getAllThatMatch(usernameCriteria);
         if (matchedUsers.size() > 1) {
             log.error(

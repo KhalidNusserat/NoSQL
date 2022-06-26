@@ -33,7 +33,7 @@ public class DefaultIndexedDocumentsCollectionFactory implements IndexedDocument
 
     @Override
     public IndexedDocumentsCollection createCollection(Path collectionPath, Document schemaDocument) {
-        DocumentSchema documentSchema = schemaFactory.createSchema(schemaDocument);
+        DocumentSchema documentSchema = schemaFactory.createFromDocument(schemaDocument);
         return new DefaultIndexedDocumentsCollection(
                 collectionPath,
                 storageEngine,
@@ -52,7 +52,7 @@ public class DefaultIndexedDocumentsCollectionFactory implements IndexedDocument
         } else if (schemaDocuments.size() > 1) {
             throw new MultipleSchemasException();
         }
-        DocumentSchema documentSchema = schemaFactory.createSchema(schemaDocuments.get(0));
+        DocumentSchema documentSchema = schemaFactory.createFromDocument(schemaDocuments.get(0));
         return new DefaultIndexedDocumentsCollection(
                 collectionPath,
                 storageEngine,

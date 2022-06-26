@@ -2,17 +2,31 @@ package com.atypon.nosql.document;
 
 import java.util.Map;
 
-public interface Document {
+public abstract class Document {
 
-    boolean subsetOf(Document matchDocument);
+    private static DocumentFactory documentFactory;
 
-    Document getValuesToMatch(Document otherDocument);
+    public abstract boolean subsetOf(Document matchDocument);
 
-    Document getFields();
+    public abstract Document getValuesToMatch(Document otherDocument);
 
-    Document overrideFields(Document newFieldsValues);
+    public abstract Document getFields();
 
-    Map<String, Object> toMap();
+    public abstract Document overrideFields(Document newFieldsValues);
 
-    <T> T toObject(Class<T> classOfObject);
+    public abstract Map<String, Object> toMap();
+
+    public abstract <T> T toObject(Class<T> classOfObject);
+
+    public static void setDocumentFactory(DocumentFactory documentFactory) {
+        Document.documentFactory = documentFactory;
+    }
+
+    public static Document createFromJson(String json) {
+        return documentFactory.createFromJson(json);
+    }
+
+    public static Document createFromMap(Map<String, Object> map) {
+        return documentFactory.createFromMap(map);
+    }
 }

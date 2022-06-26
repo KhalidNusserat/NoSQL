@@ -9,8 +9,12 @@ import java.util.Map;
 @Component
 public class GsonDocumentFactory implements DocumentFactory {
 
+    public GsonDocumentFactory() {
+        Document.setDocumentFactory(this);
+    }
+
     @Override
-    public GsonDocument createFromString(String src) {
+    public GsonDocument createFromJson(String src) {
         return GsonDocument.fromJson(src);
     }
 

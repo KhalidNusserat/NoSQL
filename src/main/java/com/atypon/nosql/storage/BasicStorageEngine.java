@@ -77,7 +77,7 @@ public class BasicStorageEngine implements StorageEngine {
         }
         try (BufferedReader reader = Files.newBufferedReader(documentPath)) {
             String src = reader.lines().collect(Collectors.joining());
-            return Optional.of(documentFactory.createFromString(src));
+            return Optional.of(documentFactory.createFromJson(src));
         } catch (IOException e) {
             return Optional.empty();
         }
