@@ -1,9 +1,11 @@
 package com.atypon.nosql.document;
 
 import com.atypon.nosql.idgenerator.IdGenerator;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Map;
 
+@JsonDeserialize(using = DocumentJacksonDeserializer.class)
 public abstract class Document {
 
     private static DocumentFactory documentFactory;

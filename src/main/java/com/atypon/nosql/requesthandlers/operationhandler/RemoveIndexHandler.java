@@ -25,7 +25,7 @@ public class RemoveIndexHandler implements DatabaseRequestHandler {
         Payload payload = request.payload();
         databasesManager.getDatabase(request.database())
                 .getCollection(request.collection())
-                .removeIndex(Document.fromMap(payload.index()));
+                .removeIndex(payload.index());
         String message = String.format(
                 "Removed an index from the collection <%s/%s>",
                 request.database(),

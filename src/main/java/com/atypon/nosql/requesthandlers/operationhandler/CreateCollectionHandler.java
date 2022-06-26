@@ -24,7 +24,7 @@ public class CreateCollectionHandler implements DatabaseRequestHandler {
     public DatabaseResponse handle(DatabaseRequest request) {
         Payload payload = request.payload();
         databasesManager.getDatabase(request.database())
-                        .createCollection(request.collection(), Document.fromMap(payload.schema()));
+                        .createCollection(request.collection(), payload.schema());
         return DatabaseResponse.builder()
                 .message(String.format("Created the collection <%s/%s>", request.database(), request.collection()))
                 .build();

@@ -7,6 +7,7 @@ import com.atypon.nosql.security.DatabaseAuthority;
 import com.atypon.nosql.security.DatabaseRole;
 import com.atypon.nosql.security.DefaultRoles;
 import com.atypon.nosql.users.DatabaseUser;
+import com.atypon.nosql.users.DatabaseUser.StoredDatabaseUser;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
@@ -47,12 +48,20 @@ public class DefaultMetadataDatabase implements MetadataDatabase {
             )
     );
 
+    private static final StoredDatabaseUser defaultRootAdmin = StoredDatabaseUser.builder()
+            .username("admin")
+            .password("admin")
+            .roles(List.of("ROOT_ADMIN"))
+            .authorities(List.of())
+            .build();
+
     public DefaultMetadataDatabase(DatabasesManager databasesManager) {
         this.databasesManager = databasesManager;
         databasesManager.createDatabase(METADATA_DATABASE);
         createUsersCollection();
         createRolesCollection();
         createDefaultRoles();
+        createDefaultRootAdmin();
     }
 
     private void createUsersCollection() {
@@ -89,6 +98,15 @@ public class DefaultMetadataDatabase implements MetadataDatabase {
             if (!rolesCollection.contains(roleCriteria)) {
                 rolesCollection.addDocuments(List.of(Document.fromObject(role)));
             }
+        }
+    }
+
+    private void createDefaultRootAdmin() {
+        IndexedDocumentsCollection usersCollection = databasesManager.getDatabase(METADATA_DATABASE)
+                .getCollection(USERS_COLLECTION);
+        Document rootAdminCriteria = Document.fromJson("{username: \"admin\"}");
+        if (!usersCollection.contains(rootAdminCriteria)) {
+            usersCollection.addDocuments(List.of(Document.fromObject(defaultRootAdmin)));
         }
     }
 

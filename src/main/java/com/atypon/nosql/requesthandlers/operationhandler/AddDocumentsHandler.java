@@ -25,7 +25,7 @@ public class AddDocumentsHandler implements DatabaseRequestHandler {
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
         Payload payload = request.payload();
-        List<Document> documents = payload.documents().stream().map(Document::fromMap).toList();
+        List<Document> documents = payload.documents().stream().toList();
         List<?> result = databasesManager.getDatabase(request.database())
                 .getCollection(request.collection())
                 .addDocuments(documents);

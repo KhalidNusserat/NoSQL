@@ -26,8 +26,8 @@ public class UpdateDocumentsHandler implements DatabaseRequestHandler {
         int updatedCount = databasesManager.getDatabase(request.database())
                 .getCollection(request.collection())
                 .updateDocuments(
-                        Document.fromMap(payload.criteria()),
-                        Document.fromMap(payload.update())
+                        payload.criteria(),
+                        payload.update()
                 ).size();
         return DatabaseResponse.builder()
                 .message("Updated [" + updatedCount + "] documents")

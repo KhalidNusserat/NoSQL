@@ -28,7 +28,7 @@ public class ReadDocumentsHandler implements DatabaseRequestHandler {
         Payload payload = request.payload();
         Collection<Map<String, Object>> documents = databasesManager.getDatabase(request.database())
                 .getCollection(request.collection())
-                .findDocuments(Document.fromMap(payload.criteria()))
+                .findDocuments(payload.criteria())
                 .stream()
                 .map(Document::toMap)
                 .toList();

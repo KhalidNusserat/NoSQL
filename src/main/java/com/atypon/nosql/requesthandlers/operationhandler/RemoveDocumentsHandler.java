@@ -25,7 +25,7 @@ public class RemoveDocumentsHandler implements DatabaseRequestHandler {
         Payload payload = request.payload();
         int removedCount = databasesManager.getDatabase(request.database())
                 .getCollection(request.collection())
-                .removeAllThatMatch(Document.fromMap(payload.criteria()));
+                .removeAllThatMatch(payload.criteria());
         return DatabaseResponse.builder()
                 .message(String.format("Removed [%d] documents", removedCount))
                 .build();
