@@ -1,10 +1,14 @@
 package com.atypon.nosql.document;
 
+import com.atypon.nosql.idgenerator.IdGenerator;
+
 import java.util.Map;
 
 public abstract class Document {
 
     private static DocumentFactory documentFactory;
+
+    protected static IdGenerator idGenerator;
 
     public abstract boolean subsetOf(Document matchDocument);
 
@@ -18,8 +22,14 @@ public abstract class Document {
 
     public abstract <T> T toObject(Class<T> classOfObject);
 
+    public abstract Document withId();
+
     public static void setDocumentFactory(DocumentFactory documentFactory) {
         Document.documentFactory = documentFactory;
+    }
+
+    public static void setIdGenerator(IdGenerator idGenerator) {
+        Document.idGenerator = idGenerator;
     }
 
     public static Document fromJson(String json) {
@@ -28,5 +38,9 @@ public abstract class Document {
 
     public static Document fromMap(Map<String, Object> map) {
         return documentFactory.createFromMap(map);
+    }
+
+    public static Document fromObject(Object object) {
+        return documentFactory.createFromObject(object);
     }
 }

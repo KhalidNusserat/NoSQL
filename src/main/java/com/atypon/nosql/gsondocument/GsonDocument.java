@@ -152,4 +152,11 @@ public class GsonDocument extends Document {
     public <T> T toObject(Class<T> classOfObject) {
         return gson.fromJson(object, classOfObject);
     }
+
+    @Override
+    public Document withId() {
+        JsonObject objectWithId = object.deepCopy();
+        objectWithId.addProperty("_id", idGenerator.newId(object));
+        return new GsonDocument(objectWithId);
+    }
 }

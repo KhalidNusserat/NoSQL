@@ -1,9 +1,11 @@
 package com.atypon.nosql.metadata;
 
 import com.atypon.nosql.DatabasesManager;
+import com.atypon.nosql.collection.IndexedDocumentsCollection;
 import com.atypon.nosql.document.Document;
-import com.atypon.nosql.users.DatabaseAuthority;
-import com.atypon.nosql.users.DatabaseRole;
+import com.atypon.nosql.security.DatabaseAuthority;
+import com.atypon.nosql.security.DatabaseRole;
+import com.atypon.nosql.security.DefaultRoles;
 import com.atypon.nosql.users.DatabaseUser;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
@@ -50,6 +52,7 @@ public class DefaultMetadataDatabase implements MetadataDatabase {
         databasesManager.createDatabase(METADATA_DATABASE);
         createUsersCollection();
         createRolesCollection();
+        createDefaultRoles();
     }
 
     private void createUsersCollection() {
@@ -75,6 +78,17 @@ public class DefaultMetadataDatabase implements MetadataDatabase {
             databasesManager.getDatabase(METADATA_DATABASE)
                     .getCollection(ROLES_COLLECTION)
                     .createIndex(ROLE_INDEX, true);
+        }
+    }
+
+    private void createDefaultRoles() {
+        IndexedDocumentsCollection rolesCollection = databasesManager.getDatabase(METADATA_DATABASE)
+                .getCollection(ROLES_COLLECTION);
+        for (var role : DefaultRoles.DEFAULT_ROLES) {
+            Document roleCriteria = Document.fromMap(Map.of("role", role.role()));
+            if (!rolesCollection.contains(roleCriteria)) {
+                rolesCollection.addDocuments(List.of(Document.fromObject(role)));
+            }
         }
     }
 

@@ -1,5 +1,7 @@
 package com.atypon.nosql.users;
 
+import com.atypon.nosql.security.DatabaseAuthority;
+import com.atypon.nosql.security.DatabaseRole;
 import lombok.Builder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

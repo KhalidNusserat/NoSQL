@@ -22,4 +22,9 @@ public class GsonDocumentFactory implements DocumentFactory {
     public Document createFromMap(Map<String, Object> map) {
         return GsonDocument.fromMap(map);
     }
+
+    @Override
+    public Document createFromObject(Object object) {
+        return GsonDocument.fromObject(object);
+    }
 }

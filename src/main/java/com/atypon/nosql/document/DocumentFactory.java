@@ -6,4 +6,6 @@ public interface DocumentFactory {
     Document createFromJson(String src);
 
     Document createFromMap(Map<String, Object> map);
+
+    Document createFromObject(Object object);
 }

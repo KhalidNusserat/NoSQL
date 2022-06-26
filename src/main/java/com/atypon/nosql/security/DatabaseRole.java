@@ -1,4 +1,4 @@
-package com.atypon.nosql.users;
+package com.atypon.nosql.security;
 
 import lombok.Builder;
 

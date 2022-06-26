@@ -121,6 +121,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
 
     @Override
     public List<Stored<Document>> addDocuments(List<Document> documents) {
+        documents = documents.stream().map(Document::withId).toList();
         if (!documents.stream().allMatch(indexes::checkUniqueConstraint)) {
             throw new UniqueIndexViolationException();
         }
