@@ -1,20 +1,17 @@
 package com.atypon.nosql.users;
 
-import org.springframework.security.core.GrantedAuthority;
+import lombok.Builder;
 
-public class DatabaseRole implements GrantedAuthority {
-    private final String role;
+import java.util.List;
 
-    public DatabaseRole(String role) {
-        this.role = role;
-    }
+public record DatabaseRole(String role, List<DatabaseAuthority> authorities) {
 
-    public static DatabaseRole of(String role) {
-        return new DatabaseRole(role);
-    }
+    @Builder
+    public DatabaseRole {}
 
-    @Override
-    public String getAuthority() {
-        return "ROLE_" + role;
+    public record StoredDatabaseRole(String role, List<String> authorities) {
+
+        @Builder
+        public StoredDatabaseRole {}
     }
 }

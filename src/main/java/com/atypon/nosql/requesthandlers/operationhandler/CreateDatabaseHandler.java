@@ -20,12 +20,9 @@ public class CreateDatabaseHandler implements DatabaseRequestHandler {
 
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
-        databasesManager.createDatabase(
-                request.database()
-        );
-        return DatabaseResponse.createDatabaseResponse(
-                String.format("Created the database \"%s\"", request.database()),
-                null
-        );
+        databasesManager.createDatabase(request.database());
+        return DatabaseResponse.builder()
+                .message(String.format("Created the database <%s>", request.database()))
+                .build();
     }
 }

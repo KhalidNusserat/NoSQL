@@ -1,5 +1,6 @@
 package com.atypon.nosql.requesthandlers.operationhandler;
 
+import com.atypon.nosql.document.Document;
 import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.request.DatabaseRequest;
 import com.atypon.nosql.request.Payload;
@@ -22,14 +23,10 @@ public class CreateCollectionHandler implements DatabaseRequestHandler {
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
         Payload payload = request.payload();
-        databasesManager.createCollection(
-                request.database(),
-                request.collection(),
-                payload.schema()
-        );
-        return DatabaseResponse.createDatabaseResponse(
-                String.format("Created the collection \"%s/%s\"", request.database(), request.collection()),
-                null
-        );
+        databasesManager.getDatabase(request.database())
+                        .createCollection(request.collection(), Document.fromMap(payload.schema()));
+        return DatabaseResponse.builder()
+                .message(String.format("Created the collection <%s/%s>", request.database(), request.collection()))
+                .build();
     }
 }

@@ -1,5 +1,6 @@
 package com.atypon.nosql.requesthandlers.operationhandler;
 
+import com.atypon.nosql.document.Document;
 import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.request.DatabaseRequest;
 import com.atypon.nosql.request.Payload;
@@ -22,15 +23,14 @@ public class UpdateDocumentsHandler implements DatabaseRequestHandler {
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
         Payload payload = request.payload();
-        int updatedCount = databasesManager.updateDocuments(
-                request.database(),
-                request.collection(),
-                payload.criteria(),
-                payload.update()
-        );
-        return DatabaseResponse.createDatabaseResponse(
-                String.format("Updated [%d] documents", updatedCount),
-                null
-        );
+        int updatedCount = databasesManager.getDatabase(request.database())
+                .getCollection(request.collection())
+                .updateDocuments(
+                        Document.fromMap(payload.criteria()),
+                        Document.fromMap(payload.update())
+                ).size();
+        return DatabaseResponse.builder()
+                .message("Updated [" + updatedCount + "] documents")
+                .build();
     }
 }

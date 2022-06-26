@@ -6,15 +6,16 @@ import com.atypon.nosql.document.Document;
 import java.util.Collection;
 
 public interface Database {
+
     void createCollection(String collectionName, Document schema);
 
     void removeCollection(String collectionName);
 
-    IndexedDocumentsCollection get(String collectionName);
+    boolean containsCollection(String collectionName);
+
+    IndexedDocumentsCollection getCollection(String collectionName);
 
     Collection<String> getCollectionsNames();
 
     void deleteDatabase();
-
-    boolean containsCollection(String collection);
 }

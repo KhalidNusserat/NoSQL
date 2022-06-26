@@ -1,6 +1,7 @@
 package com.atypon.nosql.requesthandlers.operationhandler;
 
 import com.atypon.nosql.DatabasesManager;
+import com.atypon.nosql.document.Document;
 import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.request.DatabaseRequest;
 import com.atypon.nosql.response.DatabaseResponse;
@@ -23,13 +24,15 @@ public class GetIndexesHandler implements DatabaseRequestHandler {
 
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
-        Collection<Map<String, Object>> indexes = databasesManager.getCollectionIndexes(
-                request.database(),
-                request.collection()
-        );
-        return DatabaseResponse.createDatabaseResponse(
-                String.format("Found [%d] indexes", indexes.size()),
-                indexes
-        );
+        Collection<Map<String, Object>> indexes = databasesManager.getDatabase(request.database())
+                .getCollection(request.collection())
+                .getIndexes()
+                .stream()
+                .map(Document::toMap)
+                .toList();
+        return DatabaseResponse.builder()
+                .message("Found [" + indexes.size() + "] indexes")
+                .result(indexes)
+                .build();
     }
 }

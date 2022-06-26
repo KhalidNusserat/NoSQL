@@ -32,7 +32,12 @@ public class DefaultBasicDocumentsCollection implements DocumentsCollection {
     }
 
     @Override
-    public List<Document> getAllThatMatch(Document documentCriteria) {
+    public Optional<Document> findFirst(Document documentCriteria) {
+        return findDocuments(documentCriteria).stream().findFirst();
+    }
+
+    @Override
+    public List<Document> findDocuments(Document documentCriteria) {
         return FileUtils.traverseDirectory(documentsPath)
                 .filter(FileUtils::isJsonFile)
                 .map(storageEngine::readDocument)

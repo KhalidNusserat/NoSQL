@@ -9,6 +9,7 @@ import com.atypon.nosql.requesthandlers.StorageHandler;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -23,13 +24,17 @@ public class GetCollectionsHandler implements DatabaseRequestHandler {
 
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
-        Collection<String> result = databasesManager.getCollectionsNames(request.database());
-        Collection<Map<String, Object>> collectionsNames = result.stream()
+        Collection<String> collections = databasesManager.getDatabase(request.database()).getCollectionsNames();
+        Collection<Map<String, Object>> formattedResult = formatResults(collections);
+        return DatabaseResponse.builder()
+                .message("Found [" + collections.size() + "] collections")
+                .result(formattedResult)
+                .build();
+    }
+
+    private Collection<Map<String, Object>> formatResults(Collection<String> result) {
+        return result.stream()
                 .map(databaseName -> Map.of("collection", (Object) databaseName))
                 .toList();
-        return DatabaseResponse.createDatabaseResponse(
-                String.format("Found [%d] collections", collectionsNames.size()),
-                collectionsNames
-        );
     }
 }

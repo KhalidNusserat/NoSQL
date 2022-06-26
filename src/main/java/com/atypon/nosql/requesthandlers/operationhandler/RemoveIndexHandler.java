@@ -1,5 +1,6 @@
 package com.atypon.nosql.requesthandlers.operationhandler;
 
+import com.atypon.nosql.document.Document;
 import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.request.DatabaseRequest;
 import com.atypon.nosql.request.Payload;
@@ -22,18 +23,16 @@ public class RemoveIndexHandler implements DatabaseRequestHandler {
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
         Payload payload = request.payload();
-        databasesManager.removeIndex(
+        databasesManager.getDatabase(request.database())
+                .getCollection(request.collection())
+                .removeIndex(Document.fromMap(payload.index()));
+        String message = String.format(
+                "Removed an index from the collection <%s/%s>",
                 request.database(),
-                request.collection(),
-                payload.index()
+                request.collection()
         );
-        return DatabaseResponse.createDatabaseResponse(
-                String.format(
-                        "Removed an index from the collection \"%s/%s\"",
-                        request.database(),
-                        request.collection()
-                ),
-                null
-        );
+        return DatabaseResponse.builder()
+                .message(message)
+                .build();
     }
 }

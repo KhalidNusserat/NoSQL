@@ -1,5 +1,6 @@
 package com.atypon.nosql.requesthandlers.operationhandler;
 
+import com.atypon.nosql.document.Document;
 import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.request.DatabaseRequest;
 import com.atypon.nosql.request.Payload;
@@ -22,14 +23,11 @@ public class RemoveDocumentsHandler implements DatabaseRequestHandler {
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
         Payload payload = request.payload();
-        int removedCount = databasesManager.removeDocuments(
-                request.database(),
-                request.collection(),
-                payload.criteria()
-        );
-        return DatabaseResponse.createDatabaseResponse(
-                String.format("Removed [%d] documents", removedCount),
-                null
-        );
+        int removedCount = databasesManager.getDatabase(request.database())
+                .getCollection(request.collection())
+                .removeAllThatMatch(Document.fromMap(payload.criteria()));
+        return DatabaseResponse.builder()
+                .message(String.format("Removed [%d] documents", removedCount))
+                .build();
     }
 }

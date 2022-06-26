@@ -20,12 +20,9 @@ public class RemoveDatabaseHandler implements DatabaseRequestHandler {
 
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
-        databasesManager.removeDatabase(
-                request.database()
-        );
-        return DatabaseResponse.createDatabaseResponse(
-                String.format("Removed the database \"%s\"", request.database()),
-                null
-        );
+        databasesManager.removeDatabase(request.database());
+        return DatabaseResponse.builder()
+                .message(String.format("Removed the database \"%s\"", request.database()))
+                .build();
     }
 }

@@ -1,5 +1,6 @@
 package com.atypon.nosql.requesthandlers.operationhandler;
 
+import com.atypon.nosql.document.Document;
 import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.request.DatabaseRequest;
 import com.atypon.nosql.request.Payload;
@@ -8,6 +9,8 @@ import com.atypon.nosql.requesthandlers.DatabaseRequestHandler;
 import com.atypon.nosql.requesthandlers.StorageHandler;
 import com.atypon.nosql.DatabasesManager;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class AddDocumentsHandler implements DatabaseRequestHandler {
@@ -22,14 +25,12 @@ public class AddDocumentsHandler implements DatabaseRequestHandler {
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
         Payload payload = request.payload();
-        databasesManager.addDocuments(
-                request.database(),
-                request.collection(),
-                payload.documents()
-        );
-        return DatabaseResponse.createDatabaseResponse(
-                String.format("Added [%d] documents", payload.documents().size()),
-                null
-        );
+        List<Document> documents = payload.documents().stream().map(Document::fromMap).toList();
+        List<?> result = databasesManager.getDatabase(request.database())
+                .getCollection(request.collection())
+                .addDocuments(documents);
+        return DatabaseResponse.builder()
+                .message("Added [" + result.size() + "] documents")
+                .build();
     }
 }

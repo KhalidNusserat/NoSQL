@@ -33,7 +33,9 @@ public class SynchronizationHandler implements DatabaseRequestHandler {
         for (String nodeUrl : remoteNodes) {
             executorService.submit(() -> synchroniseNode(nodeUrl, request));
         }
-        return DatabaseResponse.createDatabaseResponse("Synchronised successfully", null);
+        return DatabaseResponse.builder()
+                .message("Synchronised successfully")
+                .build();
     }
 
     private void synchroniseNode(String nodeUrl, DatabaseRequest request) {

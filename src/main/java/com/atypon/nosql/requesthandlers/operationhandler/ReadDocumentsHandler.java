@@ -1,5 +1,6 @@
 package com.atypon.nosql.requesthandlers.operationhandler;
 
+import com.atypon.nosql.document.Document;
 import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.request.DatabaseRequest;
 import com.atypon.nosql.request.Payload;
@@ -25,14 +26,15 @@ public class ReadDocumentsHandler implements DatabaseRequestHandler {
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
         Payload payload = request.payload();
-        Collection<Map<String, Object>> documents = databasesManager.getDocuments(
-                request.database(),
-                request.collection(),
-                payload.criteria()
-        );
-        return DatabaseResponse.createDatabaseResponse(
-                String.format("Found [%d] documents", documents.size()),
-                documents
-        );
+        Collection<Map<String, Object>> documents = databasesManager.getDatabase(request.database())
+                .getCollection(request.collection())
+                .findDocuments(Document.fromMap(payload.criteria()))
+                .stream()
+                .map(Document::toMap)
+                .toList();
+        return DatabaseResponse.builder()
+                .message("Found [" + documents.size() + "] docuemnts")
+                .result(documents)
+                .build();
     }
 }

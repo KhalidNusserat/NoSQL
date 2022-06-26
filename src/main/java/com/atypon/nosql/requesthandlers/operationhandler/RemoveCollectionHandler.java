@@ -20,13 +20,10 @@ public class RemoveCollectionHandler implements DatabaseRequestHandler {
 
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
-        databasesManager.removeCollection(
-                request.database(),
-                request.collection()
-        );
-        return DatabaseResponse.createDatabaseResponse(
-                String.format("Removed the collection \"%s/%s\"", request.database(), request.collection()),
-                null
-        );
+        databasesManager.getDatabase(request.database())
+                .removeCollection(request.collection());
+        return DatabaseResponse.builder()
+                .message(String.format("Removed the collection \"%s/%s\"", request.database(), request.collection()))
+                .build();
     }
 }

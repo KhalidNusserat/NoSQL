@@ -22,11 +22,11 @@ public abstract class Document {
         Document.documentFactory = documentFactory;
     }
 
-    public static Document createFromJson(String json) {
+    public static Document fromJson(String json) {
         return documentFactory.createFromJson(json);
     }
 
-    public static Document createFromMap(Map<String, Object> map) {
+    public static Document fromMap(Map<String, Object> map) {
         return documentFactory.createFromMap(map);
     }
 }

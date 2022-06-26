@@ -99,7 +99,12 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
     }
 
     @Override
-    public List<Document> getAllThatMatch(Document documentCriteria) {
+    public Optional<Document> findFirst(Document documentCriteria) {
+        return findDocuments(documentCriteria).stream().findFirst();
+    }
+
+    @Override
+    public List<Document> findDocuments(Document documentCriteria) {
         Document criteriaFields = documentCriteria.getFields();
         if (indexes.contains(criteriaFields)) {
             Index index = indexes.get(criteriaFields);
@@ -110,7 +115,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
                     .map(Optional::get)
                     .toList();
         } else {
-            return documentsCollection.getAllThatMatch(documentCriteria);
+            return documentsCollection.findDocuments(documentCriteria);
         }
     }
 

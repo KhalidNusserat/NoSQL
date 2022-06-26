@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class DefaultDatabase implements Database {
+
     private final Map<String, IndexedDocumentsCollection> documentsCollections = new ConcurrentHashMap<>();
 
     private final Path databaseDirectory;
@@ -65,7 +66,7 @@ public class DefaultDatabase implements Database {
     }
 
     @Override
-    public IndexedDocumentsCollection get(String collectionName) {
+    public IndexedDocumentsCollection getCollection(String collectionName) {
         return documentsCollections.get(collectionName);
     }
 

@@ -1,31 +1,30 @@
 package com.atypon.nosql.users;
 
+import lombok.Builder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class DatabaseUser implements UserDetails {
-    private final String username;
+public record DatabaseUser(
+        String username,
+        String password,
+        Collection<DatabaseRole> roles,
+        Collection<DatabaseAuthority> authorities) implements UserDetails {
 
-    private final String password;
-
-    private final Collection<DatabaseRole> roles;
-
-    private DatabaseUser(String username, String password, Collection<DatabaseRole> roles) {
-        this.username = username;
-        this.password = password;
-        this.roles = roles;
-    }
-
-    public static DatabaseUserBuilder builder() {
-        return new DatabaseUserBuilder();
-    }
+    @Builder
+    public DatabaseUser {}
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles;
+        Set<DatabaseAuthority> grantedAuthorities = new HashSet<>(authorities);
+        for (DatabaseRole role : roles) {
+            grantedAuthorities.addAll(role.authorities());
+        }
+        return grantedAuthorities;
     }
 
     @Override
@@ -58,30 +57,12 @@ public class DatabaseUser implements UserDetails {
         return true;
     }
 
-    public static class DatabaseUserBuilder {
-        private String username = "";
-
-        private String password = "";
-
-        private Collection<DatabaseRole> roles = List.of();
-
-        public DatabaseUserBuilder setUsername(String username) {
-            this.username = username;
-            return this;
-        }
-
-        public DatabaseUserBuilder setPassword(String password) {
-            this.password = password;
-            return this;
-        }
-
-        public DatabaseUserBuilder setRoles(Collection<DatabaseRole> roles) {
-            this.roles = roles;
-            return this;
-        }
-
-        public DatabaseUser build() {
-            return new DatabaseUser(username, password, roles);
-        }
+    public record StoredDatabaseUser(
+            String username,
+            String password,
+            List<String> roles,
+            List<String> authorities) {
+        @Builder
+        public StoredDatabaseUser {}
     }
 }

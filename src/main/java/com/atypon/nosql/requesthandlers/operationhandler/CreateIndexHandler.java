@@ -1,5 +1,6 @@
 package com.atypon.nosql.requesthandlers.operationhandler;
 
+import com.atypon.nosql.document.Document;
 import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.request.DatabaseRequest;
 import com.atypon.nosql.request.Payload;
@@ -22,19 +23,19 @@ public class CreateIndexHandler implements DatabaseRequestHandler {
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
         Payload payload = request.payload();
-        databasesManager.createIndex(
+        databasesManager.getDatabase(request.database())
+                .getCollection(request.collection())
+                .createIndex(
+                        Document.fromMap(payload.index()),
+                        payload.uniqueIndex()
+                );
+        String message = String.format(
+                "Created new index for the collection <%s/%s>",
                 request.database(),
-                request.collection(),
-                payload.index(),
-                payload.uniqueIndex()
+                request.collection()
         );
-        return DatabaseResponse.createDatabaseResponse(
-                String.format(
-                        "Created new index for the collection \"%s/%s\"",
-                        request.database(),
-                        request.collection()
-                ),
-                null
-        );
+        return DatabaseResponse.builder()
+                .message(message)
+                .build();
     }
 }
