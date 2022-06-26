@@ -56,7 +56,7 @@ public class DefaultIndexesCollection implements IndexesCollection {
     }
 
     private void createIdIndex() {
-        Document idIndexFields = documentFactory.createFromString("{_id: null}");
+        Document idIndexFields = documentFactory.createFromJson("{_id: null}");
         if (!indexes.containsKey(idIndexFields)) {
             createIndex(idIndexFields, true);
         }

@@ -10,7 +10,7 @@ import java.util.Map;
 public class GsonDocumentFactory implements DocumentFactory {
 
     @Override
-    public GsonDocument createFromString(String src) {
+    public GsonDocument createFromJson(String src) {
         return GsonDocument.fromJson(src);
     }
 

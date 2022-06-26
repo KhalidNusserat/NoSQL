@@ -1,5 +1,10 @@
 package com.atypon.nosql.document;
 
+import com.atypon.nosql.gsondocument.GsonDocumentSchema;
+
 public interface DocumentSchemaFactory {
-    DocumentSchema createSchema(Document schemaDocument);
+    DocumentSchema createFromDocument(Document schemaDocument);
+
+    @SuppressWarnings("unchecked")
+    GsonDocumentSchema createFromClass(Class<?> clazz);
 }

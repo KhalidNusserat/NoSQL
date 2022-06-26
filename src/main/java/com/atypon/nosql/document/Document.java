@@ -1,18 +1,37 @@
 package com.atypon.nosql.document;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.Map;
 
-public interface Document {
+@Component
+public abstract class Document {
 
-    boolean subsetOf(Document matchDocument);
+    private static DocumentFactory documentFactory;
 
-    Document getValuesToMatch(Document otherDocument);
+    @Autowired
+    public final void setDocumentFactory(DocumentFactory documentFactory) {
+        Document.documentFactory = documentFactory;
+    }
 
-    Document getFields();
+    public abstract boolean subsetOf(Document matchDocument);
 
-    Document overrideFields(Document newFieldsValues);
+    public abstract Document getValuesToMatch(Document otherDocument);
 
-    Map<String, Object> toMap();
+    public abstract Document getFields();
 
-    <T> T toObject(Class<T> classOfObject);
+    public abstract Document overrideFields(Document newFieldsValues);
+
+    public abstract Map<String, Object> toMap();
+
+    public abstract <T> T toObject(Class<T> classOfObject);
+
+    public static Document createFromJson(String json) {
+        return documentFactory.createFromJson(json);
+    }
+
+    public static Document createFromMap(Map<String, Object> map) {
+        return documentFactory.createFromMap(map);
+    }
 }
