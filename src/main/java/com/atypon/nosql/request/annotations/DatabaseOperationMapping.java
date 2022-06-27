@@ -1,4 +1,4 @@
-package com.atypon.nosql.requesthandlers;
+package com.atypon.nosql.request.annotations;
 
 import com.atypon.nosql.request.DatabaseOperation;
 

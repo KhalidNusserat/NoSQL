@@ -2,7 +2,7 @@ package com.atypon.nosql.controllers;
 
 import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.request.DatabaseRequest;
-import com.atypon.nosql.requesthandlers.DatabaseRequestHandler;
+import com.atypon.nosql.request.handlers.DatabaseRequestHandler;
 import com.atypon.nosql.response.DatabaseResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;

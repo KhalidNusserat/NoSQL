@@ -1,4 +1,4 @@
-package com.atypon.nosql.requesthandlers;
+package com.atypon.nosql.request.handlers;
 
 import com.atypon.nosql.DatabasesManager;
 import org.springframework.beans.factory.InitializingBean;
