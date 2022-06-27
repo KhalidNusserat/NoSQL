@@ -8,13 +8,13 @@ import org.springframework.stereotype.Component;
 @Component
 public abstract class OperationsHandlers implements InitializingBean {
 
-    private StorageHandler storageHandler;
+    private DefaultDatabaseOperationsHandler defaultDatabaseOperationsHandler;
 
     protected DatabasesManager databasesManager;
 
     @Autowired
-    public final void setStorageHandler(StorageHandler storageHandler) {
-        this.storageHandler = storageHandler;
+    public final void setStorageHandler(DefaultDatabaseOperationsHandler defaultDatabaseOperationsHandler) {
+        this.defaultDatabaseOperationsHandler = defaultDatabaseOperationsHandler;
     }
 
     @Autowired
@@ -24,6 +24,6 @@ public abstract class OperationsHandlers implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
-        storageHandler.registerOperations(this);
+        defaultDatabaseOperationsHandler.registerOperations(this);
     }
 }

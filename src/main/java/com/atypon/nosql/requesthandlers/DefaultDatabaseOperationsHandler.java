@@ -11,13 +11,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component("defaultHandler")
-public class StorageHandler implements DatabaseRequestHandler {
+public class DefaultDatabaseOperationsHandler implements DatabaseRequestHandler {
 
-    private final Map<DatabaseOperation, DatabaseRequestHandler> operationHandlerMap = new HashMap<>();
+    private final Map<DatabaseOperation, DatabaseRequestHandler> operationToHandler = new HashMap<>();
 
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
-        return operationHandlerMap.get(request.operation()).handle(request);
+        return operationToHandler.get(request.operation()).handle(request);
     }
 
     public void registerOperations(OperationsHandlers operationsHandlers) {
@@ -27,7 +27,7 @@ public class StorageHandler implements DatabaseRequestHandler {
             if (method.isAnnotationPresent(DatabaseOperationMapping.class)) {
                 DatabaseOperation operation = method.getAnnotation(DatabaseOperationMapping.class).value();
                 DatabaseRequestHandler requestHandler = requestHandlerFromMethod(operationsHandlers, method);
-                operationHandlerMap.put(operation, requestHandler);
+                operationToHandler.put(operation, requestHandler);
             }
         }
     }
