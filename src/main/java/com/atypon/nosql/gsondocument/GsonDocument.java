@@ -1,13 +1,12 @@
 package com.atypon.nosql.gsondocument;
 
 import com.atypon.nosql.document.Document;
-import com.fasterxml.jackson.core.JsonGenerator;
+import com.atypon.nosql.document.FieldsDoNotMatchException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
-import org.springframework.http.codec.json.Jackson2JsonDecoder;
 
 import java.lang.reflect.Type;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.atypon.nosql.gsondocument;
+package com.atypon.nosql.document;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
