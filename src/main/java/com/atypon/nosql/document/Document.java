@@ -10,6 +10,7 @@ import java.util.Map;
 public abstract class Document {
 
     protected static IdGenerator idGenerator;
+
     private static DocumentFactory documentFactory;
 
     public static void setDocumentFactory(DocumentFactory documentFactory) {
