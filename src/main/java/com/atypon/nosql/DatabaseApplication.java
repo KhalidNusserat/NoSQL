@@ -48,4 +48,14 @@ public class DatabaseApplication {
     public List<String> secondaryNodesUrls(ApplicationArguments arguments) {
         return arguments.getOptionValues("node");
     }
+
+    @Bean
+    public String masterNodeUrl(ApplicationArguments arguments) {
+        List<String> urls = arguments.getOptionValues("master");
+        if (urls == null) {
+            return "127.0.0.1";
+        } else {
+            return urls.get(0);
+        }
+    }
 }

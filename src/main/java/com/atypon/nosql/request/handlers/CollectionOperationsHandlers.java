@@ -18,6 +18,7 @@ public class CollectionOperationsHandlers extends OperationsHandlers {
         Payload payload = request.payload();
         databasesManager.getDatabase(request.database())
                 .createCollection(request.collection(), payload.schema());
+        synchronizationHandler.handle(request);
         return DatabaseResponse.builder()
                 .message(String.format("Created the collection <%s/%s>", request.database(), request.collection()))
                 .build();
@@ -43,6 +44,7 @@ public class CollectionOperationsHandlers extends OperationsHandlers {
     public DatabaseResponse removeCollection(DatabaseRequest request) {
         databasesManager.getDatabase(request.database())
                 .removeCollection(request.collection());
+        synchronizationHandler.handle(request);
         return DatabaseResponse.builder()
                 .message(String.format("Removed the collection \"%s/%s\"", request.database(), request.collection()))
                 .build();

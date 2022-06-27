@@ -37,6 +37,7 @@ public class IndexOperationsHandlers extends OperationsHandlers {
                         payload.index(),
                         payload.uniqueIndex()
                 );
+        synchronizationHandler.handle(request);
         String message = String.format(
                 "Created new index for the collection <%s/%s>",
                 request.database(),
@@ -58,6 +59,7 @@ public class IndexOperationsHandlers extends OperationsHandlers {
                 request.database(),
                 request.collection()
         );
+        synchronizationHandler.handle(request);
         return DatabaseResponse.builder()
                 .message(message)
                 .build();

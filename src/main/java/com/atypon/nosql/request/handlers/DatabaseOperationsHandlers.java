@@ -16,6 +16,7 @@ public class DatabaseOperationsHandlers extends OperationsHandlers {
     @DatabaseOperationMapping(DatabaseOperation.CREATE_DATABASE)
     public DatabaseResponse createDatabase(DatabaseRequest request) {
         databasesManager.createDatabase(request.database());
+        synchronizationHandler.handle(request);
         return DatabaseResponse.builder()
                 .message(String.format("Created the database <%s>", request.database()))
                 .build();
@@ -40,6 +41,7 @@ public class DatabaseOperationsHandlers extends OperationsHandlers {
     @DatabaseOperationMapping(DatabaseOperation.REMOVE_DATABASE)
     public DatabaseResponse removeDatabase(DatabaseRequest request) {
         databasesManager.removeDatabase(request.database());
+        synchronizationHandler.handle(request);
         return DatabaseResponse.builder()
                 .message(String.format("Removed the database \"%s\"", request.database()))
                 .build();
