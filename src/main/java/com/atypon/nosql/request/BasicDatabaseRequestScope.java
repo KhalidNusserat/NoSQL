@@ -24,10 +24,13 @@ public class BasicDatabaseRequestScope implements DatabaseRequestScope {
 
     @Override
     public boolean matches(DatabaseRequest request) {
-        boolean matchesDatabase = databasePattern.matcher(request.database()).matches();
-        boolean matchesCollection = collectionPattern.matcher(request.collection()).matches();
-        Document criteria = request.payload().criteria();
-        boolean targetsDocument = criteria == null || target.subsetOf(criteria);
+        String database = request.database() == null ? "" : request.database();
+        String collection = request.collection() == null ? "" : request.collection();
+        Document criteria = request.payload() == null || request.payload().criteria() == null ?
+                Document.of() : request.payload().criteria();
+        boolean matchesDatabase = databasePattern.matcher(database).matches();
+        boolean matchesCollection = collectionPattern.matcher(collection).matches();
+        boolean targetsDocument = target.subsetOf(criteria);
         return matchesDatabase && matchesCollection && targetsDocument;
     }
 

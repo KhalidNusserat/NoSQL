@@ -1,8 +1,13 @@
 package com.atypon.nosql.gsondocument;
 
 import com.atypon.nosql.document.Document;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
+import org.springframework.http.codec.json.Jackson2JsonDecoder;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -148,7 +153,13 @@ public class GsonDocument extends Document {
 
     @Override
     public <T> T toObject(Class<T> classOfObject) {
-        return gson.fromJson(object, classOfObject);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return mapper.readValue(toString(), classOfObject);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

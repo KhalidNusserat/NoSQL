@@ -95,6 +95,7 @@ public class DefaultMetadataDatabase implements MetadataDatabase {
             return DatabaseUser.builder()
                     .username(username)
                     .password(storedUser.password())
+                    .roles(roles)
                     .authorities(authorities)
                     .build();
         } else {

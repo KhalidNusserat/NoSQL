@@ -12,19 +12,19 @@ public class DatabaseAuthority implements GrantedAuthority {
 
     public static final String REMOVE_DOCUMENTS = "REMOVE_DOCUMENTS";
 
-    public static final String READ_COLLECTIONS = "READ_COLLECTIONS";
+    public static final String GET_COLLECTIONS = "READ_COLLECTIONS";
 
     public static final String CREATE_COLLECTION = "READ_COLLECTIONS";
 
     public static final String REMOVE_COLLECTION = "REMOVE_COLLECTION";
 
-    public static final String READ_INDEXES = "READ_INDEXES";
+    public static final String GET_INDEXES = "READ_INDEXES";
 
     public static final String CREATE_INDEX = "ADD_INDEX";
 
     public static final String REMOVE_INDEX = "REMOVE_INDEX";
 
-    public static final String READ_DATABASES = "READ_DATABASES";
+    public static final String GET_DATABASES = "READ_DATABASES";
 
     public static final String CREATE_DATABASE = "CREATE_DATABASE";
 

@@ -65,6 +65,7 @@ public record DatabaseUser(
             String password,
             List<String> roles,
             List<String> authorities) {
+
         @Builder
         public StoredDatabaseUser {
         }
