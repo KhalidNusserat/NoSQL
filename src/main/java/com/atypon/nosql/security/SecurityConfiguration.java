@@ -21,17 +21,13 @@ public class SecurityConfiguration {
 
     private final CustomBasicAuthenticationEntryPoint entryPoint;
 
-    private final String masterNodeUrl;
-
     public SecurityConfiguration(
             DatabaseUsersDetailService databaseUsersDetailService,
             PasswordEncoder passwordEncoder,
-            CustomBasicAuthenticationEntryPoint entryPoint,
-            String masterNodeUrl) {
+            CustomBasicAuthenticationEntryPoint entryPoint) {
         this.databaseUsersDetailService = databaseUsersDetailService;
         this.passwordEncoder = passwordEncoder;
         this.entryPoint = entryPoint;
-        this.masterNodeUrl = masterNodeUrl;
     }
 
     @Bean
@@ -44,7 +40,7 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable().authorizeRequests()
+        http.csrf().disable().authorizeHttpRequests()
                 .antMatchers(HttpMethod.GET, "/databases")
                 .hasAuthority(DatabaseAuthority.GET_DATABASES)
                 .antMatchers(HttpMethod.POST, "/databases/*")
@@ -72,7 +68,7 @@ public class SecurityConfiguration {
                 .antMatchers(HttpMethod.DELETE, "/databases/*/collections/*/documents")
                 .hasAuthority(DatabaseAuthority.REMOVE_DOCUMENTS)
                 .antMatchers("/sync")
-                .hasIpAddress(masterNodeUrl)
+                .permitAll()
                 .and().httpBasic().authenticationEntryPoint(entryPoint)
                 .and().authenticationProvider(authenticationProvider())
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

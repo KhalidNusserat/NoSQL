@@ -31,6 +31,7 @@ public class AddUserFilterDatabase extends DatabaseRequestFilter {
             return DatabaseRequest.builder()
                     .database(request.database())
                     .collection(request.collection())
+                    .operation(request.operation())
                     .payload(encryptPassword(request.payload()))
                     .build();
         } else {

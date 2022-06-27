@@ -19,6 +19,7 @@ import java.util.List;
 
 @SpringBootApplication
 public class DatabaseApplication {
+
     public static void main(String[] args) {
         SpringApplication.run(DatabaseApplication.class, args);
     }
@@ -45,17 +46,7 @@ public class DatabaseApplication {
     }
 
     @Bean
-    public List<String> secondaryNodesUrls(ApplicationArguments arguments) {
+    public List<String> remoteNodes(ApplicationArguments arguments) {
         return arguments.getOptionValues("node");
-    }
-
-    @Bean
-    public String masterNodeUrl(ApplicationArguments arguments) {
-        List<String> urls = arguments.getOptionValues("master");
-        if (urls == null) {
-            return "127.0.0.1";
-        } else {
-            return urls.get(0);
-        }
     }
 }

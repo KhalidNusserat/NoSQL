@@ -31,7 +31,7 @@ public class SynchronizationHandler implements DatabaseRequestHandler {
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
         for (String nodeUrl : remoteNodes) {
-            executorService.submit(() -> synchroniseNode(nodeUrl, request));
+            synchroniseNode(nodeUrl, request);
         }
         return DatabaseResponse.builder()
                 .message("Synchronised successfully")
