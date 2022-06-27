@@ -6,4 +6,8 @@ public record DatabaseRequest(String database, String collection, DatabaseOperat
     @Builder
     public DatabaseRequest {
     }
+
+    public boolean isWithinScope(DatabaseRequestScope requestScope) {
+        return requestScope.matches(this);
+    }
 }

@@ -1,6 +1,10 @@
 package com.atypon.nosql.metadata;
 
 import com.atypon.nosql.document.Document;
+import com.atypon.nosql.request.DatabaseOperation;
+import com.atypon.nosql.request.DatabaseRequest;
+import com.atypon.nosql.request.Payload;
+import com.atypon.nosql.security.DefaultRoles;
 import com.atypon.nosql.users.DatabaseUser;
 
 import java.util.List;
@@ -14,33 +18,42 @@ public interface MetadataDatabase {
 
     String ROLES_COLLECTION = "roles";
 
-    Document USERNAME_INDEX = Document.fromJson("{username: null}");
+    Document USERNAME_INDEX = Document.of("username", null);
 
-    Document USERS_SCHEMA = Document.fromMap(
-            Map.of(
-                    "username!", "string",
-                    "password!", "string",
-                    "roles!", List.of("string"),
-                    "authorities!", List.of("string")
-            )
+    Document USERS_SCHEMA = Document.of(
+            "username!", "string",
+            "password!", "string",
+            "roles!", List.of("string"),
+            "authorities!", List.of("string")
     );
 
-    Document ROLE_INDEX = Document.fromJson("{role: null}");
+    Document ROLE_INDEX = Document.of("role", null);
 
-    Document ROLES_SCHEMA = Document.fromMap(
-            Map.of(
-                    "roles", List.of(
-                            Map.of("role", "string",
-                                    "authorities", List.of("string"))
+    Document ROLES_SCHEMA = Document.of(
+            "roles", List.of(
+                    Map.of(
+                            "role", "string",
+                            "authorities", List.of("string")
                     )
             )
     );
 
-    DatabaseUser.StoredDatabaseUser defaultRootAdmin = DatabaseUser.StoredDatabaseUser.builder()
-            .username("admin")
-            .password("admin")
-            .roles(List.of("ROOT_ADMIN"))
-            .authorities(List.of())
+    Document defaultRootAdmin = Document.of(
+            "username", "admin",
+            "password", "admin",
+            "roles", List.of(DefaultRoles.ROOT_ADMIN.role()),
+            "authorities", List.of()
+    );
+
+    DatabaseRequest addRootAdminRequest = DatabaseRequest.builder()
+            .database(METADATA_DATABASE)
+            .collection(USERS_COLLECTION)
+            .operation(DatabaseOperation.ADD_DOCUMENT)
+            .payload(
+                    Payload.builder()
+                            .documents(List.of(defaultRootAdmin))
+                            .build()
+            )
             .build();
 
     DatabaseUser findUser(String username);

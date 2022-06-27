@@ -6,12 +6,12 @@ import java.util.List;
 
 public class DefaultRoles {
 
-    private static final StoredDatabaseRole READER = StoredDatabaseRole.builder()
+    public static final StoredDatabaseRole READER = StoredDatabaseRole.builder()
             .role("READER")
             .authorities(List.of(DatabaseAuthority.READ_DOCUMENTS))
             .build();
 
-    private static final StoredDatabaseRole USER = StoredDatabaseRole.builder()
+    public static final StoredDatabaseRole USER = StoredDatabaseRole.builder()
             .role("USER")
             .authorities(List.of(
                     DatabaseAuthority.READ_DOCUMENTS,
@@ -21,7 +21,7 @@ public class DefaultRoles {
             )
             .build();
 
-    private static final StoredDatabaseRole OWNER = StoredDatabaseRole.builder()
+    public static final StoredDatabaseRole OWNER = StoredDatabaseRole.builder()
             .role("OWNER")
             .authorities(List.of(
                     DatabaseAuthority.READ_DOCUMENTS,
@@ -34,7 +34,7 @@ public class DefaultRoles {
             )
             .build();
 
-    private static final StoredDatabaseRole MANAGER = StoredDatabaseRole.builder()
+    public static final StoredDatabaseRole MANAGER = StoredDatabaseRole.builder()
             .role("MANAGER")
             .authorities(List.of(
                     DatabaseAuthority.READ_DOCUMENTS,
@@ -50,7 +50,7 @@ public class DefaultRoles {
             )
             .build();
 
-    private static final StoredDatabaseRole ADMIN = StoredDatabaseRole.builder()
+    public static final StoredDatabaseRole ADMIN = StoredDatabaseRole.builder()
             .role("ADMIN")
             .authorities(List.of(
                     DatabaseAuthority.READ_DOCUMENTS,
@@ -69,7 +69,7 @@ public class DefaultRoles {
             )
             .build();
 
-    private static final StoredDatabaseRole ROOT_ADMIN = StoredDatabaseRole.builder()
+    public static final StoredDatabaseRole ROOT_ADMIN = StoredDatabaseRole.builder()
             .role("ROOT_ADMIN")
             .authorities(List.of(
                     DatabaseAuthority.READ_DOCUMENTS,

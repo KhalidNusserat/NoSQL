@@ -35,7 +35,7 @@ public abstract class Document {
 
     public static Document of(Object... elements) {
         Map<String, Object> result = new HashMap<>();
-        for (int i = 0; i < elements.length - 1; i++) {
+        for (int i = 0; i < elements.length - 1; i += 2) {
             if (elements[i] instanceof String field) {
                 result.put(field, elements[i + 1]);
             } else {

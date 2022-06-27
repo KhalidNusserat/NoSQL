@@ -3,10 +3,13 @@ package com.atypon.nosql.metadata;
 import com.atypon.nosql.DatabasesManager;
 import com.atypon.nosql.collection.IndexedDocumentsCollection;
 import com.atypon.nosql.document.Document;
+import com.atypon.nosql.request.handlers.DatabaseRequestHandler;
 import com.atypon.nosql.security.DatabaseAuthority;
 import com.atypon.nosql.security.DatabaseRole;
 import com.atypon.nosql.security.DefaultRoles;
 import com.atypon.nosql.users.DatabaseUser;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
@@ -19,8 +22,13 @@ public class DefaultMetadataDatabase implements MetadataDatabase {
 
     private final DatabasesManager databasesManager;
 
-    public DefaultMetadataDatabase(DatabasesManager databasesManager) {
+    private final DatabaseRequestHandler requestHandler;
+
+    public DefaultMetadataDatabase(
+            DatabasesManager databasesManager,
+            @Qualifier("defaultHandler") DatabaseRequestHandler requestHandler) {
         this.databasesManager = databasesManager;
+        this.requestHandler = requestHandler;
         databasesManager.createDatabase(METADATA_DATABASE);
         createUsersCollection();
         createRolesCollection();
@@ -70,7 +78,7 @@ public class DefaultMetadataDatabase implements MetadataDatabase {
                 .getCollection(USERS_COLLECTION);
         Document rootAdminCriteria = Document.fromJson("{username: \"admin\"}");
         if (!usersCollection.contains(rootAdminCriteria)) {
-            usersCollection.addDocuments(List.of(Document.fromObject(defaultRootAdmin)));
+            requestHandler.handle(addRootAdminRequest);
         }
     }
 
