@@ -60,7 +60,7 @@ public class GsonDocument extends Document {
     }
 
     @Override
-    public Document getValuesToMatch(Document otherDocument) {
+    public Document getValues(Document otherDocument) {
         JsonObject otherDocumentObject = ((GsonDocument) otherDocument).object;
         JsonObject matchedObject = valuesToMatch(otherDocumentObject, object).getAsJsonObject();
         return new GsonDocument(matchedObject);

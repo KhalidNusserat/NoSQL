@@ -13,12 +13,12 @@ public abstract class Document {
 
     private static DocumentFactory documentFactory;
 
-    public static void setDocumentFactory(DocumentFactory documentFactory) {
-        Document.documentFactory = documentFactory;
-    }
-
     public static void setIdGenerator(IdGenerator idGenerator) {
         Document.idGenerator = idGenerator;
+    }
+
+    public static void setDocumentFactory(DocumentFactory documentFactory) {
+        Document.documentFactory = documentFactory;
     }
 
     public static Document fromJson(String json) {
@@ -47,7 +47,7 @@ public abstract class Document {
 
     public abstract boolean subsetOf(Document matchDocument);
 
-    public abstract Document getValuesToMatch(Document otherDocument);
+    public abstract Document getValues(Document otherDocument);
 
     public abstract Document getFields();
 

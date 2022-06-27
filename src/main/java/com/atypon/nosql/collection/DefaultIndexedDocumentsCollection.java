@@ -108,7 +108,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
         Document criteriaFields = documentCriteria.getFields();
         if (indexes.contains(criteriaFields)) {
             Index index = indexes.get(criteriaFields);
-            return index.get(documentCriteria.getValuesToMatch(index.getFields()))
+            return index.get(documentCriteria.getValues(index.getFields()))
                     .stream()
                     .map(storageEngine::readDocument)
                     .filter(Optional::isPresent)
