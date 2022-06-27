@@ -4,7 +4,6 @@ import com.atypon.nosql.document.Document;
 import lombok.Builder;
 
 import java.util.List;
-import java.util.Map;
 
 public record Payload(Document criteria,
                       List<Document> documents,
@@ -14,5 +13,6 @@ public record Payload(Document criteria,
                       Document schema) {
 
     @Builder
-    public Payload {}
+    public Payload {
+    }
 }

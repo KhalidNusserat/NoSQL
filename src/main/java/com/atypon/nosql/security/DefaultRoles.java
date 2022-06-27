@@ -91,6 +91,6 @@ public class DefaultRoles {
             .build();
 
     public static final List<StoredDatabaseRole> DEFAULT_ROLES = List.of(
-        READER, USER, OWNER, MANAGER, ADMIN, ROOT_ADMIN
+            READER, USER, OWNER, MANAGER, ADMIN, ROOT_ADMIN
     );
 }

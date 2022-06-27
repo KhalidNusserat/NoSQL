@@ -1,11 +1,11 @@
 package com.atypon.nosql.requesthandlers.operationhandler;
 
+import com.atypon.nosql.DatabasesManager;
 import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.request.DatabaseRequest;
-import com.atypon.nosql.response.DatabaseResponse;
 import com.atypon.nosql.requesthandlers.DatabaseRequestHandler;
 import com.atypon.nosql.requesthandlers.StorageHandler;
-import com.atypon.nosql.DatabasesManager;
+import com.atypon.nosql.response.DatabaseResponse;
 import org.springframework.stereotype.Component;
 
 @Component

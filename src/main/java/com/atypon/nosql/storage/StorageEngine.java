@@ -2,7 +2,6 @@ package com.atypon.nosql.storage;
 
 import com.atypon.nosql.collection.Stored;
 import com.atypon.nosql.document.Document;
-import com.atypon.nosql.index.Index;
 
 import java.nio.file.Path;
 import java.util.List;

@@ -2,9 +2,8 @@ package com.atypon.nosql.controllers;
 
 import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.request.DatabaseRequest;
-import com.atypon.nosql.request.DatabaseRequestFormatter;
-import com.atypon.nosql.response.DatabaseResponse;
 import com.atypon.nosql.requesthandlers.DatabaseRequestHandler;
+import com.atypon.nosql.response.DatabaseResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,14 +13,10 @@ public class DatabasesRestController {
 
     private final DatabaseRequestHandler requestHandler;
 
-    private final DatabaseRequestFormatter requestFormatter;
-
     public DatabasesRestController(
-            @Qualifier("defaultHandler") DatabaseRequestHandler requestHandler,
-            DatabaseRequestFormatter requestFormatter
+            @Qualifier("defaultHandler") DatabaseRequestHandler requestHandler
     ) {
         this.requestHandler = requestHandler;
-        this.requestFormatter = requestFormatter;
     }
 
     @GetMapping("/databases")
@@ -29,7 +24,6 @@ public class DatabasesRestController {
         DatabaseRequest request = DatabaseRequest.builder()
                 .operation(DatabaseOperation.GET_DATABASES)
                 .build();
-        request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
 
@@ -39,7 +33,6 @@ public class DatabasesRestController {
                 .database(database)
                 .operation(DatabaseOperation.CREATE_DATABASE)
                 .build();
-        request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
 
@@ -49,7 +42,6 @@ public class DatabasesRestController {
                 .database(database)
                 .operation(DatabaseOperation.REMOVE_DATABASE)
                 .build();
-        request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
 }

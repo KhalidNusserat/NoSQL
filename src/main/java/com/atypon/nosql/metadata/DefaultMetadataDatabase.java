@@ -7,7 +7,6 @@ import com.atypon.nosql.security.DatabaseAuthority;
 import com.atypon.nosql.security.DatabaseRole;
 import com.atypon.nosql.security.DefaultRoles;
 import com.atypon.nosql.users.DatabaseUser;
-import com.atypon.nosql.users.DatabaseUser.StoredDatabaseUser;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
@@ -19,41 +18,6 @@ import java.util.Optional;
 public class DefaultMetadataDatabase implements MetadataDatabase {
 
     private final DatabasesManager databasesManager;
-
-    private static final String METADATA_DATABASE = "metadata";
-
-    private static final String USERS_COLLECTION = "users";
-
-    private static final Document USERNAME_INDEX = Document.fromJson("{username: null}");
-
-    private static final Document USERS_SCHEMA = Document.fromMap(
-            Map.of(
-                    "username!", "string",
-                    "password!", "string",
-                    "roles!", List.of("string"),
-                    "authorities!", List.of("string")
-            )
-    );
-
-    private static final String ROLES_COLLECTION = "roles";
-
-    private static final Document ROLE_INDEX = Document.fromJson("{role: null}");
-
-    private static final Document ROLES_SCHEMA = Document.fromMap(
-            Map.of(
-                    "roles", List.of(
-                            Map.of("role", "string",
-                                    "authorities", List.of("string"))
-                    )
-            )
-    );
-
-    private static final StoredDatabaseUser defaultRootAdmin = StoredDatabaseUser.builder()
-            .username("admin")
-            .password("admin")
-            .roles(List.of("ROOT_ADMIN"))
-            .authorities(List.of())
-            .build();
 
     public DefaultMetadataDatabase(DatabasesManager databasesManager) {
         this.databasesManager = databasesManager;

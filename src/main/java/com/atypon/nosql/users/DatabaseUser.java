@@ -18,7 +18,8 @@ public record DatabaseUser(
         Collection<DatabaseAuthority> authorities) implements UserDetails {
 
     @Builder
-    public DatabaseUser {}
+    public DatabaseUser {
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -65,6 +66,7 @@ public record DatabaseUser(
             List<String> roles,
             List<String> authorities) {
         @Builder
-        public StoredDatabaseUser {}
+        public StoredDatabaseUser {
+        }
     }
 }

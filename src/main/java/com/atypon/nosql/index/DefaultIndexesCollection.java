@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultIndexesCollection implements IndexesCollection {
     private final Path indexesDirectory;
-    
+
     private final Map<Document, Index> indexes = new ConcurrentHashMap<>();
 
     private final StorageEngine storageEngine;

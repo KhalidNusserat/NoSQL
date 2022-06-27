@@ -2,13 +2,7 @@ package com.atypon.nosql.gsondocument;
 
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentSchema;
-import com.atypon.nosql.document.InvalidDocumentSchema;
-import com.atypon.nosql.gsondocument.constraints.*;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import java.util.regex.Pattern;
+import com.atypon.nosql.gsondocument.constraints.Constraints;
 
 public class GsonDocumentSchema extends DocumentSchema {
 

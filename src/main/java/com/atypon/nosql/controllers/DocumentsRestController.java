@@ -2,10 +2,9 @@ package com.atypon.nosql.controllers;
 
 import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.request.DatabaseRequest;
-import com.atypon.nosql.request.DatabaseRequestFormatter;
 import com.atypon.nosql.request.Payload;
-import com.atypon.nosql.response.DatabaseResponse;
 import com.atypon.nosql.requesthandlers.DatabaseRequestHandler;
+import com.atypon.nosql.response.DatabaseResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,14 +14,10 @@ public class DocumentsRestController {
 
     private final DatabaseRequestHandler requestHandler;
 
-    private final DatabaseRequestFormatter requestFormatter;
-
     public DocumentsRestController(
-            @Qualifier("defaultHandler") DatabaseRequestHandler requestHandler,
-            DatabaseRequestFormatter requestFormatter
+            @Qualifier("defaultHandler") DatabaseRequestHandler requestHandler
     ) {
         this.requestHandler = requestHandler;
-        this.requestFormatter = requestFormatter;
     }
 
     @GetMapping("/databases/{database}/collections/{collection}/documents")
@@ -30,14 +25,13 @@ public class DocumentsRestController {
             @PathVariable String database,
             @PathVariable String collection,
             @RequestBody Payload payload
-            ) {
+    ) {
         DatabaseRequest request = DatabaseRequest.builder()
                 .database(database)
                 .collection(collection)
                 .operation(DatabaseOperation.READ_DOCUMENTS)
                 .payload(payload)
                 .build();
-        request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
 
@@ -53,7 +47,6 @@ public class DocumentsRestController {
                 .operation(DatabaseOperation.ADD_DOCUMENT)
                 .payload(payload)
                 .build();
-        request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
 
@@ -69,7 +62,6 @@ public class DocumentsRestController {
                 .operation(DatabaseOperation.REMOVE_DOCUMENTS)
                 .payload(payload)
                 .build();
-        request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
 
@@ -85,7 +77,6 @@ public class DocumentsRestController {
                 .operation(DatabaseOperation.UPDATE_DOCUMENTS)
                 .payload(payload)
                 .build();
-        request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
 }

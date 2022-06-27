@@ -35,7 +35,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
             IndexesCollectionFactory indexesCollectionFactory,
             DocumentSchema documentSchema) {
         log.info(
-                "Initializing an indexed documents collection at {}", 
+                "Initializing an indexed documents collection at {}",
                 collectionPath
         );
         Stopwatch stopwatch = Stopwatch.createStarted();

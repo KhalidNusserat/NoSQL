@@ -2,10 +2,9 @@ package com.atypon.nosql.controllers;
 
 import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.request.DatabaseRequest;
-import com.atypon.nosql.request.DatabaseRequestFormatter;
 import com.atypon.nosql.request.Payload;
-import com.atypon.nosql.response.DatabaseResponse;
 import com.atypon.nosql.requesthandlers.DatabaseRequestHandler;
+import com.atypon.nosql.response.DatabaseResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,14 +14,10 @@ public class IndexesRestController {
 
     private final DatabaseRequestHandler requestHandler;
 
-    private final DatabaseRequestFormatter requestFormatter;
-
     public IndexesRestController(
-            @Qualifier("defaultHandler") DatabaseRequestHandler requestHandler,
-            DatabaseRequestFormatter requestFormatter
+            @Qualifier("defaultHandler") DatabaseRequestHandler requestHandler
     ) {
         this.requestHandler = requestHandler;
-        this.requestFormatter = requestFormatter;
     }
 
     @GetMapping("/databases/{database}/collections/{collection}/indexes")
@@ -35,7 +30,6 @@ public class IndexesRestController {
                 .collection(collection)
                 .operation(DatabaseOperation.GET_INDEXES)
                 .build();
-        request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
 
@@ -51,7 +45,6 @@ public class IndexesRestController {
                 .operation(DatabaseOperation.CREATE_INDEX)
                 .payload(payload)
                 .build();
-        request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
 
@@ -67,7 +60,6 @@ public class IndexesRestController {
                 .operation(DatabaseOperation.REMOVE_INDEX)
                 .payload(payload)
                 .build();
-        request = requestFormatter.format(request);
         return ResponseEntity.ok(requestHandler.handle(request));
     }
 }

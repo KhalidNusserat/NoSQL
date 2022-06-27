@@ -10,12 +10,10 @@ import java.util.Objects;
 
 public class GsonDocument extends Document {
 
-    final JsonObject object;
-
     private final static Gson gson = new GsonBuilder().serializeNulls().create();
-
     private final static Type mapType = new TypeToken<Map<String, Object>>() {
     }.getType();
+    final JsonObject object;
 
     private GsonDocument(JsonObject object) {
         this.object = object.deepCopy();

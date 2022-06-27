@@ -2,7 +2,6 @@ package com.atypon.nosql.collection;
 
 import com.atypon.nosql.document.Document;
 
-import javax.print.Doc;
 import java.util.List;
 import java.util.Optional;
 
