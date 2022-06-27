@@ -3,6 +3,7 @@ package com.atypon.nosql.document;
 import com.atypon.nosql.idgenerator.IdGenerator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @JsonDeserialize(using = DocumentJacksonDeserializer.class)
@@ -29,6 +30,18 @@ public abstract class Document {
 
     public static Document fromObject(Object object) {
         return documentFactory.createFromObject(object);
+    }
+
+    public static Document of(Object... elements) {
+        Map<String, Object> result = new HashMap<>();
+        for (int i = 0; i < elements.length - 1; i++) {
+            if (elements[i] instanceof String field) {
+                result.put(field, elements[i + 1]);
+            } else {
+                throw new IllegalArgumentException("Field must be a string, instead got: " + elements[i]);
+            }
+        }
+        return fromMap(result);
     }
 
     public abstract boolean subsetOf(Document matchDocument);
