@@ -9,15 +9,8 @@ public abstract class OperationsHandlers {
 
     protected DatabasesManager databasesManager;
 
-    protected SynchronizationHandler synchronizationHandler;
-
     @Autowired
     public final void setDatabasesManager(DatabasesManager databasesManager) {
         this.databasesManager = databasesManager;
-    }
-
-    @Autowired
-    public void setSynchronizationHandler(SynchronizationHandler synchronizationHandler) {
-        this.synchronizationHandler = synchronizationHandler;
     }
 }

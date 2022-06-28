@@ -3,13 +3,15 @@ package com.atypon.nosql.metadata;
 import com.atypon.nosql.DatabasesManager;
 import com.atypon.nosql.collection.IndexedDocumentsCollection;
 import com.atypon.nosql.document.Document;
+import com.atypon.nosql.request.DatabaseOperation;
+import com.atypon.nosql.request.DatabaseRequest;
+import com.atypon.nosql.request.Payload;
 import com.atypon.nosql.request.handlers.DatabaseRequestHandler;
 import com.atypon.nosql.security.DatabaseAuthority;
 import com.atypon.nosql.security.DatabaseRole;
 import com.atypon.nosql.security.DefaultRoles;
 import com.atypon.nosql.users.DatabaseUser;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
@@ -22,13 +24,13 @@ public class DefaultMetadataDatabase implements MetadataDatabase {
 
     private final DatabasesManager databasesManager;
 
-    private final DatabaseRequestHandler requestHandler;
+    private final DatabaseRequestHandler operationsHandler;
 
     public DefaultMetadataDatabase(
             DatabasesManager databasesManager,
-            @Qualifier("defaultHandler") DatabaseRequestHandler requestHandler) {
+            @Qualifier("operationsHandler") DatabaseRequestHandler operationsHandler) {
         this.databasesManager = databasesManager;
-        this.requestHandler = requestHandler;
+        this.operationsHandler = operationsHandler;
         databasesManager.createDatabase(METADATA_DATABASE);
         createUsersCollection();
         createRolesCollection();
@@ -68,7 +70,16 @@ public class DefaultMetadataDatabase implements MetadataDatabase {
         for (var role : DefaultRoles.DEFAULT_ROLES) {
             Document roleCriteria = Document.fromMap(Map.of("role", role.role()));
             if (!rolesCollection.contains(roleCriteria)) {
-                rolesCollection.addDocuments(List.of(Document.fromObject(role)));
+                Payload payload = Payload.builder()
+                        .documents(List.of(Document.fromObject(role)))
+                        .build();
+                DatabaseRequest request = DatabaseRequest.builder()
+                        .database(METADATA_DATABASE)
+                        .collection(ROLES_COLLECTION)
+                        .operation(DatabaseOperation.ADD_DOCUMENT)
+                        .payload(payload)
+                        .build();
+                operationsHandler.handle(request);
             }
         }
     }
@@ -78,7 +89,16 @@ public class DefaultMetadataDatabase implements MetadataDatabase {
                 .getCollection(USERS_COLLECTION);
         Document rootAdminCriteria = Document.fromJson("{username: \"admin\"}");
         if (!usersCollection.contains(rootAdminCriteria)) {
-            requestHandler.handle(addRootAdminRequest);
+            Payload payload = Payload.builder()
+                    .documents(List.of(defaultRootAdmin))
+                    .build();
+            DatabaseRequest addRootAdminRequest = DatabaseRequest.builder()
+                    .database(METADATA_DATABASE)
+                    .collection(USERS_COLLECTION)
+                    .operation(DatabaseOperation.ADD_DOCUMENT)
+                    .payload(payload)
+                    .build();
+            operationsHandler.handle(addRootAdminRequest);
         }
     }
 

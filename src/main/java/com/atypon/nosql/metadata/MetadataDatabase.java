@@ -1,9 +1,6 @@
 package com.atypon.nosql.metadata;
 
 import com.atypon.nosql.document.Document;
-import com.atypon.nosql.request.DatabaseOperation;
-import com.atypon.nosql.request.DatabaseRequest;
-import com.atypon.nosql.request.Payload;
 import com.atypon.nosql.security.DefaultRoles;
 import com.atypon.nosql.users.DatabaseUser;
 
@@ -44,17 +41,6 @@ public interface MetadataDatabase {
             "roles", List.of(DefaultRoles.ROOT_ADMIN.role()),
             "authorities", List.of()
     );
-
-    DatabaseRequest addRootAdminRequest = DatabaseRequest.builder()
-            .database(METADATA_DATABASE)
-            .collection(USERS_COLLECTION)
-            .operation(DatabaseOperation.ADD_DOCUMENT)
-            .payload(
-                    Payload.builder()
-                            .documents(List.of(defaultRootAdmin))
-                            .build()
-            )
-            .build();
 
     DatabaseUser findUser(String username);
 }

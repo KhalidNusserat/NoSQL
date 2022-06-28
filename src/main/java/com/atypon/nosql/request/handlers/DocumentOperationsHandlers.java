@@ -22,7 +22,6 @@ public class DocumentOperationsHandlers extends OperationsHandlers {
         List<?> result = databasesManager.getDatabase(request.database())
                 .getCollection(request.collection())
                 .addDocuments(documents);
-        synchronizationHandler.handle(request);
         return DatabaseResponse.builder()
                 .message("Added [" + result.size() + "] documents")
                 .build();
@@ -49,7 +48,6 @@ public class DocumentOperationsHandlers extends OperationsHandlers {
         int removedCount = databasesManager.getDatabase(request.database())
                 .getCollection(request.collection())
                 .removeAllThatMatch(payload.criteria());
-        synchronizationHandler.handle(request);
         return DatabaseResponse.builder()
                 .message(String.format("Removed [%d] documents", removedCount))
                 .build();
@@ -64,7 +62,6 @@ public class DocumentOperationsHandlers extends OperationsHandlers {
                         payload.criteria(),
                         payload.update()
                 ).size();
-        synchronizationHandler.handle(request);
         return DatabaseResponse.builder()
                 .message("Updated [" + updatedCount + "] documents")
                 .build();

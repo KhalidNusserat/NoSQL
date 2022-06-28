@@ -67,8 +67,6 @@ public class SecurityConfiguration {
                 .hasAuthority(DatabaseAuthority.UPDATE_DOCUMENTS)
                 .antMatchers(HttpMethod.DELETE, "/databases/*/collections/*/documents")
                 .hasAuthority(DatabaseAuthority.REMOVE_DOCUMENTS)
-                .antMatchers("/sync")
-                .permitAll()
                 .and().httpBasic().authenticationEntryPoint(entryPoint)
                 .and().authenticationProvider(authenticationProvider())
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

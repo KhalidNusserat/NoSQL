@@ -13,14 +13,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Component("defaultHandler")
-public class DefaultDatabaseOperationsHandler implements DatabaseRequestHandler {
+@Component("operationsHandler")
+public class DefaultOperationsHandler implements DatabaseRequestHandler {
 
     private final Map<DatabaseOperation, DatabaseRequestHandler> operationToHandler = new HashMap<>();
 
     private final List<DatabaseRequestFilter> filters;
 
-    public DefaultDatabaseOperationsHandler(
+    public DefaultOperationsHandler(
             List<OperationsHandlers> operationsHandlersList,
             List<DatabaseRequestFilter> filters) {
         this.filters = filters;
