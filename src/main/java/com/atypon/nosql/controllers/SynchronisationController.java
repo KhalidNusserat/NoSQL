@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SynchronisationController {
 
-    private final DatabaseRequestHandler requestHandler;
+    private final DatabaseRequestHandler operationsHandler;
 
-    public SynchronisationController(@Qualifier("defaultHandler") DatabaseRequestHandler requestHandler) {
-        this.requestHandler = requestHandler;
+    public SynchronisationController(@Qualifier("operationsHandler") DatabaseRequestHandler operationsHandler) {
+        this.operationsHandler = operationsHandler;
     }
 
     @PostMapping("/sync")
     private void synchronise(@RequestBody DatabaseRequest request) {
-        requestHandler.handle(request);
+        operationsHandler.handle(request);
     }
 }

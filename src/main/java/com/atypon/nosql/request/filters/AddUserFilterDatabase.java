@@ -26,7 +26,7 @@ public class AddUserFilterDatabase extends DatabaseRequestFilter {
     }
 
     @Override
-    public DatabaseRequest filter(DatabaseRequest request) {
+    public DatabaseRequest applyOn(DatabaseRequest request) {
         if (request.isWithinScope(requestScope)) {
             return DatabaseRequest.builder()
                     .database(request.database())

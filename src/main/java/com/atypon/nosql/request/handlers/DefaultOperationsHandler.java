@@ -3,7 +3,6 @@ package com.atypon.nosql.request.handlers;
 import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.request.DatabaseRequest;
 import com.atypon.nosql.request.annotations.DatabaseOperationMapping;
-import com.atypon.nosql.request.filters.DatabaseRequestFilter;
 import com.atypon.nosql.response.DatabaseResponse;
 import org.springframework.stereotype.Component;
 
@@ -18,12 +17,7 @@ public class DefaultOperationsHandler implements DatabaseRequestHandler {
 
     private final Map<DatabaseOperation, DatabaseRequestHandler> operationToHandler = new HashMap<>();
 
-    private final List<DatabaseRequestFilter> filters;
-
-    public DefaultOperationsHandler(
-            List<OperationsHandlers> operationsHandlersList,
-            List<DatabaseRequestFilter> filters) {
-        this.filters = filters;
+    public DefaultOperationsHandler(List<OperationsHandlers> operationsHandlersList) {
         operationsHandlersList.forEach(this::registerOperationsHandlers);
     }
 
@@ -47,9 +41,6 @@ public class DefaultOperationsHandler implements DatabaseRequestHandler {
     private DatabaseRequestHandler requestHandlerFromMethod(OperationsHandlers operationsHandlers, Method method) {
         return request -> {
             try {
-                for (DatabaseRequestFilter filter : filters) {
-                    request = filter.filter(request);
-                }
                 return (DatabaseResponse) method.invoke(operationsHandlers, request);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);

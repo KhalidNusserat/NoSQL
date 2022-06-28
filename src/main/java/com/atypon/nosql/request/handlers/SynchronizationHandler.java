@@ -9,7 +9,6 @@ import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -19,8 +18,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Component("defaultHandler")
-public class SynchronizedHandler implements DatabaseRequestHandler {
+@Component("syncHandler")
+public class SynchronizationHandler implements DatabaseRequestHandler {
 
     private final Collection<String> remoteNodes;
 
@@ -30,24 +29,21 @@ public class SynchronizedHandler implements DatabaseRequestHandler {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final DatabaseRequestHandler requestHandler;
-
     private final Set<DatabaseOperation> synchronizedOperations;
 
-    public SynchronizedHandler(
+    public SynchronizationHandler(
             Collection<String> remoteNodes,
-            @Qualifier("operationsHandler") DatabaseRequestHandler requestHandler,
             Set<DatabaseOperation> synchronizedOperations) {
         this.remoteNodes = remoteNodes;
-        this.requestHandler = requestHandler;
         this.synchronizedOperations = synchronizedOperations;
     }
 
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
-        DatabaseResponse response = requestHandler.handle(request);
         synchronizeRequest(request);
-        return response;
+        return DatabaseResponse.builder()
+                .message("Synchronised successfully")
+                .build();
     }
 
     private void synchronizeRequest(DatabaseRequest request) {
@@ -61,19 +57,27 @@ public class SynchronizedHandler implements DatabaseRequestHandler {
     private void synchroniseNode(String nodeUrl, DatabaseRequest request) {
         try {
             String requestJson = objectMapper.writeValueAsString(request);
-            RequestBody requestBody = RequestBody.create(
-                    MediaType.parse("application/json"),
-                    requestJson
-            );
-            Request httpRequest = new Request.Builder()
-                    .url(nodeUrl + "/sync")
-                    .post(requestBody)
-                    .build();
+            RequestBody requestBody = getRequestBody(requestJson);
+            Request httpRequest = getHttpRequest(nodeUrl, requestBody);
             httpClient.newCall(httpRequest).execute();
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private RequestBody getRequestBody(String requestJson) {
+        return RequestBody.create(
+                MediaType.parse("application/json"),
+                requestJson
+        );
+    }
+
+    private Request getHttpRequest(String nodeUrl, RequestBody requestBody) {
+        return new Request.Builder()
+                .url(nodeUrl + "/sync")
+                .post(requestBody)
+                .build();
     }
 }
