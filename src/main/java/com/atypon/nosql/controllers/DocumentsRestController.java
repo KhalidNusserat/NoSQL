@@ -1,5 +1,7 @@
 package com.atypon.nosql.controllers;
 
+import com.atypon.nosql.cache.Cache;
+import com.atypon.nosql.cache.LRUCache;
 import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.request.DatabaseRequest;
 import com.atypon.nosql.request.Payload;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,7 +25,7 @@ public class DocumentsRestController {
 
     private final Random random = new Random();
 
-    private final Map<String, DatabaseResponse> storedResults = new ConcurrentHashMap<>();
+    private final Cache<String, DatabaseResponse> storedResults = new LRUCache<>(10000);
 
     public DocumentsRestController(
             @Qualifier("defaultHandler") DatabaseRequestHandler requestHandler
@@ -54,10 +57,10 @@ public class DocumentsRestController {
             @PathVariable String collection,
             @PathVariable String id
     ) {
-        if (storedResults.containsKey(id)) {
-            DatabaseResponse response = storedResults.get(id);
+        Optional<DatabaseResponse> response = storedResults.get(id);
+        if (response.isPresent()) {
             storedResults.remove(id);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response.get());
         } else {
             return ResponseEntity.badRequest().build();
         }
