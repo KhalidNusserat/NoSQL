@@ -5,14 +5,24 @@ import com.atypon.nosql.request.DatabaseRequest;
 import com.atypon.nosql.request.Payload;
 import com.atypon.nosql.request.handlers.DatabaseRequestHandler;
 import com.atypon.nosql.response.DatabaseResponse;
+import com.google.common.hash.Hashing;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 public class DocumentsRestController {
 
     private final DatabaseRequestHandler requestHandler;
+
+    private final Random random = new Random();
+
+    private final Map<String, DatabaseResponse> storedResults = new ConcurrentHashMap<>();
 
     public DocumentsRestController(
             @Qualifier("defaultHandler") DatabaseRequestHandler requestHandler
@@ -20,8 +30,8 @@ public class DocumentsRestController {
         this.requestHandler = requestHandler;
     }
 
-    @GetMapping("/databases/{database}/collections/{collection}/documents")
-    public ResponseEntity<DatabaseResponse> readDocuments(
+    @PostMapping("/databases/{database}/collections/{collection}/documents/search")
+    public ResponseEntity<String> readDocuments(
             @PathVariable String database,
             @PathVariable String collection,
             @RequestBody Payload payload
@@ -32,7 +42,25 @@ public class DocumentsRestController {
                 .operation(DatabaseOperation.READ_DOCUMENTS)
                 .payload(payload)
                 .build();
-        return ResponseEntity.ok(requestHandler.handle(request));
+        DatabaseResponse response = requestHandler.handle(request);
+        String hash = Long.toString(random.nextLong());
+        storedResults.put(hash, response);
+        return ResponseEntity.ok(hash);
+    }
+
+    @GetMapping("/databases/{database}/collections/{collection}/documents/search/{id}")
+    public ResponseEntity<DatabaseResponse> readDocuments(
+            @PathVariable String database,
+            @PathVariable String collection,
+            @PathVariable String id
+    ) {
+        if (storedResults.containsKey(id)) {
+            DatabaseResponse response = storedResults.get(id);
+            storedResults.remove(id);
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PostMapping("/databases/{database}/collections/{collection}/documents")
