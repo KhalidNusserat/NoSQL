@@ -1,9 +1,11 @@
 package com.atypon.nosql;
 
+import com.atypon.nosql.cache.Cache;
 import com.atypon.nosql.cache.LRUCache;
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentFactory;
 import com.atypon.nosql.index.Index;
+import com.atypon.nosql.response.DatabaseResponse;
 import com.atypon.nosql.storage.BasicStorageEngine;
 import com.atypon.nosql.storage.CachedStorageEngine;
 import com.atypon.nosql.storage.StorageEngine;
@@ -48,5 +50,10 @@ public class DatabaseApplication {
     @Bean
     public List<String> remoteNodes(ApplicationArguments arguments) {
         return arguments.getOptionValues("node");
+    }
+
+    @Bean
+    public Cache<String, DatabaseResponse> storedResultsCache() {
+        return new LRUCache<>(100000);
     }
 }
