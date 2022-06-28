@@ -4,7 +4,6 @@ import com.atypon.nosql.cache.LRUCache;
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentFactory;
 import com.atypon.nosql.index.Index;
-import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.storage.BasicStorageEngine;
 import com.atypon.nosql.storage.CachedStorageEngine;
 import com.atypon.nosql.storage.StorageEngine;
@@ -17,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Set;
 
 @SpringBootApplication
 public class DatabaseApplication {
@@ -50,20 +48,5 @@ public class DatabaseApplication {
     @Bean
     public List<String> remoteNodes(ApplicationArguments arguments) {
         return arguments.getOptionValues("node");
-    }
-
-    @Bean
-    public Set<DatabaseOperation> synchronizedOperations() {
-        return Set.of(
-                DatabaseOperation.ADD_DOCUMENT,
-                DatabaseOperation.REMOVE_DOCUMENTS,
-                DatabaseOperation.UPDATE_DOCUMENTS,
-                DatabaseOperation.CREATE_COLLECTION,
-                DatabaseOperation.REMOVE_COLLECTION,
-                DatabaseOperation.CREATE_INDEX,
-                DatabaseOperation.REMOVE_INDEX,
-                DatabaseOperation.CREATE_DATABASE,
-                DatabaseOperation.REMOVE_DATABASE
-        );
     }
 }

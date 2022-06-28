@@ -13,22 +13,30 @@ public class DefaultHandler implements DatabaseRequestHandler {
 
     private final DatabaseRequestHandler synchronizationHandler;
 
+    private final DatabaseRequestHandler loadBalancingHandler;
+
     private final DatabaseRequestsFiltersManager filtersManager;
 
     public DefaultHandler(
             @Qualifier("operationsHandler") DatabaseRequestHandler operationsHandler,
             @Qualifier("syncHandler") DatabaseRequestHandler synchronizationHandler,
+            @Qualifier("loadBalancingHandler") DatabaseRequestHandler loadBalancingHandler,
             DatabaseRequestsFiltersManager filtersManager) {
         this.operationsHandler = operationsHandler;
         this.synchronizationHandler = synchronizationHandler;
+        this.loadBalancingHandler = loadBalancingHandler;
         this.filtersManager = filtersManager;
     }
 
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
         request = filtersManager.applyOn(request);
-        DatabaseResponse response = operationsHandler.handle(request);
-        synchronizationHandler.handle(request);
-        return response;
+        if (request.operation().mutatesState) {
+            DatabaseResponse response = operationsHandler.handle(request);
+            synchronizationHandler.handle(request);
+            return response;
+        } else {
+            return loadBalancingHandler.handle(request);
+        }
     }
 }

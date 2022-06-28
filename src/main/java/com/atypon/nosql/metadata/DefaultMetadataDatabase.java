@@ -6,6 +6,7 @@ import com.atypon.nosql.document.Document;
 import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.request.DatabaseRequest;
 import com.atypon.nosql.request.Payload;
+import com.atypon.nosql.request.filters.DatabaseRequestsFiltersManager;
 import com.atypon.nosql.request.handlers.DatabaseRequestHandler;
 import com.atypon.nosql.security.DatabaseAuthority;
 import com.atypon.nosql.security.DatabaseRole;
@@ -26,11 +27,15 @@ public class DefaultMetadataDatabase implements MetadataDatabase {
 
     private final DatabaseRequestHandler operationsHandler;
 
+    private final DatabaseRequestsFiltersManager filtersManager;
+
     public DefaultMetadataDatabase(
             DatabasesManager databasesManager,
-            @Qualifier("operationsHandler") DatabaseRequestHandler operationsHandler) {
+            @Qualifier("operationsHandler") DatabaseRequestHandler operationsHandler,
+            DatabaseRequestsFiltersManager filtersManager) {
         this.databasesManager = databasesManager;
         this.operationsHandler = operationsHandler;
+        this.filtersManager = filtersManager;
         databasesManager.createDatabase(METADATA_DATABASE);
         createUsersCollection();
         createRolesCollection();
@@ -73,13 +78,14 @@ public class DefaultMetadataDatabase implements MetadataDatabase {
                 Payload payload = Payload.builder()
                         .documents(List.of(Document.fromObject(role)))
                         .build();
-                DatabaseRequest request = DatabaseRequest.builder()
+                DatabaseRequest createRoleRequest = DatabaseRequest.builder()
                         .database(METADATA_DATABASE)
                         .collection(ROLES_COLLECTION)
                         .operation(DatabaseOperation.ADD_DOCUMENT)
                         .payload(payload)
                         .build();
-                operationsHandler.handle(request);
+                createRoleRequest = filtersManager.applyOn(createRoleRequest);
+                operationsHandler.handle(createRoleRequest);
             }
         }
     }
@@ -98,6 +104,7 @@ public class DefaultMetadataDatabase implements MetadataDatabase {
                     .operation(DatabaseOperation.ADD_DOCUMENT)
                     .payload(payload)
                     .build();
+            addRootAdminRequest = filtersManager.applyOn(addRootAdminRequest);
             operationsHandler.handle(addRootAdminRequest);
         }
     }
