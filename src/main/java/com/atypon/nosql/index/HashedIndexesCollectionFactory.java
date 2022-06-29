@@ -7,13 +7,13 @@ import org.springframework.stereotype.Component;
 import java.nio.file.Path;
 
 @Component
-public class DefaultIndexesCollectionFactory implements IndexesCollectionFactory {
+public class HashedIndexesCollectionFactory implements IndexesCollectionFactory {
 
     private final StorageEngine storageEngine;
 
     private final DocumentFactory documentFactory;
 
-    public DefaultIndexesCollectionFactory(
+    public HashedIndexesCollectionFactory(
             StorageEngine storageEngine,
             DocumentFactory documentFactory) {
         this.storageEngine = storageEngine;
@@ -22,6 +22,6 @@ public class DefaultIndexesCollectionFactory implements IndexesCollectionFactory
 
     @Override
     public IndexesCollection createIndexesCollection(Path indexesDirectory, Path documentsDirectory) {
-        return new DefaultIndexesCollection(indexesDirectory, documentsDirectory, storageEngine, documentFactory);
+        return new HashedIndexesCollection(indexesDirectory, documentsDirectory, storageEngine, documentFactory);
     }
 }

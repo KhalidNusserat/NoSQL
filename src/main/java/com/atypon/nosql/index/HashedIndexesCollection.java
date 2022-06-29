@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultIndexesCollection implements IndexesCollection {
+public class HashedIndexesCollection implements IndexesCollection {
 
     private final Path indexesDirectory;
 
@@ -28,7 +28,7 @@ public class DefaultIndexesCollection implements IndexesCollection {
 
     private final DocumentFactory documentFactory;
 
-    public DefaultIndexesCollection(
+    public HashedIndexesCollection(
             Path indexesDirectory,
             Path documentsDirectory,
             StorageEngine storageEngine,
@@ -57,7 +57,7 @@ public class DefaultIndexesCollection implements IndexesCollection {
             Map<String, Object> indexProperties = optionalIndexProperties.get().toMap();
             boolean unique = (boolean) indexProperties.get("unique");
             Document indexFields = documentFactory.createFromMap((Map<String, Object>) indexProperties.get("fields"));
-            indexes.put(indexFields, new DefaultIndex(indexFields, unique));
+            indexes.put(indexFields, new HashedIndex(indexFields, unique));
         }
     }
 
@@ -73,7 +73,7 @@ public class DefaultIndexesCollection implements IndexesCollection {
         if (indexes.containsKey(indexFields)) {
             throw new IndexAlreadyExistsException(indexFields);
         }
-        DefaultIndex index = new DefaultIndex(indexFields, unique);
+        HashedIndex index = new HashedIndex(indexFields, unique);
         populateIndex(index, documentsDirectory);
         indexes.put(indexFields, index);
         Document indexProperties = documentFactory.createFromMap(

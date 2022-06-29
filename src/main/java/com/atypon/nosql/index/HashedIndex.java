@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DefaultIndex implements Index {
+public class HashedIndex implements Index {
     private final Document fields;
 
     private final ReversedHashMap<String, Document> pathToValues;
@@ -17,7 +17,7 @@ public class DefaultIndex implements Index {
 
     private final Set<Document> addedValues = ConcurrentHashMap.newKeySet();
 
-    public DefaultIndex(Document fields, boolean unique) {
+    public HashedIndex(Document fields, boolean unique) {
         this.fields = fields;
         this.unique = unique;
         pathToValues = new ReversedHashMap<>();
@@ -40,14 +40,14 @@ public class DefaultIndex implements Index {
     }
 
     @Override
-    public Collection<Path> get(Document document) {
-        Document values = document.getValues(fields);
+    public Collection<Path> get(Document criteria) {
+        Document values = criteria.getValues(fields);
         return pathToValues.getFromValue(values).stream().map(Path::of).toList();
     }
 
     @Override
-    public boolean contains(Document document) {
-        return pathToValues.containsValue(document.getValues(fields));
+    public boolean contains(Document criteria) {
+        return pathToValues.containsValue(criteria.getValues(fields));
     }
 
     @Override

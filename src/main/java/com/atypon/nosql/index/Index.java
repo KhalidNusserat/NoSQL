@@ -10,9 +10,9 @@ public interface Index {
 
     void remove(Document document);
 
-    Collection<Path> get(Document matchDocument);
+    Collection<Path> get(Document criteria);
 
-    boolean contains(Document matchDocument);
+    boolean contains(Document criteria);
 
     Document getFields();
 
