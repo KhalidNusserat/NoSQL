@@ -1,18 +1,28 @@
 package com.atypon.nosql.document;
 
-public abstract class DocumentSchema {
+import com.atypon.nosql.document.constraints.Constraints;
 
-    private static DocumentSchemaFactory schemaFactory;
+public class DocumentSchema {
 
-    public static void setSchemaFactory(DocumentSchemaFactory schemaFactory) {
-        DocumentSchema.schemaFactory = schemaFactory;
+    private final Document schemaDocument;
+
+    private final Constraints constraints;
+
+    public DocumentSchema(Document schemaDocument) {
+        ConstraintsExtractor constraintsExtractor = new ConstraintsExtractor();
+        this.constraints = constraintsExtractor.extractFromObject(schemaDocument.object);
+        this.schemaDocument = schemaDocument;
     }
 
     public static DocumentSchema createFromDocument(Document schemaDocument) {
-        return schemaFactory.createFromDocument(schemaDocument);
+        return new DocumentSchema(schemaDocument);
     }
 
-    public abstract boolean validate(Document document);
+    public boolean validate(Document document) {
+        return constraints.validate(document.object);
+    }
 
-    public abstract Document getAsDocument();
+    public Document getAsDocument() {
+        return schemaDocument;
+    }
 }

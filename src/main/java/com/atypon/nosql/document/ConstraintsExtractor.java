@@ -1,7 +1,6 @@
-package com.atypon.nosql.gsondocument;
+package com.atypon.nosql.document;
 
-import com.atypon.nosql.document.InvalidDocumentSchema;
-import com.atypon.nosql.gsondocument.constraints.*;
+import com.atypon.nosql.document.constraints.*;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

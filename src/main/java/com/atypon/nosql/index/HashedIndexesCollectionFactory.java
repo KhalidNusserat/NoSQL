@@ -1,6 +1,5 @@
 package com.atypon.nosql.index;
 
-import com.atypon.nosql.document.DocumentFactory;
 import com.atypon.nosql.storage.StorageEngine;
 import org.springframework.stereotype.Component;
 

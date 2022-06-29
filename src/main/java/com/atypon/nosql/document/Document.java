@@ -1,38 +1,42 @@
 package com.atypon.nosql.document;
 
-import com.atypon.nosql.idgenerator.IdGenerator;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.*;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-@JsonDeserialize(using = DocumentJacksonDeserializer.class)
-@JsonSerialize(using = DocumentJacksonSerializer.class)
-public abstract class Document {
+public class Document {
 
-    protected static IdGenerator idGenerator;
+    private final static Gson gson = new GsonBuilder()
+            .serializeNulls()
+            .create();
 
-    private static DocumentFactory documentFactory;
+    private final static Type mapType = new TypeToken<Map<String, Object>>() {
+    }.getType();
+    final JsonObject object;
 
-    public static void setDocumentFactory(DocumentFactory documentFactory) {
-        Document.documentFactory = documentFactory;
+    private Document(JsonObject object) {
+        this.object = object.deepCopy();
     }
 
-    public static void setIdGenerator(IdGenerator idGenerator) {
-        Document.idGenerator = idGenerator;
-    }
-
-    public static Document fromJson(String json) {
-        return documentFactory.createFromJson(json);
+    public static Document fromJson(String src) {
+        JsonObject object = JsonParser.parseString(src).getAsJsonObject();
+        return new Document(handleNumbers(object).getAsJsonObject());
     }
 
     public static Document fromMap(Map<String, Object> map) {
-        return documentFactory.createFromMap(map);
+        JsonObject jsonObject = gson.toJsonTree(map).getAsJsonObject();
+        return new Document(handleNumbers(jsonObject).getAsJsonObject());
     }
 
     public static Document fromObject(Object object) {
-        return documentFactory.createFromObject(object);
+        JsonObject jsonObject = gson.toJsonTree(object).getAsJsonObject();
+        return new Document(handleNumbers(jsonObject).getAsJsonObject());
     }
 
     public static Document of(Object... elements) {
@@ -47,17 +51,148 @@ public abstract class Document {
         return fromMap(result);
     }
 
-    public abstract boolean subsetOf(Document otherDocument);
+    private static JsonElement handleNumbers(JsonElement element) {
+        if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
+            return new JsonPrimitive(element.getAsBigDecimal());
+        } else if (element.isJsonPrimitive() || element.isJsonNull()) {
+            return element;
+        } else if (element.isJsonArray()) {
+            JsonArray array = new JsonArray();
+            for (JsonElement arrayElement : element.getAsJsonArray()) {
+                array.add(handleNumbers(arrayElement));
+            }
+            return array;
+        } else {
+            JsonObject result = new JsonObject();
+            for (var entry : element.getAsJsonObject().entrySet()) {
+                String field = entry.getKey();
+                JsonElement value = entry.getValue();
+                result.add(field, handleNumbers(value));
+            }
+            return result;
+        }
+    }
 
-    public abstract Document getValues(Document fields);
+    public boolean subsetOf(Document otherDocument) {
+        return firstSubsetOfSecond(object, otherDocument.object);
+    }
 
-    public abstract Document getFields();
+    private boolean firstSubsetOfSecond(JsonElement first, JsonElement second) {
+        if (first.getClass() != second.getClass()) {
+            return false;
+        } else if (first.isJsonArray() || first.isJsonPrimitive() || first.isJsonNull()) {
+            return first.equals(second);
+        }
+        for (var entry : first.getAsJsonObject().entrySet()) {
+            String field = entry.getKey();
+            JsonElement element = entry.getValue();
+            if (!second.getAsJsonObject().has(field)) {
+                return false;
+            } else if (!firstSubsetOfSecond(element, second.getAsJsonObject().get(field))) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-    public abstract Document overrideFields(Document newFieldsValues);
+    public Document getValues(Document fields) {
+        JsonObject matchedObject = valuesToMatch(fields.object, object).getAsJsonObject();
+        return new Document(matchedObject);
+    }
 
-    public abstract Map<String, Object> toMap();
+    private JsonElement valuesToMatch(JsonElement fieldsSource, JsonElement valuesSource) {
+        if (fieldsSource.isJsonArray() || fieldsSource.isJsonPrimitive() || fieldsSource.isJsonNull()) {
+            return valuesSource;
+        } else if (!valuesSource.isJsonObject()) {
+            throw new FieldsDoNotMatchException();
+        }
+        JsonObject result = new JsonObject();
+        for (var entry : fieldsSource.getAsJsonObject().entrySet()) {
+            String field = entry.getKey();
+            JsonElement element = entry.getValue();
+            if (!valuesSource.getAsJsonObject().has(field)) {
+                throw new FieldsDoNotMatchException();
+            }
+            JsonElement matchedFields = valuesToMatch(element, valuesSource.getAsJsonObject().get(field));
+            result.add(field, matchedFields);
+            return result;
+        }
+        throw new IllegalStateException();
+    }
 
-    public abstract <T> T toObject(Class<T> classOfObject);
+    public Document getFields() {
+        return new Document(getCriteriaObject(object));
+    }
 
-    public abstract Document withId();
+    private JsonObject getCriteriaObject(JsonObject object) {
+        JsonObject result = new JsonObject();
+        for (var entry : object.entrySet()) {
+            String field = entry.getKey();
+            JsonElement element = entry.getValue();
+            if (element.isJsonNull() || element.isJsonPrimitive() || element.isJsonArray()) {
+                result.add(field, JsonNull.INSTANCE);
+            } else {
+                result.add(field, getCriteriaObject(element.getAsJsonObject()));
+            }
+        }
+        return result;
+    }
+
+    public Document overrideFields(Document newFieldsValues) {
+        JsonObject newObject = mergeObjects(object, newFieldsValues.object);
+        return new Document(newObject);
+    }
+
+    private JsonObject mergeObjects(JsonObject firstObject, JsonObject secondObject) {
+        JsonObject result = firstObject.deepCopy();
+        for (var entry : secondObject.entrySet()) {
+            String field = entry.getKey();
+            JsonElement element = entry.getValue();
+            if (element.isJsonObject()) {
+                JsonObject object = element.getAsJsonObject();
+                result.add(field, mergeObjects(firstObject.get(field).getAsJsonObject(), object));
+            } else {
+                result.add(field, element);
+            }
+        }
+        return result;
+    }
+
+    public Map<String, Object> toMap() {
+        return gson.fromJson(object, mapType);
+    }
+
+    public <T> T toObject(Class<T> classOfObject) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return mapper.readValue(toString(), classOfObject);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Document withId(String id) {
+        JsonObject objectWithId = object.deepCopy();
+        objectWithId.addProperty("_id", id);
+        return new Document(objectWithId);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Document that = (Document) o;
+        return object.equals(that.object);
+    }
+
+    @Override
+    public int hashCode() {
+        return object.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return object.toString();
+    }
 }

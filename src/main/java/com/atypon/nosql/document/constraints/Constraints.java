@@ -1,4 +1,4 @@
-package com.atypon.nosql.gsondocument.constraints;
+package com.atypon.nosql.document.constraints;
 
 import com.google.gson.JsonElement;
 

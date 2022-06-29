@@ -1,7 +1,6 @@
 package com.atypon.nosql.request;
 
 import lombok.Builder;
-import lombok.With;
 
 public record DatabaseRequest(
         String database,

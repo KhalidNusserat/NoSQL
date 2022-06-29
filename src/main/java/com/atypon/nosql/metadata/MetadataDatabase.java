@@ -5,7 +5,6 @@ import com.atypon.nosql.security.DefaultRoles;
 import com.atypon.nosql.users.DatabaseUser;
 
 import java.util.List;
-import java.util.Map;
 
 public interface MetadataDatabase {
 

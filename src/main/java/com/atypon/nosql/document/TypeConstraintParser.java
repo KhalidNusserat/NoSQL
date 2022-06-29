@@ -1,8 +1,7 @@
-package com.atypon.nosql.gsondocument;
+package com.atypon.nosql.document;
 
-import com.atypon.nosql.document.InvalidDocumentSchema;
-import com.atypon.nosql.gsondocument.constraints.Constraint;
-import com.atypon.nosql.gsondocument.constraints.TypeConstraint;
+import com.atypon.nosql.document.constraints.Constraint;
+import com.atypon.nosql.document.constraints.TypeConstraint;
 
 public class TypeConstraintParser {
     public Constraint extractTypeConstraint(String type) {

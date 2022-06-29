@@ -4,7 +4,6 @@ import com.atypon.nosql.collection.DefaultBasicDocumentsCollection;
 import com.atypon.nosql.collection.IndexAlreadyExistsException;
 import com.atypon.nosql.collection.NoSuchIndexException;
 import com.atypon.nosql.document.Document;
-import com.atypon.nosql.document.DocumentFactory;
 import com.atypon.nosql.storage.StorageEngine;
 import com.atypon.nosql.utils.FileUtils;
 

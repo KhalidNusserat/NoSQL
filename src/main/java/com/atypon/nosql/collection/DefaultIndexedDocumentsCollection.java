@@ -2,14 +2,13 @@ package com.atypon.nosql.collection;
 
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentSchema;
+import com.atypon.nosql.idgenerator.IdGenerator;
 import com.atypon.nosql.index.Index;
 import com.atypon.nosql.index.IndexesCollection;
 import com.atypon.nosql.index.IndexesCollectionFactory;
 import com.atypon.nosql.index.UniqueIndexViolationException;
 import com.atypon.nosql.storage.StorageEngine;
 import com.atypon.nosql.utils.FileUtils;
-import com.google.common.base.Stopwatch;
-import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@Slf4j
 public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollection {
     private final StorageEngine storageEngine;
 
@@ -29,17 +27,16 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
 
     private final DocumentSchema documentSchema;
 
+    private final IdGenerator idGenerator;
+
     public DefaultIndexedDocumentsCollection(
             Path collectionPath,
             StorageEngine storageEngine,
             BasicDocumentsCollectionFactory documentsCollectionFactory,
             IndexesCollectionFactory indexesCollectionFactory,
-            DocumentSchema documentSchema) {
-        log.info(
-                "Initializing an indexed documents collection at {}",
-                collectionPath
-        );
-        Stopwatch stopwatch = Stopwatch.createStarted();
+            DocumentSchema documentSchema,
+            IdGenerator idGenerator) {
+        this.idGenerator = idGenerator;
         Path documentsDirectory = collectionPath.resolve("documents/");
         Path indexesDirectory = collectionPath.resolve("indexes/");
         schemaDirectory = collectionPath.resolve("schema/");
@@ -49,11 +46,6 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
         this.indexes = indexesCollectionFactory.createIndexesCollection(indexesDirectory, documentsDirectory);
         this.documentSchema = documentSchema;
         writeSchema();
-        log.info(
-                "Finished initializing indexed documents collection at {} in {}",
-                collectionPath,
-                stopwatch.elapsed().getSeconds()
-        );
     }
 
     private void writeSchema() {
@@ -124,7 +116,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
         if (!documents.stream().allMatch(documentSchema::validate)) {
             throw new DocumentSchemaViolationException();
         }
-        documents = documents.stream().map(Document::withId).toList();
+        documents = documents.stream().map(document -> document.withId(idGenerator.newId(document))).toList();
         if (!documents.stream().allMatch(indexes::checkUniqueConstraint)) {
             throw new UniqueIndexViolationException();
         }

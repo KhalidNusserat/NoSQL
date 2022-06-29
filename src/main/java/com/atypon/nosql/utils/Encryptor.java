@@ -24,7 +24,8 @@ public class Encryptor {
 
     private static final SecretKey secretKey = getKeyFromPassword();
 
-    private Encryptor() {}
+    private Encryptor() {
+    }
 
     private static IvParameterSpec generateIv() {
         byte[] iv = new byte[16];

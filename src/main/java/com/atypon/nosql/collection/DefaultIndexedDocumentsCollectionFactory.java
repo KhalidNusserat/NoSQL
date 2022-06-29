@@ -2,7 +2,7 @@ package com.atypon.nosql.collection;
 
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentSchema;
-import com.atypon.nosql.document.DocumentSchemaFactory;
+import com.atypon.nosql.idgenerator.IdGenerator;
 import com.atypon.nosql.index.IndexesCollectionFactory;
 import com.atypon.nosql.storage.StorageEngine;
 import org.springframework.stereotype.Component;
@@ -18,29 +18,29 @@ public class DefaultIndexedDocumentsCollectionFactory implements IndexedDocument
 
     private final IndexesCollectionFactory indexesCollectionFactory;
 
-    private final DocumentSchemaFactory schemaFactory;
+    private final IdGenerator idGenerator;
 
     public DefaultIndexedDocumentsCollectionFactory(
             StorageEngine storageEngine,
             BasicDocumentsCollectionFactory documentsCollectionFactory,
             IndexesCollectionFactory indexesCollectionFactory,
-            DocumentSchemaFactory schemaFactory) {
+            IdGenerator idGenerator) {
         this.storageEngine = storageEngine;
         this.documentsCollectionFactory = documentsCollectionFactory;
         this.indexesCollectionFactory = indexesCollectionFactory;
-        this.schemaFactory = schemaFactory;
+        this.idGenerator = idGenerator;
     }
 
     @Override
     public IndexedDocumentsCollection createCollection(Path collectionPath, Document schemaDocument) {
-        DocumentSchema documentSchema = schemaFactory.createFromDocument(schemaDocument);
+        DocumentSchema documentSchema = DocumentSchema.createFromDocument(schemaDocument);
         return new DefaultIndexedDocumentsCollection(
                 collectionPath,
                 storageEngine,
                 documentsCollectionFactory,
                 indexesCollectionFactory,
-                documentSchema
-        );
+                documentSchema,
+                idGenerator);
     }
 
     @Override
@@ -52,13 +52,13 @@ public class DefaultIndexedDocumentsCollectionFactory implements IndexedDocument
         } else if (schemaDocuments.size() > 1) {
             throw new MultipleSchemasException();
         }
-        DocumentSchema documentSchema = schemaFactory.createFromDocument(schemaDocuments.get(0));
+        DocumentSchema documentSchema = DocumentSchema.createFromDocument(schemaDocuments.get(0));
         return new DefaultIndexedDocumentsCollection(
                 collectionPath,
                 storageEngine,
                 documentsCollectionFactory,
                 indexesCollectionFactory,
-                documentSchema
-        );
+                documentSchema,
+                idGenerator);
     }
 }
