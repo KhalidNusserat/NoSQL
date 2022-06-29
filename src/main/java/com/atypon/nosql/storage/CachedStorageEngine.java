@@ -3,7 +3,6 @@ package com.atypon.nosql.storage;
 import com.atypon.nosql.cache.Cache;
 import com.atypon.nosql.collection.Stored;
 import com.atypon.nosql.document.Document;
-import com.atypon.nosql.index.Index;
 import com.atypon.nosql.utils.FileUtils;
 import lombok.Builder;
 
@@ -17,15 +16,9 @@ public class CachedStorageEngine implements StorageEngine {
 
     private final Cache<Path, Document> documentCache;
 
-    private final Cache<Path, Index> indexCache;
-
-    private CachedStorageEngine(
-            StorageEngine storageEngine,
-            Cache<Path, Document> documentCache,
-            Cache<Path, Index> indexCache) {
+    private CachedStorageEngine(StorageEngine storageEngine, Cache<Path, Document> documentCache) {
         this.storageEngine = storageEngine;
         this.documentCache = documentCache;
-        this.indexCache = indexCache;
     }
 
     @Override

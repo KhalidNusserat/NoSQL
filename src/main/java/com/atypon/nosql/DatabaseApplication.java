@@ -36,10 +36,8 @@ public class DatabaseApplication {
     public StorageEngine ioEngine() {
         StorageEngine storageEngine = SecureStorageEngine.secure(new BasicStorageEngine());
         LRUCache<Path, Document> documentCache = new LRUCache<>(100000);
-        LRUCache<Path, Index> indexCache = new LRUCache<>(1000);
         return CachedStorageEngine.builder()
                 .documentCache(documentCache)
-                .indexCache(indexCache)
                 .storageEngine(storageEngine)
                 .build();
     }

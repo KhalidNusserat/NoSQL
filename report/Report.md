@@ -1,63 +1,42 @@
 # NoSQL Database
 
-## Atypon Java / DevOps Training: Winter 2022
+## Atypon Training: Final Project
 
 ### Khalid Nusserat
 
-## Introduction
 
-The goal in this project is to design a non-relation document based database, similar to already existing solutions such
-as Mongodb. There are a number of constraints that must be taken into consideration during the design and the
-implementation:
-
-- Reads are much more frequent that writes.
-
-- The system is composed of a number of nodes, all of which store the exact same data, however one of these nodes acts
-  as a primary node and is the only node allowed to perform writes, and it can also be responsible for additional
-  management tasks. The primary node *cannot* perform reads, since these must be delegated to any of the secondary nodes
-  for performance reasons.
-
-- The other nodes are called secondary nodes, and are responsible for responding to read requests. They receive the
-  latest updated version of the database by synchronising with the primary node, since the primary node at all times
-  contain the latest correct version of the database, since it is the only node that is allowed to perform writes.
-
-- Each document must have a schema that defines the document structure.
-
-- Each document must have a unique ID that is efficiently indexed.
-
-- The database must support creating either a single property index, or
-  *-optionally-* a multi-property index.
-
-- The database should be able to scale horizontally be replicating the secondary nodes and then balancing the requests
-  between these replicas.
-
-- Allows for the database schemas to be exported and imported.
-
-- The system supports three types of users:
-
-    - Default admin: Can access the entire database and manage the roles of all the users.
-    - Admin: Can only access some the things that the default admin can access.
-    - User: Can only do reads and writes on some collections.
-
-- We are also required to create a demo application to demonstrate our final product.
 
 ## Overview of the design
 
-The documents in the database are stored following this hierarchy:
+// DIAGRAM: stored documents structure
 
-![](C:\Users\Khalid\IdeaProjects\NoSQL\report\diagrams\documentsHierarchy.svg)
+As the above diagram shows, the documents *- which represents the data that the user wants to store -* are stored in *collections*, and collections in turn are stored in a *database*, and the system contains a number of databases.
 
-The database is composed of a number of *collections*, each of which contains a varying, non-limited number of *
-documents*, which are JSON files that contain the user stored data.
+Each collection stores the following:
 
-Each collection is only allowed to store documents that adhere to the same *scehma*, which defines the structure of the
-document.
+* The schema: The schema describes the structure that all of the collection's documents must follow.
+* The documents.
+* The indexes: The database allows the users to create an index on a property *- or more than one property, as multi-property indexing is also supported -*, which will make all future requests on that index much faster, since the database now no longer needs to search the entire collection to find the results.
 
-In my design, I opted to abstract away as much as possible the implementation of the document from the rest of the
-system, to avoid making the implementation of document and the rest of the system tightly coupled. This was done by
-introducing the interface
-``Document``, which defines the functionalities that any document class must have, such as the ability to access a
-specific field and such.
+In addition to storing users' databases, the system also stores a database of its own, called the *metadata database*, which as the name suggests stores information about the database. It contains two collections, namely:
 
-The rest of the implementation depends on this interface rather than on a concrete implementation, therefore any future
-changes would not require us to change other parts of the implementation.
+* The users collection: Stores the credentials and the roles of the system users.
+* The roles collection: Stores the authorities granted to each role, for example the `ROOT_ADMIN` role has all authorities. Users can of course create their own custom roles.
+
+It is important to note that all objects, including objects like indexes, users data and roles description and whatsoever, are all stored as ***JSON documents***. There is a great benefit to having all objects in the application be stored in the exact same way, which is that the code used to store documents can now also be used to store other objects of interest, such as indexes and users data.
+
+// DIAGRAM: separation between database and request handling
+
+All of the logic concerning the database and the storage and retrieval of documents is completely decoupled and separated from the logic concerning handling requests, as the diagram above shows.
+
+The requests are sent to the application as `REST` requests. First, Spring authenticate and authorizes requests using Spring Security. Then, using Spring's `RestController`, each endpoint is handled. Each endpoint wraps the entire request in a `DatabaseRequest`, which contains all the required information to process and handle the request, such as the `operation` type, the name of the `database`. The request is then forwarded to the default `DatabaseRequestHandler`. The handlers accept instances of `DatabaseRequest`, and then returns an instance of `DatabaseResponse`, which contains result of the request that is to be sent back to the user.
+
+The default handler first passes the request through a number of filters. Each filter accepts a `DatabaseRequest` and returns `DatabaseRequest` after modifying it according to its own set of rules. The filtered request is then passed to the `DefaultOperationsHandler`, which then in turn forwards the request to a specific operation handler that is responsible for handling one and only one database operation, for example there can be a handler that handles the operation `ADD_DOCUMENT`. Upon receiving the response from the operation handler, the `DefaultOperationsHandler` returns the response back to the default handler, which then returns the response back to the controller and then to the user.
+
+
+
+## In depth look at the design
+
+### Storage
+
+The most low level
