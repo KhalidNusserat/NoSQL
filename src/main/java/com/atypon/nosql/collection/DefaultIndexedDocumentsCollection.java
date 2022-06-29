@@ -99,28 +99,28 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
     }
 
     @Override
-    public Optional<Document> findFirst(Document documentCriteria) {
-        return findDocuments(documentCriteria).stream().findFirst();
+    public Optional<Document> findFirst(Document criteria) {
+        return findAll(criteria).stream().findFirst();
     }
 
     @Override
-    public List<Document> findDocuments(Document documentCriteria) {
-        Document criteriaFields = documentCriteria.getFields();
+    public List<Document> findAll(Document criteria) {
+        Document criteriaFields = criteria.getFields();
         if (indexes.contains(criteriaFields)) {
             Index index = indexes.get(criteriaFields);
-            return index.get(documentCriteria.getValues(index.getFields()))
+            return index.get(criteria.getValues(index.getFields()))
                     .stream()
                     .map(storageEngine::readDocument)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .toList();
         } else {
-            return documentsCollection.findDocuments(documentCriteria);
+            return documentsCollection.findAll(criteria);
         }
     }
 
     @Override
-    public List<Stored<Document>> addDocuments(List<Document> documents) {
+    public List<Stored<Document>> addAll(List<Document> documents) {
         if (!documents.stream().allMatch(documentSchema::validate)) {
             throw new DocumentSchemaViolationException();
         }
@@ -128,7 +128,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
         if (!documents.stream().allMatch(indexes::checkUniqueConstraint)) {
             throw new UniqueIndexViolationException();
         }
-        List<Stored<Document>> addedDocumentPaths = documentsCollection.addDocuments(documents);
+        List<Stored<Document>> addedDocumentPaths = documentsCollection.addAll(documents);
         addedDocumentPaths.forEach(
                 storedDocument -> indexes.addDocument(
                         storedDocument.object(),
@@ -139,8 +139,8 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
     }
 
     @Override
-    public List<Stored<Document>> updateDocuments(Document documentCriteria, Document update) {
-        Document criteriaFields = documentCriteria.getFields();
+    public List<Stored<Document>> updateAll(Document criteria, Document update) {
+        Document criteriaFields = criteria.getFields();
         if (indexes.contains(criteriaFields)) {
             Index index = indexes.get(criteriaFields);
             return index.get(criteriaFields).stream()
@@ -148,7 +148,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
                     .filter(Objects::nonNull)
                     .toList();
         } else {
-            return documentsCollection.updateDocuments(documentCriteria, update);
+            return documentsCollection.updateAll(criteria, update);
         }
     }
 
@@ -164,7 +164,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
     }
 
     @Override
-    public int removeAllThatMatch(Document documentCriteria) {
+    public int removeAll(Document documentCriteria) {
         Document criteriaFields = documentCriteria.getFields();
         if (indexes.contains(criteriaFields)) {
             Collection<Path> paths = indexes.get(criteriaFields).get(documentCriteria);
@@ -174,7 +174,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
             }
             return paths.size();
         } else {
-            return documentsCollection.removeAllThatMatch(documentCriteria);
+            return documentsCollection.removeAll(documentCriteria);
         }
     }
 

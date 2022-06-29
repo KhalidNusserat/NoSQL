@@ -6,7 +6,6 @@ import com.atypon.nosql.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -34,31 +33,31 @@ public class DefaultBasicDocumentsCollection implements DocumentsCollection {
     }
 
     @Override
-    public Optional<Document> findFirst(Document documentCriteria) {
-        return findDocuments(documentCriteria).stream().findFirst();
+    public Optional<Document> findFirst(Document criteria) {
+        return findAll(criteria).stream().findFirst();
     }
 
     @Override
-    public List<Document> findDocuments(Document documentCriteria) {
+    public List<Document> findAll(Document criteria) {
         return FileUtils.traverseDirectory(documentsPath)
                 .filter(FileUtils::isJsonFile)
                 .map(storageEngine::readDocument)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .filter(documentCriteria::subsetOf)
+                .filter(criteria::subsetOf)
                 .toList();
     }
 
     @Override
-    public List<Stored<Document>> addDocuments(List<Document> documents) {
+    public List<Stored<Document>> addAll(List<Document> documents) {
         return documents.stream().map(
                 document -> storageEngine.writeDocument(document, documentsPath)
         ).toList();
     }
 
     @Override
-    public List<Stored<Document>> updateDocuments(Document documentCriteria, Document update) {
-        List<Path> matchingDocumentsPaths = getPathsThatMatch(documentCriteria);
+    public List<Stored<Document>> updateAll(Document criteria, Document update) {
+        List<Path> matchingDocumentsPaths = getPathsThatMatch(criteria);
         return matchingDocumentsPaths.stream()
                 .map(documentPath -> updateDocument(documentPath, update))
                 .filter(Objects::nonNull)
@@ -84,7 +83,7 @@ public class DefaultBasicDocumentsCollection implements DocumentsCollection {
     }
 
     @Override
-    public int removeAllThatMatch(Document documentCriteria) {
+    public int removeAll(Document documentCriteria) {
         List<Path> paths = getPathsThatMatch(documentCriteria);
         paths.forEach(storageEngine::deleteFile);
         return paths.size();

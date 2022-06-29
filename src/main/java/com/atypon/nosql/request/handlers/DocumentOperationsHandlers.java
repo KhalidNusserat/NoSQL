@@ -21,7 +21,7 @@ public class DocumentOperationsHandlers extends OperationsHandlers {
         List<Document> documents = payload.documents().stream().toList();
         List<?> result = databasesManager.getDatabase(request.database())
                 .getCollection(request.collection())
-                .addDocuments(documents);
+                .addAll(documents);
         return DatabaseResponse.builder()
                 .message("Added [" + result.size() + "] documents")
                 .build();
@@ -32,7 +32,7 @@ public class DocumentOperationsHandlers extends OperationsHandlers {
         Payload payload = request.payload();
         Collection<Map<String, Object>> documents = databasesManager.getDatabase(request.database())
                 .getCollection(request.collection())
-                .findDocuments(payload.criteria())
+                .findAll(payload.criteria())
                 .stream()
                 .map(Document::toMap)
                 .toList();
@@ -47,7 +47,7 @@ public class DocumentOperationsHandlers extends OperationsHandlers {
         Payload payload = request.payload();
         int removedCount = databasesManager.getDatabase(request.database())
                 .getCollection(request.collection())
-                .removeAllThatMatch(payload.criteria());
+                .removeAll(payload.criteria());
         return DatabaseResponse.builder()
                 .message(String.format("Removed [%d] documents", removedCount))
                 .build();
@@ -58,7 +58,7 @@ public class DocumentOperationsHandlers extends OperationsHandlers {
         Payload payload = request.payload();
         int updatedCount = databasesManager.getDatabase(request.database())
                 .getCollection(request.collection())
-                .updateDocuments(
+                .updateAll(
                         payload.criteria(),
                         payload.update()
                 ).size();

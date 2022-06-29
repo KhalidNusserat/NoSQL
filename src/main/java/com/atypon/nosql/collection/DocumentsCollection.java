@@ -8,15 +8,15 @@ import java.util.Optional;
 public interface DocumentsCollection {
     boolean contains(Document matchDocument);
 
-    Optional<Document> findFirst(Document documentCriteria);
+    Optional<Document> findFirst(Document criteria);
 
-    List<Document> findDocuments(Document documentCriteria);
+    List<Document> findAll(Document criteria);
 
-    List<Stored<Document>> addDocuments(List<Document> documents);
+    List<Stored<Document>> addAll(List<Document> documents);
 
-    List<Stored<Document>> updateDocuments(Document documentCriteria, Document updatedDocument);
+    List<Stored<Document>> updateAll(Document criteria, Document update);
 
-    int removeAllThatMatch(Document documentCriteria);
+    int removeAll(Document documentCriteria);
 
     List<Document> getAll();
 }

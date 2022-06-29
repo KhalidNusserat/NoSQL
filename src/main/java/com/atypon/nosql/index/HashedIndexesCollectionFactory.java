@@ -11,17 +11,13 @@ public class HashedIndexesCollectionFactory implements IndexesCollectionFactory 
 
     private final StorageEngine storageEngine;
 
-    private final DocumentFactory documentFactory;
-
     public HashedIndexesCollectionFactory(
-            StorageEngine storageEngine,
-            DocumentFactory documentFactory) {
+            StorageEngine storageEngine) {
         this.storageEngine = storageEngine;
-        this.documentFactory = documentFactory;
     }
 
     @Override
     public IndexesCollection createIndexesCollection(Path indexesDirectory, Path documentsDirectory) {
-        return new HashedIndexesCollection(indexesDirectory, documentsDirectory, storageEngine, documentFactory);
+        return new HashedIndexesCollection(indexesDirectory, documentsDirectory, storageEngine);
     }
 }

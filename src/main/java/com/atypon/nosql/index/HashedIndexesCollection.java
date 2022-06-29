@@ -26,17 +26,13 @@ public class HashedIndexesCollection implements IndexesCollection {
 
     private final DefaultBasicDocumentsCollection indexesCollection;
 
-    private final DocumentFactory documentFactory;
-
     public HashedIndexesCollection(
             Path indexesDirectory,
             Path documentsDirectory,
-            StorageEngine storageEngine,
-            DocumentFactory documentFactory) {
+            StorageEngine storageEngine) {
         this.indexesDirectory = indexesDirectory;
         this.documentsDirectory = documentsDirectory;
         this.storageEngine = storageEngine;
-        this.documentFactory = documentFactory;
         indexesCollection = new DefaultBasicDocumentsCollection(indexesDirectory, storageEngine);
         FileUtils.createDirectories(indexesDirectory);
         loadIndexes();
@@ -56,13 +52,13 @@ public class HashedIndexesCollection implements IndexesCollection {
         if (optionalIndexProperties.isPresent()) {
             Map<String, Object> indexProperties = optionalIndexProperties.get().toMap();
             boolean unique = (boolean) indexProperties.get("unique");
-            Document indexFields = documentFactory.createFromMap((Map<String, Object>) indexProperties.get("fields"));
+            Document indexFields = Document.fromMap((Map<String, Object>) indexProperties.get("fields"));
             indexes.put(indexFields, new HashedIndex(indexFields, unique));
         }
     }
 
     private void createIdIndex() {
-        Document idIndexFields = documentFactory.createFromJson("{_id: null}");
+        Document idIndexFields = Document.of("_id", null);
         if (!indexes.containsKey(idIndexFields)) {
             createIndex(idIndexFields, true);
         }
@@ -76,11 +72,11 @@ public class HashedIndexesCollection implements IndexesCollection {
         HashedIndex index = new HashedIndex(indexFields, unique);
         populateIndex(index, documentsDirectory);
         indexes.put(indexFields, index);
-        Document indexProperties = documentFactory.createFromMap(
-                Map.of("unique", unique,
-                        "fields", indexFields.toMap())
+        Document indexProperties = Document.of(
+                "unique", unique,
+                "fields", indexFields.toMap()
         );
-        indexesCollection.addDocuments(List.of(indexProperties));
+        indexesCollection.addAll(List.of(indexProperties));
     }
 
     private void populateIndex(Index index, Path documentsDirectory) {
@@ -97,8 +93,8 @@ public class HashedIndexesCollection implements IndexesCollection {
         if (!indexes.containsKey(indexFields)) {
             throw new NoSuchIndexException(indexFields);
         }
-        Document criteria = documentFactory.createFromMap(Map.of("fields", indexFields.toMap()));
-        indexesCollection.removeAllThatMatch(criteria);
+        Document criteria = Document.of("fields", indexFields.toMap());
+        indexesCollection.removeAll(criteria);
     }
 
     @Override
