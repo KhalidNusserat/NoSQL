@@ -77,7 +77,7 @@ public class DocumentsRestController {
         return ResponseEntity.ok(requestHandler.handle(request));
     }
 
-    @DeleteMapping("/databases/{database}/collections/{collection}/documents")
+    @PostMapping("/databases/{database}/collections/{collection}/documents/deleted-documents")
     public ResponseEntity<DatabaseResponse> removeDocuments(
             @PathVariable String database,
             @PathVariable String collection,
@@ -92,7 +92,7 @@ public class DocumentsRestController {
         return ResponseEntity.ok(requestHandler.handle(request));
     }
 
-    @PutMapping("/databases/{database}/collections/{collection}/documents")
+    @PatchMapping("/databases/{database}/collections/{collection}/documents")
     public ResponseEntity<DatabaseResponse> updateDocuments(
             @PathVariable String database,
             @PathVariable String collection,

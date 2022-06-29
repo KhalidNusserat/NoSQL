@@ -48,7 +48,7 @@ public class IndexesRestController {
         return ResponseEntity.ok(requestHandler.handle(request));
     }
 
-    @DeleteMapping("/databases/{database}/collections/{collection}/indexes")
+    @PostMapping("/databases/{database}/collections/{collection}/indexes/deleted-indexes")
     public ResponseEntity<DatabaseResponse> removeIndex(
             @PathVariable String database,
             @PathVariable String collection,

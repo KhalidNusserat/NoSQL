@@ -36,7 +36,7 @@ public class DatabasesRestController {
         return ResponseEntity.ok(requestHandler.handle(request));
     }
 
-    @DeleteMapping("/databases/{database}")
+    @PostMapping("/databases/{database}/deleted-databases")
     public ResponseEntity<DatabaseResponse> removeDatabase(@PathVariable String database) {
         DatabaseRequest request = DatabaseRequest.builder()
                 .database(database)

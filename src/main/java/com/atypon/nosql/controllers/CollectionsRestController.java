@@ -44,7 +44,7 @@ public class CollectionsRestController {
         return ResponseEntity.ok(requestHandler.handle(request));
     }
 
-    @DeleteMapping("/databases/{database}/collections/{collection}")
+    @PostMapping("/databases/{database}/collections/{collection}/deleted-collections")
     public ResponseEntity<DatabaseResponse> removeCollection(
             @PathVariable String database,
             @PathVariable String collection

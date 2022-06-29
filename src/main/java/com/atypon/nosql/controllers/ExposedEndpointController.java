@@ -17,7 +17,7 @@ public class ExposedEndpointController {
         this.operationsHandler = operationsHandler;
     }
 
-    @PostMapping("/exposedEndpoint")
+    @PostMapping("/exposed-endpoint")
     private DatabaseResponse synchronise(@RequestBody DatabaseRequest request) {
         return operationsHandler.handle(request);
     }
