@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class AddUserFilterDatabase extends DatabaseRequestFilter {
+public class AddUserFilter extends DatabaseRequestFilter {
 
     private final PasswordEncoder passwordEncoder;
 
@@ -21,7 +21,7 @@ public class AddUserFilterDatabase extends DatabaseRequestFilter {
             .collectionRegex(MetadataDatabase.USERS_COLLECTION)
             .build();
 
-    public AddUserFilterDatabase(PasswordEncoder passwordEncoder) {
+    public AddUserFilter(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
 

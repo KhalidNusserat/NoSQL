@@ -43,7 +43,11 @@ public class BasicStorageEngine implements StorageEngine {
 
     @Override
     public void deleteFile(Path path) {
-        deleteService.submit(() -> Files.deleteIfExists(path));
+        deleteService.submit(() -> {
+            uncommittedFiles.add(path);
+            FileUtils.deleteFile(path);
+            uncommittedFiles.remove(path);
+        });
     }
 
     @Override

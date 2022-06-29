@@ -23,16 +23,20 @@ public class FileUtils {
                         if (!path.equals(directory) && Files.isDirectory(path)) {
                             deleteDirectory(path);
                         } else if (Files.isRegularFile(path)) {
-                            try {
-                                Files.delete(path);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
+                            deleteFile(path);
                         }
                     });
             Files.delete(directory);
         } catch (IOException e) {
             throw new RuntimeException();
+        }
+    }
+
+    public static void deleteFile(Path filepath) {
+        try {
+            Files.delete(filepath);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
