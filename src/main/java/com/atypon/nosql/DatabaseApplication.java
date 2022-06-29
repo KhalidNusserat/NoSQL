@@ -6,10 +6,7 @@ import com.atypon.nosql.document.Document;
 import com.atypon.nosql.document.DocumentFactory;
 import com.atypon.nosql.index.Index;
 import com.atypon.nosql.response.DatabaseResponse;
-import com.atypon.nosql.storage.BasicStorageEngine;
-import com.atypon.nosql.storage.CachedStorageEngine;
-import com.atypon.nosql.storage.SecureStorageEngine;
-import com.atypon.nosql.storage.StorageEngine;
+import com.atypon.nosql.storage.*;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -34,12 +31,13 @@ public class DatabaseApplication {
 
     @Bean
     public StorageEngine ioEngine() {
-        StorageEngine storageEngine = new BasicStorageEngine();
         LRUCache<Path, Document> documentCache = new LRUCache<>(100000);
-        return CachedStorageEngine.builder()
-                .documentCache(documentCache)
-                .storageEngine(storageEngine)
-                .build();
+        return StorageEngines.cached(
+                StorageEngines.secured(
+                        StorageEngines.basic()
+                ),
+                documentCache
+        );
     }
 
     @Bean
