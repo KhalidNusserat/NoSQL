@@ -34,7 +34,9 @@ public class CachedStorageEngine implements StorageEngine {
         if (cacheResult.isPresent()) {
             return cacheResult;
         } else {
-            return storageEngine.readDocument(documentPath);
+            Optional<Document> optionalDocument = storageEngine.readDocument(documentPath);
+            optionalDocument.ifPresent(document -> documentCache.put(documentPath, document));
+            return optionalDocument;
         }
     }
 
