@@ -31,7 +31,7 @@ public class DefaultHandler implements DatabaseRequestHandler {
     @Override
     public DatabaseResponse handle(DatabaseRequest request) {
         request = filtersManager.applyOn(request);
-        if (request.operation().mutatesState) {
+        if (request.operation().mutatesState()) {
             DatabaseResponse response = operationsHandler.handle(request);
             synchronizationHandler.handle(request);
             return response;

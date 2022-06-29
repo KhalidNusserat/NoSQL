@@ -15,9 +15,13 @@ public enum DatabaseOperation {
     REMOVE_INDEX(true),
     GET_INDEXES(false);
 
-    public final boolean mutatesState;
+    private final boolean mutatesState;
 
     DatabaseOperation(boolean mutatesState) {
         this.mutatesState = mutatesState;
+    }
+
+    public boolean mutatesState() {
+        return mutatesState;
     }
 }
