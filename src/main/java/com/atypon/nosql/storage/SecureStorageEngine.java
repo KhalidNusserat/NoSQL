@@ -2,10 +2,7 @@ package com.atypon.nosql.storage;
 
 import com.atypon.nosql.collection.Stored;
 import com.atypon.nosql.document.Document;
-import com.atypon.nosql.utils.Encryptor;
 import com.atypon.nosql.utils.FileUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.hash.Hashing;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,15 +28,14 @@ public class SecureStorageEngine implements StorageEngine {
 
     @Override
     public Stored<Document> writeDocument(Document document, Path directory) {
-        Document encryptedDocument = getEncryptedDocument(document);
-        Path storedDocumentPath = storageEngine.writeDocument(encryptedDocument, directory).path();
+        Document secureDocument = getSecureDocument(document);
+        Path storedDocumentPath = storageEngine.writeDocument(secureDocument, directory).path();
         return Stored.createStoredObject(document, storedDocumentPath);
     }
 
-    private Document getEncryptedDocument(Document document) {
+    private Document getSecureDocument(Document document) {
         String verification = getVerification(document);
-        String encryptedDocumentContent = Encryptor.encrypt(document.toString());
-        return Document.of("verification", verification, "content", encryptedDocumentContent);
+        return Document.of("verification", verification, "document", document.toMap());
     }
 
     @NotNull
@@ -61,31 +57,16 @@ public class SecureStorageEngine implements StorageEngine {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Optional<Document> decryptDocument(Document securedDocument) {
         Map<String, Object> map = securedDocument.toMap();
         String expectedVerification = (String) map.get("verification");
-        String encryptedContent = (String) map.get("content");
-        String decryptedContent = Encryptor.decrypt(encryptedContent);
-        if (!isValidJSON(decryptedContent)) {
-            return Optional.empty();
+        Document document = Document.fromMap((Map<String, Object>) map.get("document"));
+        String recievedVerification = getVerification(document);
+        if (expectedVerification.equals(recievedVerification)) {
+            return Optional.of(document);
         } else {
-            Document document = Document.fromJson(decryptedContent);
-            String recievedVerification = getVerification(document);
-            if (expectedVerification.equals(recievedVerification)) {
-                return Optional.of(document);
-            } else {
-                return Optional.empty();
-            }
-        }
-    }
-
-    private boolean isValidJSON(String json) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            mapper.readValue(json, Map.class);
-            return true;
-        } catch (JsonProcessingException e) {
-            return false;
+            return Optional.empty();
         }
     }
 
@@ -96,7 +77,7 @@ public class SecureStorageEngine implements StorageEngine {
 
     @Override
     public Stored<Document> updateDocument(Document updatedDocument, Path documentPath) {
-        Document encryptedDocument = getEncryptedDocument(updatedDocument);
+        Document encryptedDocument = getSecureDocument(updatedDocument);
         Path updatedDocumentPath = storageEngine.updateDocument(encryptedDocument, documentPath).path();
         return Stored.createStoredObject(updatedDocument, updatedDocumentPath);
     }
