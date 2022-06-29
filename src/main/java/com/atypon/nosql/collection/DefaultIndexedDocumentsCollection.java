@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -139,15 +140,27 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
     }
 
     @Override
-    public List<Stored<Document>> updateDocuments(Document documentCriteria, Document updateDocument) {
+    public List<Stored<Document>> updateDocuments(Document documentCriteria, Document update) {
         Document criteriaFields = documentCriteria.getFields();
         if (indexes.contains(criteriaFields)) {
             Index index = indexes.get(criteriaFields);
-            return index.get(criteriaFields)
-                    .stream().map(documentPath -> storageEngine.updateDocument(updateDocument, documentPath))
+            return index.get(criteriaFields).stream()
+                    .map(documentPath -> updateDocument(documentPath, update))
+                    .filter(Objects::nonNull)
                     .toList();
         } else {
-            return documentsCollection.updateDocuments(documentCriteria, updateDocument);
+            return documentsCollection.updateDocuments(documentCriteria, update);
+        }
+    }
+
+    private Stored<Document> updateDocument(Path documentPath, Document update) {
+        Optional<Document> optionalDocument = storageEngine.readDocument(documentPath);
+        if (optionalDocument.isPresent()) {
+            Document document = optionalDocument.get();
+            Document updatedDocument = document.overrideFields(update);
+            return storageEngine.updateDocument(updatedDocument, documentPath);
+        } else {
+            return null;
         }
     }
 

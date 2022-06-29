@@ -2,7 +2,6 @@ package com.atypon.nosql.storage;
 
 import com.atypon.nosql.collection.Stored;
 import com.atypon.nosql.document.Document;
-import com.atypon.nosql.document.DocumentFactory;
 import com.atypon.nosql.utils.FileUtils;
 
 import java.io.BufferedReader;
@@ -22,12 +21,6 @@ public class BasicStorageEngine implements StorageEngine {
     private final Set<Path> uncommittedFiles = new HashSet<>();
 
     private final Random random = new Random();
-
-    private final DocumentFactory documentFactory;
-
-    public BasicStorageEngine(DocumentFactory documentFactory) {
-        this.documentFactory = documentFactory;
-    }
 
     @Override
     public Stored<Document> writeDocument(Document document, Path directoryPath) {
@@ -54,11 +47,9 @@ public class BasicStorageEngine implements StorageEngine {
     }
 
     @Override
-    public Stored<Document> updateDocument(Document update, Path documentPath) {
+    public Stored<Document> updateDocument(Document updatedDocument, Path documentPath) {
         Path updatedDocumentPath = getNewFilePath(documentPath.getParent());
         add(updatedDocumentPath);
-        Document oldDocument = readDocument(documentPath).orElseThrow();
-        Document updatedDocument = oldDocument.overrideFields(update);
         writeDocumentAtPath(updatedDocument, updatedDocumentPath);
         commit(updatedDocumentPath);
         deleteFile(documentPath);
@@ -80,7 +71,7 @@ public class BasicStorageEngine implements StorageEngine {
         }
         try (BufferedReader reader = Files.newBufferedReader(documentPath)) {
             String src = reader.lines().collect(Collectors.joining());
-            return Optional.of(documentFactory.createFromJson(src));
+            return Optional.of(Document.fromJson(src));
         } catch (IOException e) {
             return Optional.empty();
         }

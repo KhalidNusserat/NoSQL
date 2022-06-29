@@ -27,12 +27,8 @@ public interface MetadataDatabase {
     Document ROLE_INDEX = Document.of("role", null);
 
     Document ROLES_SCHEMA = Document.of(
-            "roles", List.of(
-                    Map.of(
-                            "role", "string",
-                            "authorities", List.of("string")
-                    )
-            )
+            "role", "string",
+            "authorities", List.of("string")
     );
 
     Document defaultRootAdmin = Document.of(

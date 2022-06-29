@@ -6,7 +6,9 @@ import com.atypon.nosql.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -55,11 +57,23 @@ public class DefaultBasicDocumentsCollection implements DocumentsCollection {
     }
 
     @Override
-    public List<Stored<Document>> updateDocuments(Document documentCriteria, Document updatedDocument) {
+    public List<Stored<Document>> updateDocuments(Document documentCriteria, Document update) {
         List<Path> matchingDocumentsPaths = getPathsThatMatch(documentCriteria);
         return matchingDocumentsPaths.stream()
-                .map(documentPath -> storageEngine.updateDocument(updatedDocument, documentPath))
+                .map(documentPath -> updateDocument(documentPath, update))
+                .filter(Objects::nonNull)
                 .toList();
+    }
+
+    private Stored<Document> updateDocument(Path documentPath, Document update) {
+        Optional<Document> optionalDocument = storageEngine.readDocument(documentPath);
+        if (optionalDocument.isPresent()) {
+            Document document = optionalDocument.get();
+            Document updatedDocument = document.overrideFields(update);
+            return storageEngine.updateDocument(updatedDocument, documentPath);
+        } else {
+            return null;
+        }
     }
 
     private List<Path> getPathsThatMatch(Document documentCriteria) {
