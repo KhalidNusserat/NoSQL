@@ -47,9 +47,9 @@ public abstract class Document {
         return fromMap(result);
     }
 
-    public abstract boolean subsetOf(Document matchDocument);
+    public abstract boolean subsetOf(Document otherDocument);
 
-    public abstract Document getValuesToMatch(Document otherDocument);
+    public abstract Document getValues(Document fields);
 
     public abstract Document getFields();
 

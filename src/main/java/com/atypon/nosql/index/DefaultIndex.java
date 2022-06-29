@@ -25,7 +25,7 @@ public class DefaultIndex implements Index {
 
     @Override
     public void add(Document document, Path documentPath) {
-        Document values = document.getValuesToMatch(fields);
+        Document values = document.getValues(fields);
         String documentPathString = documentPath.toString();
         pathToValues.put(documentPathString, values);
         if (unique) {
@@ -35,19 +35,19 @@ public class DefaultIndex implements Index {
 
     @Override
     public void remove(Document document) {
-        Document values = document.getValuesToMatch(fields);
+        Document values = document.getValues(fields);
         pathToValues.removeByValues(values);
     }
 
     @Override
     public Collection<Path> get(Document document) {
-        Document values = document.getValuesToMatch(fields);
+        Document values = document.getValues(fields);
         return pathToValues.getFromValue(values).stream().map(Path::of).toList();
     }
 
     @Override
     public boolean contains(Document document) {
-        return pathToValues.containsValue(document.getValuesToMatch(fields));
+        return pathToValues.containsValue(document.getValues(fields));
     }
 
     @Override
@@ -58,7 +58,7 @@ public class DefaultIndex implements Index {
     @Override
     public boolean checkUniqueConstraint(Document document) {
         if (unique) {
-            return !addedValues.contains(document.getValuesToMatch(fields));
+            return !addedValues.contains(document.getValues(fields));
         } else {
             return true;
         }

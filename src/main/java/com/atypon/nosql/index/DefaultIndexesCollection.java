@@ -15,7 +15,10 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultIndexesCollection implements IndexesCollection {
+
     private final Path indexesDirectory;
+
+    private final Path documentsDirectory;
 
     private final Map<Document, Index> indexes = new ConcurrentHashMap<>();
 
@@ -27,9 +30,11 @@ public class DefaultIndexesCollection implements IndexesCollection {
 
     public DefaultIndexesCollection(
             Path indexesDirectory,
+            Path documentsDirectory,
             StorageEngine storageEngine,
             DocumentFactory documentFactory) {
         this.indexesDirectory = indexesDirectory;
+        this.documentsDirectory = documentsDirectory;
         this.storageEngine = storageEngine;
         this.documentFactory = documentFactory;
         indexesCollection = new DefaultBasicDocumentsCollection(indexesDirectory, storageEngine);
@@ -42,6 +47,7 @@ public class DefaultIndexesCollection implements IndexesCollection {
         FileUtils.traverseDirectory(indexesDirectory)
                 .filter(FileUtils::isJsonFile)
                 .forEach(this::loadIndex);
+        populateIndexes();
     }
 
     @SuppressWarnings("unchecked")
@@ -68,12 +74,22 @@ public class DefaultIndexesCollection implements IndexesCollection {
             throw new IndexAlreadyExistsException(indexFields);
         }
         DefaultIndex index = new DefaultIndex(indexFields, unique);
+        populateIndex(index, documentsDirectory);
         indexes.put(indexFields, index);
         Document indexProperties = documentFactory.createFromMap(
                 Map.of("unique", unique,
                         "fields", indexFields.toMap())
         );
         indexesCollection.addDocuments(List.of(indexProperties));
+    }
+
+    private void populateIndex(Index index, Path documentsDirectory) {
+        FileUtils.traverseDirectory(documentsDirectory)
+                .filter(FileUtils::isJsonFile)
+                .forEach(documentPath -> {
+                    Optional<Document> optionalDocument = storageEngine.readDocument(documentPath);
+                    optionalDocument.ifPresent(document -> index.add(document, documentPath));
+                });
     }
 
     @Override
@@ -115,7 +131,7 @@ public class DefaultIndexesCollection implements IndexesCollection {
     }
 
     @Override
-    public void populateIndexes(Path documentsDirectory) {
+    public void populateIndexes() {
         FileUtils.traverseDirectory(documentsDirectory)
                 .filter(FileUtils::isJsonFile)
                 .forEach(this::addDocumentToIndexes);

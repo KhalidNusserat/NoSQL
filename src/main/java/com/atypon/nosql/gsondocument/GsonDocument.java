@@ -14,7 +14,10 @@ import java.util.Objects;
 
 public class GsonDocument extends Document {
 
-    private final static Gson gson = new GsonBuilder().serializeNulls().create();
+    private final static Gson gson = new GsonBuilder()
+            .serializeNulls()
+            .create();
+
     private final static Type mapType = new TypeToken<Map<String, Object>>() {
     }.getType();
     final JsonObject object;
@@ -24,21 +27,45 @@ public class GsonDocument extends Document {
     }
 
     public static GsonDocument fromJson(String src) {
-        return new GsonDocument(gson.fromJson(src, JsonObject.class));
+        JsonObject object = JsonParser.parseString(src).getAsJsonObject();
+        return new GsonDocument(handleNumbers(object).getAsJsonObject());
     }
 
     public static GsonDocument fromMap(Map<String, Object> map) {
-        return new GsonDocument(gson.toJsonTree(map).getAsJsonObject());
+        JsonObject jsonObject = gson.toJsonTree(map).getAsJsonObject();
+        return new GsonDocument(handleNumbers(jsonObject).getAsJsonObject());
     }
 
     public static GsonDocument fromObject(Object object) {
         JsonObject jsonObject = gson.toJsonTree(object).getAsJsonObject();
-        return new GsonDocument(jsonObject);
+        return new GsonDocument(handleNumbers(jsonObject).getAsJsonObject());
+    }
+
+    private static JsonElement handleNumbers(JsonElement element) {
+        if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
+            return new JsonPrimitive(element.getAsBigDecimal());
+        } else if (element.isJsonPrimitive() || element.isJsonNull()) {
+            return element;
+        } else if (element.isJsonArray()) {
+            JsonArray array = new JsonArray();
+            for (JsonElement arrayElement : element.getAsJsonArray()) {
+                array.add(handleNumbers(arrayElement));
+            }
+            return array;
+        } else {
+            JsonObject result = new JsonObject();
+            for (var entry : element.getAsJsonObject().entrySet()) {
+                String field = entry.getKey();
+                JsonElement value = entry.getValue();
+                result.add(field, handleNumbers(value));
+            }
+            return result;
+        }
     }
 
     @Override
-    public boolean subsetOf(Document matchDocument) {
-        return firstSubsetOfSecond(object, ((GsonDocument) matchDocument).object);
+    public boolean subsetOf(Document otherDocument) {
+        return firstSubsetOfSecond(object, ((GsonDocument) otherDocument).object);
     }
 
     private boolean firstSubsetOfSecond(JsonElement first, JsonElement second) {
@@ -60,8 +87,8 @@ public class GsonDocument extends Document {
     }
 
     @Override
-    public Document getValuesToMatch(Document otherDocument) {
-        JsonObject otherDocumentObject = ((GsonDocument) otherDocument).object;
+    public Document getValues(Document fields) {
+        JsonObject otherDocumentObject = ((GsonDocument) fields).object;
         JsonObject matchedObject = valuesToMatch(otherDocumentObject, object).getAsJsonObject();
         return new GsonDocument(matchedObject);
     }
@@ -137,7 +164,7 @@ public class GsonDocument extends Document {
 
     @Override
     public int hashCode() {
-        return Objects.hash(object);
+        return object.hashCode();
     }
 
     @Override

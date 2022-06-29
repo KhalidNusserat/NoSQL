@@ -46,8 +46,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
         FileUtils.createDirectories(documentsDirectory, indexesDirectory, schemaDirectory);
         documentsCollection = documentsCollectionFactory.createCollection(documentsDirectory);
         this.storageEngine = storageEngine;
-        this.indexes = indexesCollectionFactory.createIndexesCollection(indexesDirectory);
-        this.indexes.populateIndexes(documentsDirectory);
+        this.indexes = indexesCollectionFactory.createIndexesCollection(indexesDirectory, documentsDirectory);
         this.documentSchema = documentSchema;
         writeSchema();
         log.info(
@@ -109,7 +108,7 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
         Document criteriaFields = documentCriteria.getFields();
         if (indexes.contains(criteriaFields)) {
             Index index = indexes.get(criteriaFields);
-            return index.get(documentCriteria.getValuesToMatch(index.getFields()))
+            return index.get(documentCriteria.getValues(index.getFields()))
                     .stream()
                     .map(storageEngine::readDocument)
                     .filter(Optional::isPresent)

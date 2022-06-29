@@ -20,7 +20,7 @@ public interface IndexesCollection {
 
     boolean contains(Document indexFields);
 
-    void populateIndexes(Path documentsDirectory);
+    void populateIndexes();
 
     boolean checkUniqueConstraint(Document document);
 }

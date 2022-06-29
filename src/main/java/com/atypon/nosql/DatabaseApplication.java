@@ -34,7 +34,7 @@ public class DatabaseApplication {
 
     @Bean
     public StorageEngine ioEngine() {
-        StorageEngine storageEngine = SecureStorageEngine.secure(new BasicStorageEngine());
+        StorageEngine storageEngine = new BasicStorageEngine();
         LRUCache<Path, Document> documentCache = new LRUCache<>(100000);
         return CachedStorageEngine.builder()
                 .documentCache(documentCache)

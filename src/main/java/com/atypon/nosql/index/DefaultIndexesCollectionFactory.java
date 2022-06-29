@@ -21,7 +21,7 @@ public class DefaultIndexesCollectionFactory implements IndexesCollectionFactory
     }
 
     @Override
-    public IndexesCollection createIndexesCollection(Path indexesDirectory) {
-        return new DefaultIndexesCollection(indexesDirectory, storageEngine, documentFactory);
+    public IndexesCollection createIndexesCollection(Path indexesDirectory, Path documentsDirectory) {
+        return new DefaultIndexesCollection(indexesDirectory, documentsDirectory, storageEngine, documentFactory);
     }
 }
