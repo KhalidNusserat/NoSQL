@@ -3,6 +3,8 @@ package com.atypon.nosql.document;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.*;
 
@@ -10,6 +12,8 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+@JsonSerialize(using = DocumentJacksonSerializer.class)
+@JsonDeserialize(using = DocumentJacksonDeserializer.class)
 public class Document {
 
     private final static Gson gson = new GsonBuilder()
