@@ -1,8 +1,11 @@
 package com.atypon.nosql.document.constraints;
 
 import com.google.gson.JsonElement;
+import lombok.ToString;
 
+@ToString
 public class TypeConstraint implements Constraint {
+
     private final Class<?> type;
 
     public TypeConstraint(Class<?> type) {

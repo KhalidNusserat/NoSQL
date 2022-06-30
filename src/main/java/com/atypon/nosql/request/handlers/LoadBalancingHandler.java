@@ -2,13 +2,15 @@ package com.atypon.nosql.request.handlers;
 
 import com.atypon.nosql.request.DatabaseRequest;
 import com.atypon.nosql.response.DatabaseResponse;
-import com.atypon.nosql.utils.RemoteNodeHttpClient;
+import com.atypon.nosql.utils.RemoteNodeRestClient;
+import lombok.ToString;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Random;
 
+@ToString
 @Component("loadBalancingHandler")
 public class LoadBalancingHandler implements DatabaseRequestHandler {
 
@@ -29,7 +31,7 @@ public class LoadBalancingHandler implements DatabaseRequestHandler {
     public DatabaseResponse handle(DatabaseRequest request) {
         if (remoteNodesUrls != null) {
             String selectedRemoteNodeUrl = remoteNodesUrls.get(random.nextInt(remoteNodesUrls.size()));
-            return RemoteNodeHttpClient.execute(selectedRemoteNodeUrl + "/exposedEndpoint", request);
+            return RemoteNodeRestClient.execute(selectedRemoteNodeUrl + "/exposedEndpoint", request);
         } else {
             return operationsHandler.handle(request);
         }

@@ -1,9 +1,10 @@
 package com.atypon.nosql.storage;
 
-import com.atypon.nosql.collection.Stored;
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.utils.FileUtils;
+import com.atypon.nosql.utils.Stored;
 import com.google.common.hash.Hashing;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.StandardCharsets;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@ToString
 public class SecureStorageEngine implements StorageEngine {
 
     private final static String secret = ".1d{OXmGv0iu?}>:.5'GQRQQm2W0\\>SE";

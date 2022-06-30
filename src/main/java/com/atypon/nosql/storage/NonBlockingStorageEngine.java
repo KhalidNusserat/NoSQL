@@ -1,8 +1,9 @@
 package com.atypon.nosql.storage;
 
-import com.atypon.nosql.collection.Stored;
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.utils.FileUtils;
+import com.atypon.nosql.utils.Stored;
+import lombok.ToString;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -15,7 +16,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class BasicStorageEngine implements StorageEngine {
+@ToString
+public class NonBlockingStorageEngine implements StorageEngine {
+
     private final ExecutorService deleteService = Executors.newCachedThreadPool();
 
     private final Set<Path> uncommittedFiles = new HashSet<>();
@@ -35,18 +38,22 @@ public class BasicStorageEngine implements StorageEngine {
 
     private void writeDocumentAtPath(Document document, Path documentPath) {
         try (BufferedWriter writer = Files.newBufferedWriter(documentPath)) {
+            add(documentPath);
             writer.write(document.toString());
         } catch (IOException e) {
+            FileUtils.deleteFile(documentPath);
             throw new UncheckedIOException(e);
+        } finally {
+            commit(documentPath);
         }
     }
 
     @Override
     public void deleteFile(Path path) {
         deleteService.submit(() -> {
-            uncommittedFiles.add(path);
+            add(path);
             FileUtils.deleteFile(path);
-            uncommittedFiles.remove(path);
+            commit(path);
         });
     }
 

@@ -2,8 +2,11 @@ package com.atypon.nosql.document;
 
 import com.atypon.nosql.document.constraints.Constraint;
 import com.atypon.nosql.document.constraints.TypeConstraint;
+import lombok.ToString;
 
+@ToString
 public class TypeConstraintParser {
+
     public Constraint extractTypeConstraint(String type) {
         return switch (type) {
             case "number" -> TypeConstraint.match(Number.class);

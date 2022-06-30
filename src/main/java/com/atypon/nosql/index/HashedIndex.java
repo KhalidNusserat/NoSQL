@@ -2,13 +2,16 @@ package com.atypon.nosql.index;
 
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.utils.ReversedHashMap;
+import lombok.ToString;
 
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@ToString
 public class HashedIndex implements Index {
+
     private final Document fields;
 
     private final ReversedHashMap<String, Document> pathToValues;

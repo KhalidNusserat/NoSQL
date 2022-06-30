@@ -1,19 +1,17 @@
 package com.atypon.nosql.request;
 
-import com.atypon.nosql.document.Document;
+import lombok.ToString;
 
 import java.util.regex.Pattern;
 
+@ToString
 public class BasicDatabaseRequestScope implements DatabaseRequestScope {
 
     private final Pattern databasePattern;
 
     private final Pattern collectionPattern;
 
-    private final Document target;
-
-    private BasicDatabaseRequestScope(String databaseRegex, String collectionRegex, Document target) {
-        this.target = target;
+    private BasicDatabaseRequestScope(String databaseRegex, String collectionRegex) {
         databasePattern = Pattern.compile(databaseRegex);
         collectionPattern = Pattern.compile(collectionRegex);
     }
@@ -26,12 +24,9 @@ public class BasicDatabaseRequestScope implements DatabaseRequestScope {
     public boolean matches(DatabaseRequest request) {
         String database = request.database() == null ? "" : request.database();
         String collection = request.collection() == null ? "" : request.collection();
-        Document criteria = request.payload() == null || request.payload().criteria() == null ?
-                Document.of() : request.payload().criteria();
         boolean matchesDatabase = databasePattern.matcher(database).matches();
         boolean matchesCollection = collectionPattern.matcher(collection).matches();
-        boolean targetsDocument = target.subsetOf(criteria);
-        return matchesDatabase && matchesCollection && targetsDocument;
+        return matchesDatabase && matchesCollection;
     }
 
     public static class BasicRequestScopeBuilder {
@@ -39,8 +34,6 @@ public class BasicDatabaseRequestScope implements DatabaseRequestScope {
         private String databaseRegex = ".+";
 
         private String collectionRegex = ".+";
-
-        private Document target = Document.of();
 
         public BasicRequestScopeBuilder databaseRegex(String databaseRegex) {
             this.databaseRegex = databaseRegex;
@@ -52,13 +45,8 @@ public class BasicDatabaseRequestScope implements DatabaseRequestScope {
             return this;
         }
 
-        public BasicRequestScopeBuilder target(Document target) {
-            this.target = target;
-            return this;
-        }
-
         public BasicDatabaseRequestScope build() {
-            return new BasicDatabaseRequestScope(databaseRegex, collectionRegex, target);
+            return new BasicDatabaseRequestScope(databaseRegex, collectionRegex);
         }
     }
 }

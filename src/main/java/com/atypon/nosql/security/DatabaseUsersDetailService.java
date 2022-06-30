@@ -1,11 +1,13 @@
-package com.atypon.nosql.users;
+package com.atypon.nosql.security;
 
 import com.atypon.nosql.metadata.MetadataDatabase;
+import lombok.ToString;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+@ToString
 @Service
 public class DatabaseUsersDetailService implements UserDetailsService {
 

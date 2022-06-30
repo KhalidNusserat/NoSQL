@@ -1,7 +1,9 @@
 package com.atypon.nosql.security;
 
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 
+@ToString
 public class DatabaseAuthority implements GrantedAuthority {
 
     public static final String READ_DOCUMENTS = "READ_DOCUMENTS";
@@ -29,10 +31,6 @@ public class DatabaseAuthority implements GrantedAuthority {
     public static final String CREATE_DATABASE = "CREATE_DATABASE";
 
     public static final String REMOVE_DATABASE = "REMOVE_DATABASE";
-
-    public static final String ADD_USER = "CREATE_USER";
-
-    public static final String REMOVE_USER = "REMOVE_USER";
 
     private final String authority;
 

@@ -1,6 +1,6 @@
 package com.atypon.nosql.security;
 
-import com.atypon.nosql.users.DatabaseUsersDetailService;
+import lombok.ToString;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,6 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+@ToString
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {

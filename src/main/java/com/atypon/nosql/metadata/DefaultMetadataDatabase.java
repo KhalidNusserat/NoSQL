@@ -10,8 +10,9 @@ import com.atypon.nosql.request.filters.DatabaseRequestsFiltersManager;
 import com.atypon.nosql.request.handlers.DatabaseRequestHandler;
 import com.atypon.nosql.security.DatabaseAuthority;
 import com.atypon.nosql.security.DatabaseRole;
+import com.atypon.nosql.security.DatabaseUser;
 import com.atypon.nosql.security.DefaultRoles;
-import com.atypon.nosql.users.DatabaseUser;
+import lombok.ToString;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.atypon.nosql.metadata.MetadataDatabaseConstants.*;
+
+@ToString
 @Component
 public class DefaultMetadataDatabase implements MetadataDatabase {
 
@@ -40,7 +44,7 @@ public class DefaultMetadataDatabase implements MetadataDatabase {
         createUsersCollection();
         createRolesCollection();
         createDefaultRoles();
-        createDefaultRootAdmin();
+        createDefaultAdmin();
     }
 
     private void createUsersCollection() {
@@ -90,13 +94,13 @@ public class DefaultMetadataDatabase implements MetadataDatabase {
         }
     }
 
-    private void createDefaultRootAdmin() {
+    private void createDefaultAdmin() {
         IndexedDocumentsCollection usersCollection = databasesManager.getDatabase(METADATA_DATABASE)
                 .getCollection(USERS_COLLECTION);
         Document rootAdminCriteria = Document.fromJson("{username: \"admin\"}");
         if (!usersCollection.contains(rootAdminCriteria)) {
             Payload payload = Payload.builder()
-                    .documents(List.of(defaultRootAdmin))
+                    .documents(List.of(defaultAdmin))
                     .build();
             DatabaseRequest addRootAdminRequest = DatabaseRequest.builder()
                     .database(METADATA_DATABASE)

@@ -5,13 +5,16 @@ import com.atypon.nosql.document.DocumentSchema;
 import com.atypon.nosql.idgenerator.IdGenerator;
 import com.atypon.nosql.index.IndexesCollectionFactory;
 import com.atypon.nosql.storage.StorageEngine;
+import lombok.ToString;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 import java.util.List;
 
+@ToString
 @Component
 public class DefaultIndexedDocumentsCollectionFactory implements IndexedDocumentsCollectionFactory {
+
     private final StorageEngine storageEngine;
 
     private final BasicDocumentsCollectionFactory documentsCollectionFactory;

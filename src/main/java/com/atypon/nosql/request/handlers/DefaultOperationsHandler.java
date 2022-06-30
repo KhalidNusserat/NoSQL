@@ -4,6 +4,7 @@ import com.atypon.nosql.request.DatabaseOperation;
 import com.atypon.nosql.request.DatabaseRequest;
 import com.atypon.nosql.request.annotations.DatabaseOperationMapping;
 import com.atypon.nosql.response.DatabaseResponse;
+import lombok.ToString;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@ToString
 @Component("operationsHandler")
 public class DefaultOperationsHandler implements DatabaseRequestHandler {
 

@@ -7,8 +7,8 @@ import java.nio.file.Path;
 
 public abstract class StorageEngines {
 
-    public static BasicStorageEngine basic() {
-        return new BasicStorageEngine();
+    public static NonBlockingStorageEngine basic() {
+        return new NonBlockingStorageEngine();
     }
 
     public static CachedStorageEngine cached(StorageEngine storageEngine, Cache<Path, Document> documentCache) {

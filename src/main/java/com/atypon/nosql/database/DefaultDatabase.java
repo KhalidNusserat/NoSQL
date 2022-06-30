@@ -4,6 +4,7 @@ import com.atypon.nosql.collection.IndexedDocumentsCollection;
 import com.atypon.nosql.collection.IndexedDocumentsCollectionFactory;
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.utils.FileUtils;
+import lombok.ToString;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -12,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@ToString
 public class DefaultDatabase implements Database {
 
     private final Map<String, IndexedDocumentsCollection> documentsCollections = new ConcurrentHashMap<>();

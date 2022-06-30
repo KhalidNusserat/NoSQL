@@ -6,6 +6,7 @@ import com.atypon.nosql.collection.NoSuchIndexException;
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.storage.StorageEngine;
 import com.atypon.nosql.utils.FileUtils;
+import lombok.ToString;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+@ToString
 public class HashedIndexesCollection implements IndexesCollection {
 
     private final Path indexesDirectory;
@@ -132,12 +134,12 @@ public class HashedIndexesCollection implements IndexesCollection {
                 .forEach(this::addDocumentToIndexes);
     }
 
+    private void addDocumentToIndexes(Path documentPath) {
+        storageEngine.readDocument(documentPath).ifPresent(document -> addDocument(document, documentPath));
+    }
+
     @Override
     public boolean checkUniqueConstraint(Document document) {
         return indexes.values().stream().allMatch(index -> index.checkUniqueConstraint(document));
-    }
-
-    private void addDocumentToIndexes(Path documentPath) {
-        storageEngine.readDocument(documentPath).ifPresent(document -> addDocument(document, documentPath));
     }
 }

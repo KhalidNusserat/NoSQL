@@ -1,6 +1,7 @@
 package com.atypon.nosql.cache;
 
 import com.atypon.nosql.utils.DoublyLinkedList;
+import lombok.ToString;
 
 import java.util.Map;
 import java.util.Optional;
@@ -9,7 +10,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static com.atypon.nosql.utils.DoublyLinkedList.Node;
 
+@ToString
 public class LRUCache<K, V> implements Cache<K, V> {
+
     private final DoublyLinkedList<CacheElement<K, V>> linkedList = new DoublyLinkedList<>();
 
     private final Map<K, Node<CacheElement<K, V>>> map = new ConcurrentHashMap<>();

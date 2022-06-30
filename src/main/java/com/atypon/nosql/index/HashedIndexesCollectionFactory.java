@@ -1,10 +1,12 @@
 package com.atypon.nosql.index;
 
 import com.atypon.nosql.storage.StorageEngine;
+import lombok.ToString;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
 
+@ToString
 @Component
 public class HashedIndexesCollectionFactory implements IndexesCollectionFactory {
 

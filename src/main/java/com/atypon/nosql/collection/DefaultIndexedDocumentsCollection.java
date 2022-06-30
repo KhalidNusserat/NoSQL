@@ -9,6 +9,8 @@ import com.atypon.nosql.index.IndexesCollectionFactory;
 import com.atypon.nosql.index.UniqueIndexViolationException;
 import com.atypon.nosql.storage.StorageEngine;
 import com.atypon.nosql.utils.FileUtils;
+import com.atypon.nosql.utils.Stored;
+import lombok.ToString;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -16,7 +18,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@ToString
 public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollection {
+
     private final StorageEngine storageEngine;
 
     private final DocumentsCollection documentsCollection;

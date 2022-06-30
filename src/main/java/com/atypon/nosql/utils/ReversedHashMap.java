@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ReversedHashMap<K, V> implements ReversedMap<K, V> {
+
     private final Map<V, Set<K>> valueToKeys;
 
     private final Map<K, V> keyToValue;
@@ -79,5 +80,13 @@ public class ReversedHashMap<K, V> implements ReversedMap<K, V> {
     @Override
     public boolean containsValue(V value) {
         return valueToKeys.containsKey(value);
+    }
+
+    @Override
+    public String toString() {
+        return "ReversedHashMap{" +
+                "valueToKeys=" + valueToKeys +
+                ", keyToValue=" + keyToValue +
+                '}';
     }
 }
