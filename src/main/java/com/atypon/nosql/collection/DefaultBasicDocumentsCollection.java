@@ -3,15 +3,17 @@ package com.atypon.nosql.collection;
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.storage.StorageEngine;
 import com.atypon.nosql.utils.FileUtils;
-import lombok.extern.slf4j.Slf4j;
+import com.atypon.nosql.utils.Stored;
+import lombok.ToString;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@Slf4j
+@ToString
 public class DefaultBasicDocumentsCollection implements DocumentsCollection {
+
     private final StorageEngine storageEngine;
 
     private final Path documentsPath;

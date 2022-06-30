@@ -3,6 +3,7 @@ package com.atypon.nosql;
 import com.atypon.nosql.database.Database;
 import com.atypon.nosql.database.DatabaseFactory;
 import com.atypon.nosql.utils.FileUtils;
+import lombok.ToString;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Files;
@@ -11,6 +12,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@ToString
 @Component
 public class DefaultDatabasesManager implements DatabasesManager {
 

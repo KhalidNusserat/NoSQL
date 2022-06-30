@@ -2,8 +2,11 @@ package com.atypon.nosql.document.constraints;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import lombok.ToString;
 
+@ToString
 public class ArrayElementsConstraint implements Constraint {
+
     private final Constraint constraint;
 
     public ArrayElementsConstraint(Constraint constraint) {

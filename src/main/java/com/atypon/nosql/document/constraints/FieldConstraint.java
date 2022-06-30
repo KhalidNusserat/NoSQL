@@ -3,8 +3,11 @@ package com.atypon.nosql.document.constraints;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import lombok.ToString;
 
+@ToString
 public class FieldConstraint implements Constraint {
+
     private final String field;
 
     private final boolean optional;

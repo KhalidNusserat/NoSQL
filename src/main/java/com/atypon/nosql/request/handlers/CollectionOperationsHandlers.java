@@ -5,11 +5,13 @@ import com.atypon.nosql.request.DatabaseRequest;
 import com.atypon.nosql.request.Payload;
 import com.atypon.nosql.request.annotations.DatabaseOperationMapping;
 import com.atypon.nosql.response.DatabaseResponse;
+import lombok.ToString;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.Map;
 
+@ToString
 @Component
 public class CollectionOperationsHandlers extends OperationsHandlers {
 

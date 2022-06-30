@@ -2,10 +2,12 @@ package com.atypon.nosql.idgenerator;
 
 import com.google.common.hash.Hashing;
 import lombok.SneakyThrows;
+import lombok.ToString;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 
+@ToString
 @Component
 public class Sha256IdGenerator implements IdGenerator {
 

@@ -3,9 +3,11 @@ package com.atypon.nosql.request.handlers;
 import com.atypon.nosql.request.DatabaseRequest;
 import com.atypon.nosql.request.filters.DatabaseRequestsFiltersManager;
 import com.atypon.nosql.response.DatabaseResponse;
+import lombok.ToString;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+@ToString
 @Component("defaultHandler")
 public class DefaultHandler implements DatabaseRequestHandler {
 

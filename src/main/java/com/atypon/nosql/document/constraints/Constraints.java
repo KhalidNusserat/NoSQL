@@ -1,11 +1,14 @@
 package com.atypon.nosql.document.constraints;
 
 import com.google.gson.JsonElement;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@ToString
 public class Constraints implements Constraint {
+
     private final List<Constraint> constraints;
 
     public Constraints(List<Constraint> constraints) {

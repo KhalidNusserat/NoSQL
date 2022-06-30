@@ -1,4 +1,4 @@
-package com.atypon.nosql.collection;
+package com.atypon.nosql.utils;
 
 import java.nio.file.Path;
 

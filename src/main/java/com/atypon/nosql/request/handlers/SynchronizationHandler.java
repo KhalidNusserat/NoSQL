@@ -2,13 +2,15 @@ package com.atypon.nosql.request.handlers;
 
 import com.atypon.nosql.request.DatabaseRequest;
 import com.atypon.nosql.response.DatabaseResponse;
-import com.atypon.nosql.utils.RemoteNodeHttpClient;
+import com.atypon.nosql.utils.RemoteNodeRestClient;
+import lombok.ToString;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@ToString
 @Component("syncHandler")
 public class SynchronizationHandler implements DatabaseRequestHandler {
 
@@ -30,7 +32,7 @@ public class SynchronizationHandler implements DatabaseRequestHandler {
 
     private void synchronizeRequest(DatabaseRequest request) {
         for (String nodeUrl : remoteNodes) {
-            executorService.submit(() -> RemoteNodeHttpClient.execute(nodeUrl + "/exposedEndpoint", request));
+            executorService.submit(() -> RemoteNodeRestClient.execute(nodeUrl + "/exposedEndpoint", request));
         }
     }
 }

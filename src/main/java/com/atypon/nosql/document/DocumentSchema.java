@@ -1,7 +1,9 @@
 package com.atypon.nosql.document;
 
 import com.atypon.nosql.document.constraints.Constraints;
+import lombok.ToString;
 
+@ToString
 public class DocumentSchema {
 
     private final Document schemaDocument;

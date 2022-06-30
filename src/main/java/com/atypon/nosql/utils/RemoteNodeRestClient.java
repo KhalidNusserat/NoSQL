@@ -8,19 +8,21 @@ import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
+import lombok.ToString;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-public class RemoteNodeHttpClient {
+@ToString
+public class RemoteNodeRestClient {
 
-    private static final RemoteNodeHttpClient INSTANCE = new RemoteNodeHttpClient();
+    private static final RemoteNodeRestClient INSTANCE = new RemoteNodeRestClient();
 
     final OkHttpClient httpClient = new OkHttpClient();
 
     final ObjectMapper objectMapper = new ObjectMapper();
 
-    private RemoteNodeHttpClient() {
+    private RemoteNodeRestClient() {
     }
 
     public static DatabaseResponse execute(String url, DatabaseRequest request) {

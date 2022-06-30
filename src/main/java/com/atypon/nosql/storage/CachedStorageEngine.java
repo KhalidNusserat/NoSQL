@@ -1,17 +1,20 @@
 package com.atypon.nosql.storage;
 
 import com.atypon.nosql.cache.Cache;
-import com.atypon.nosql.collection.Stored;
 import com.atypon.nosql.document.Document;
 import com.atypon.nosql.utils.FileUtils;
+import com.atypon.nosql.utils.Stored;
 import lombok.Builder;
+import lombok.ToString;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
+@ToString
 @Builder
 public class CachedStorageEngine implements StorageEngine {
+
     private final StorageEngine storageEngine;
 
     private final Cache<Path, Document> documentCache;
