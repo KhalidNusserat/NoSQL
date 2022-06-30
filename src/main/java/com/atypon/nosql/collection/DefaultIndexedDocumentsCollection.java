@@ -40,12 +40,12 @@ public class DefaultIndexedDocumentsCollection implements IndexedDocumentsCollec
             IndexesCollectionFactory indexesCollectionFactory,
             DocumentSchema documentSchema,
             IdGenerator idGenerator) {
-        this.idGenerator = idGenerator;
         Path documentsDirectory = collectionPath.resolve("documents/");
         Path indexesDirectory = collectionPath.resolve("indexes/");
         schemaDirectory = collectionPath.resolve("schema/");
         FileUtils.createDirectories(documentsDirectory, indexesDirectory, schemaDirectory);
         documentsCollection = documentsCollectionFactory.createCollection(documentsDirectory);
+        this.idGenerator = idGenerator;
         this.storageEngine = storageEngine;
         this.indexes = indexesCollectionFactory.createIndexesCollection(indexesDirectory, documentsDirectory);
         this.documentSchema = documentSchema;

@@ -30,12 +30,12 @@ public class SecureStorageEngine implements StorageEngine {
 
     @Override
     public Stored<Document> writeDocument(Document document, Path directory) {
-        Document secureDocument = getSecureDocument(document);
+        Document secureDocument = encryptDocument(document);
         Path storedDocumentPath = storageEngine.writeDocument(secureDocument, directory).path();
         return Stored.createStoredObject(document, storedDocumentPath);
     }
 
-    private Document getSecureDocument(Document document) {
+    private Document encryptDocument(Document document) {
         String verification = getVerification(document);
         return Document.of("verification", verification, "document", document.toMap());
     }
@@ -79,7 +79,7 @@ public class SecureStorageEngine implements StorageEngine {
 
     @Override
     public Stored<Document> updateDocument(Document updatedDocument, Path documentPath) {
-        Document encryptedDocument = getSecureDocument(updatedDocument);
+        Document encryptedDocument = encryptDocument(updatedDocument);
         Path updatedDocumentPath = storageEngine.updateDocument(encryptedDocument, documentPath).path();
         return Stored.createStoredObject(updatedDocument, updatedDocumentPath);
     }
